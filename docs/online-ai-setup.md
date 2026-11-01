@@ -4,13 +4,46 @@ GitHub Pages 只托管网页文件，不能运行本项目的 Node 生成服务�
 
 ## 1. 创建后端
 
-打开 [Render 部署入口](https://render.com/deploy?repo=https://github.com/koklin1143-stack/reborn-h5-studio)，用你的账号登录并连接此 GitHub 仓库。平台读取根目录的 `render.yaml`：
+### 遇到要求银行卡的弹窗
 
-- Node 22，构建命令 `npm ci --omit=dev`，启动命令 `npm start`。
-- 新加坡区域，免费测试实例，健康检查 `/healthz`。
-- 平台分配 HTTPS 地址，项目从 `RENDER_EXTERNAL_URL` 读取自己的域名。
+如果一键部署的 Blueprint 页面显示 `Payment Information Required`，这是 Render 的托管账户/部署要求。仓库的 `render.yaml` 已明确设置 `plan: free`，没有数据库或磁盘等额外服务；仅凭弹窗无法判断是当前部署流程还是账号校验导致，也不能保证改用其他入口后必然免绑卡。
 
-在 Render 的环境变量页面填写 `DASHSCOPE_API_KEY` 和 `BAILIAN_WORKSPACE_ID`。使用已有百炼业务空间的值，不能填入 GitHub 代码、网页或聊天。平台会生成独立的 `AI_ACCESS_CODE`；从环境变量页复制它提供给测试者。
+不准备绑卡时先点 `Cancel`，按以下步骤手动创建服务、明确选择 Free。若仍要求付款信息，先停止在该平台部署，不必为了连接 AI 切换到付费套餐。Render 的免费实例说明不等于对所有账号免绑卡的承诺。
+
+### 手动创建 Web Service
+
+1. 打开 [Render 控制台](https://dashboard.render.com/)，点击 **New + → Web Service**。
+2. 连接 GitHub 仓库 `koklin1143-stack/reborn-h5-studio`，选择 `main` 分支。
+3. 按表填写。**Root Directory 留空**，当前 GitHub 仓库的根目录就是服务目录。
+
+| 设置 | 填写内容 |
+| --- | --- |
+| Name | `reborn-h5-api`（重名时加自己的后缀） |
+| Language / Runtime | `Node` |
+| Region | `Singapore` |
+| Branch | `main` |
+| Root Directory | 留空 |
+| Build Command | `npm ci --omit=dev` |
+| Start Command | `npm start` |
+| Instance Type / Compute Plan | **Free（$0）** |
+| Health Check Path（Advanced） | `/healthz` |
+
+4. 创建前在 **Environment Variables** 中添加以下变量。手动创建不会自动读取 `render.yaml` 的环境变量。
+
+| 变量名 | 值 |
+| --- | --- |
+| `NODE_VERSION` | `22` |
+| `HOST` | `0.0.0.0` |
+| `ALLOWED_ORIGINS` | `https://koklin1143-stack.github.io` |
+| `DASHSCOPE_API_KEY` | 现有百炼 API 密钥 |
+| `BAILIAN_WORKSPACE_ID` | 与该密钥对应的百炼业务空间 ID |
+| `AI_ACCESS_CODE` | 单独生成的随机访问码，16–256 位 ASCII 字符 |
+
+百炼密钥和业务空间值只填在服务端环境变量中，不要发到聊天或提交到 GitHub。`AI_ACCESS_CODE` 是给测试者连接网页时用的独立口令，不能用百炼密钥代替。可在密码管理器中生成至少 32 位的随机字母数字口令并保存。
+
+5. 确认实例显示 Free 后点击 **Deploy Web Service / Create Web Service**，等状态变为 **Live**。平台会分配 `https://…onrender.com` 地址，项目从 `RENDER_EXTERNAL_URL` 自动读取自己的域名，无需手填 `PUBLIC_ORIGIN` 或 `PORT`。
+
+需要自动配置、且账户允许 Blueprint 部署时，也可以使用原 [一键部署入口](https://render.com/deploy?repo=https://github.com/koklin1143-stack/reborn-h5-studio)。它读取 `render.yaml` 并自动生成 `AI_ACCESS_CODE`，之后从服务端环境变量页复制该访问码供受邀测试者使用。
 
 免费实例适合试用，闲置 15 分钟后会休眠，重新访问可能等待约一分钟。百炼模型调用仍按实际用量计费。若要稳定公开运营，应选择持续运行的服务器和用户级限额；当前访问码适合受邀测试。
 
@@ -54,4 +87,4 @@ GitHub Pages 只托管网页文件，不能运行本项目的 Node 生成服务�
 
 目前已验证本地服务及 HTTPS/跨域浏览器模拟。尚需账号创建云服务、填写运行时密钥与真实云端生成验证。
 
-参考：[GitHub Pages 定义](https://docs.github.com/en/pages/getting-started-with-github-pages/what-is-github-pages)、[Render Blueprint](https://render.com/docs/blueprint-spec)、[免费实例限制](https://render.com/docs/free)。
+参考：[GitHub Pages 定义](https://docs.github.com/en/pages/getting-started-with-github-pages/what-is-github-pages)、[Render 首次部署](https://render.com/docs/your-first-deploy)、[Web Service 配置](https://render.com/docs/web-services)、[Render Blueprint](https://render.com/docs/blueprint-spec)、[免费实例限制](https://render.com/docs/free)。部署入口说明于 2026-11-02 根据绑卡弹窗补充，尚未完成该账号的云端部署。
