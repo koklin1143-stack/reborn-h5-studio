@@ -29,7 +29,7 @@
   if(!s.endpoint){local(query);return;}
   const job=new AbortController();s.job=job;syncQuery();el('search-ai-settings').querySelector('[data-action=search-stop]').hidden=false;
   note('正在找物…');const timer=setTimeout(()=>job.abort(),18000);
-  try{const response=await fetch(s.endpoint,{method:'POST',headers:{'Content-Type':'application/json'},signal:job.signal,body:JSON.stringify({query,consent:true})});
+  try{const response=await fetch(s.endpoint,{method:'POST',headers:{'Content-Type':'application/json',...window.AIConnection.headers(s.endpoint)},signal:job.signal,body:JSON.stringify({query,consent:true})});
    if(!response.ok)throw Error();const data=await response.json();
    if(data.mode!=='ai'||!Array.isArray(data.ids)||!data.ids.every(id=>E.get(id)))throw Error();
    if(active!==s||s.job!==job)return;el('search-results').innerHTML=V.searchResults(query,data.ids.map(E.get));note('百炼匹配 · 实物目录');
@@ -45,7 +45,7 @@
   const blob=new Blob(chunks,{type});if(!blob.size||blob.size>2097152){voiceNote('录音为空或过长，请再说一次。');return;}
   const job=new AbortController();s.job=job;const timer=setTimeout(()=>job.abort(),27000);voiceNote('正在转成文字…');
   try{const audio=await base64(blob);if(active!==s||s.job!==job)return;
-   const res=await fetch(s.endpoint+'/transcribe',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({consent:true,audio}),signal:job.signal});
+   const res=await fetch(s.endpoint+'/transcribe',{method:'POST',headers:{'Content-Type':'application/json',...window.AIConnection.headers(s.endpoint)},body:JSON.stringify({consent:true,audio}),signal:job.signal});
    if(!res.ok)throw Error();const data=await res.json();if(active!==s||s.job!==job)return;
    if(!data.text?.trim())throw Error();el('search-query').value=data.text;s.onTranscript(data.text);
    voiceNote('可修改识别文字');await run();
@@ -69,14 +69,15 @@
  async function mount(onTranscript){
   const s={onTranscript,endpoint:null,job:null,capture:null};active=s;syncQuery();
   el('search-query').onkeydown=e=>{if(e.key==='Enter'&&!e.isComposing){e.preventDefault();run();}};
-  const paths=['/api/search'];if(location.origin==='http://127.0.0.1:8879')paths.push('http://127.0.0.1:8882/api/search');
-  for(const path of paths){if(location.protocol==='file:'||active!==s)break;
-   try{const r=await fetch(path+'/status',{cache:'no-store',signal:AbortSignal.timeout(3000)});if(!r.ok)continue;const info=await r.json();if(info.available&&info.provider==='bailian'){s.endpoint=path;break;}}catch{}
+  const paths=window.AIConnection.paths('search');
+  for(const path of paths){if(active!==s)break;
+   try{const r=await fetch(path+'/status',{cache:'no-store',headers:window.AIConnection.headers(path),signal:AbortSignal.timeout(8000)});if(!r.ok)continue;const info=await r.json();if(info.available&&info.accessGranted!==false&&info.provider==='bailian'){s.endpoint=path;break;}}catch{}
   }
   if(active!==s)return;el('search-ai-settings').hidden=!s.endpoint;
   const canRecord=Boolean(s.endpoint&&navigator.mediaDevices?.getUserMedia&&window.MediaRecorder);
   el('voice-toggle').disabled=!canRecord;syncQuery();
-  if(!canRecord)voiceNote(s.endpoint?'此浏览器暂不能录音，可输入查找。':'百炼未连接，可输入查找。');
+  if(!canRecord)voiceNote(s.endpoint?'此浏览器暂不能录音，可输入查找。':'AI 未连接，可输入查找。');
+  if(!s.endpoint)el('search-status').innerHTML=V.btn('连接生成服务','ai-connection','text');
  }
  document.addEventListener('visibilitychange',()=>{if(document.hidden&&active?.capture){disposeVoice();voiceNote('已取消录音');}});
  window.addEventListener('pagehide',cancel);

@@ -33,8 +33,11 @@
  }
  const catalogueIds=E.exhibits.map(item=>item.id);
  const coCreateLabel=o=>`用「${o.photo.short}」共创 ${V.icon('chevron',15)}`;
- let queue=[];
+ let queue=[],phase=0,dragOrigin=0,frame=0,settling=null,stageBox=null,resizeObserver=null;
+ const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+ function stopMotion(){cancelAnimationFrame(frame);frame=0;settling=null;}
  function stage(o){
+  stopMotion();phase=0;stageBox=null;resizeObserver?.disconnect();
   queue=window.FilmQueue.create(catalogueIds,o.id);
   return queue.map(({key,offset,itemId})=>{
    const item=E.get(itemId);
@@ -79,25 +82,62 @@
  };
  V.catalog=mode=>mode==='swap'?oldCatalog(mode):E.items.map(row).join('');
  V.searchResults=(q,results=E.search(q))=>!q.trim()?'':results.length?results.map(row).join(''):`<div class="search-empty"><h3>没有匹配的实物</h3><p>试试器型、颜色或纹样名称。</p>${V.btn('清空搜索','clear-search','secondary')}</div>`;
- function layout(c,drag=0){const el=document.querySelector('.enamel-stage');if(el){el.style.setProperty('--drag',drag+'px');el.classList.toggle('dragging',Boolean(drag));}}
+ // Keep positions on compositor transforms. No layout reads, image replacement or
+ // whole-state persistence takes place inside a drag frame.
+ function measure(){
+  const el=document.querySelector('.enamel-stage');if(!el)return null;
+  stageBox={el,width:el.clientWidth,height:el.clientHeight,
+   cards:queue.map(row=>{const card=el.querySelector('[data-key="'+row.key+'"]');return {key:row.key,card,paper:card.querySelector('.print-paper')};})};
+  return stageBox;
+ }
+ function paint(){
+  const box=stageBox;if(!box?.el.isConnected)return;
+  const xs=[0,.24,.34,.43,.54],ys=[0,.07,.16,.27,.36],scales=[1,.225,.215,.195,.17],alphas=[1,.68,.4,.2,0],turns=[0,10,18,27,32];
+  for(const row of queue){
+   const {card,paper}=box.cards.find(c=>c.key===row.key),d=row.offset+phase,a=Math.min(4,Math.abs(d)),i=Math.min(3,Math.floor(a)),t=a-i;
+   const mix=values=>values[i]+(values[i+1]-values[i])*t;
+   card.style.transform='translate3d(calc(-50% + '+(Math.sign(d)*mix(xs)*box.width)+'px),calc(-50% + '+(mix(ys)*box.height)+'px),0) rotate('+(Math.sign(d)*mix(turns))+'deg) scale('+mix(scales)+')';
+   card.style.opacity=String(mix(alphas));card.style.zIndex=String(Math.round((4-a)*100));
+   paper.style.opacity=String(clamp((a-.15)*1.5,0,1));
+  }
+ }
+ function schedule(){if(!frame)frame=requestAnimationFrame(()=>{frame=0;paint();});}
+ function settle(){
+  stopMotion();stageBox?.el.classList.remove('dragging');
+  if(Math.abs(phase)<.001||matchMedia('(prefers-reduced-motion: reduce)').matches){phase=0;paint();return;}
+  settling={from:phase,start:performance.now()};
+  const tick=now=>{
+   const t=clamp((now-settling.start)/240,0,1);phase=settling.from*Math.pow(1-t,3);paint();
+   if(t<1)frame=requestAnimationFrame(tick);else{phase=0;frame=0;settling=null;}
+  };
+  frame=requestAnimationFrame(tick);
+ }
+ function begin(){
+  stopMotion();measure();dragOrigin=phase;
+ }
+ function layout(c,drag){
+  if(!stageBox?.el.isConnected)measure();if(!stageBox)return;
+  if(drag!==undefined){
+   phase=clamp(dragOrigin+drag/(stageBox.width*.24),-1,1);
+   stageBox.el.classList.add('dragging');schedule();
+  }else settle();
+ }
  function sync(c,step){
   const o=E.featured(c.s),root=document.querySelector('.enamel-home');
   if(!o||!root)return;
   const previous=queue.find(row=>row.offset===0)?.itemId;
   if(previous!==o.id){
    const size=catalogueIds.length,delta=(catalogueIds.indexOf(o.id)-catalogueIds.indexOf(previous)+size)%size;
-   queue=window.FilmQueue.advance(queue,catalogueIds,o.id,step||(delta>size/2?delta-size:delta));
-   const wrapped=[];
+   const shift=step||(delta>size/2?delta-size:delta);
+   stopMotion();phase+=shift;
+   queue=window.FilmQueue.advance(queue,catalogueIds,o.id,shift);
    for(const row of queue){
     const el=root.querySelector(`.enamel-object[data-key="${row.key}"]`),item=E.get(row.itemId);
-    if(Math.abs(row.offset-Number(el.dataset.offset))>3){el.classList.add('wrap-jump');wrapped.push(el);}
-    if(el.dataset.id!==item.id){el.querySelector('.object-photo,svg').outerHTML=art(item,true);el.dataset.id=item.id;}
+    if(el.dataset.id!==item.id){const photo=el.querySelector('img');photo.src=photoUrl(item.photo.key+'-cut');photo.alt=item.name+'，实物摄影';photo.style.setProperty('--optical-x',100*(window.ObjectDisplay?.[item.photo.key]?.opticalX||0)+'%');el.dataset.id=item.id;}
     el.dataset.offset=row.offset;el.dataset.action=row.offset?'explore-select':'detail';
     el.tabIndex=Math.abs(row.offset)>1?-1:0;
     el.setAttribute('aria-label',(row.offset?'选择':'查看')+item.name);
    }
-   // Recycle a film print at the far edge without sending it across the exhibit.
-   if(wrapped.length){wrapped[0].getBoundingClientRect();wrapped.forEach(el=>el.classList.remove('wrap-jump'));}
    const plaque=root.querySelector('.object-plaque');plaque.innerHTML=caption(o);
    if(!matchMedia('(prefers-reduced-motion: reduce)').matches)plaque.animate([{opacity:0,transform:'translateY(5px)'},{opacity:1,transform:'none'}],{duration:260});
    root.querySelector('.enamel-cta .primary').innerHTML=coCreateLabel(o);
@@ -106,6 +146,8 @@
  }
  // Touch and trackpad use native scrolling. A mouse drag pans the same strip.
  function mountRail(){
+  measure();paint();resizeObserver?.disconnect();
+  if(stageBox){resizeObserver=new ResizeObserver(()=>{measure();paint();});resizeObserver.observe(stageBox.el);}
   const rail=document.querySelector('.explore-category-bar .category-scroll');
   if(!rail)return;
   let start=null,moved=false;
@@ -127,6 +169,6 @@
   },true);
   rail.addEventListener('pointerdown',e=>{if(e.pointerType!=='mouse')moved=false;});
  }
- window.FilmHome={layout,sync,mountRail};window.EnamelArt={art,photoUrl};
+ window.FilmHome={layout,sync,mountRail,begin};window.EnamelArt={art,photoUrl};
  for(const o of [...E.illustrations,...E.items])M.heritageObjects.push({id:o.sourceObjectId||'object:'+o.id,legacyItemId:o.legacyItemId,name:o.name,category:'enamel',physicalForm:o.type,assetId:null,provenance:{...o.source,kind:o.photo?'external-photo':'illustration',verified:Boolean(o.photo),collectionNumber:null,manufacturer:null,year:null,photographer:o.photo?.credit||null,license:o.source.license},motifIds:o.photo?o.photo.samples.map(s=>'motif:'+o.photo.key+'-'+s.key):['motif:'+o.legacyItemId]});
 })();

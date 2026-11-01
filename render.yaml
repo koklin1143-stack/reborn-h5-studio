@@ -1,0 +1,23 @@
+# Deploy the existing Node implementation; never put provider credentials in Git.
+services:
+  - type: web
+    name: reborn-h5-api
+    runtime: node
+    plan: free
+    region: singapore
+    buildCommand: npm ci --omit=dev
+    startCommand: npm start
+    healthCheckPath: /healthz
+    envVars:
+      - key: NODE_VERSION
+        value: 22
+      - key: HOST
+        value: 0.0.0.0
+      - key: ALLOWED_ORIGINS
+        value: https://koklin1143-stack.github.io
+      - key: DASHSCOPE_API_KEY
+        sync: false
+      - key: BAILIAN_WORKSPACE_ID
+        sync: false
+      - key: AI_ACCESS_CODE
+        generateValue: true

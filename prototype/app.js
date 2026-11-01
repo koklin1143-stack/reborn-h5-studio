@@ -54,7 +54,7 @@ function restoreFileFocus(id,leaf){
  if(selector)document.querySelector(selector)?.focus({preventScroll:true});
 }
 function selectItem(id){const i=M.getItem(id);state.ui.category=i.category;state.ui.positions[i.category]=i.id;changed(0);}
-function cycle(delta){if(window.Explore&&page==="discover"){window.Explore.cycle(state,delta);changed(0);window.FilmHome.sync(context(),delta);return;}const i=selected(),g=M.items.filter(item=>item.category===i.category);if(g.length<2){window.FilmHome.layout(context());return;}selectItem(g[(g.indexOf(i)+delta+g.length)%g.length].id);window.FilmHome.sync(context(),delta);}
+function cycle(delta){if(window.Explore&&page==="discover"){window.Explore.cycle(state,delta);window.FilmHome.sync(context(),delta);changed(350);return;}const i=selected(),g=M.items.filter(item=>item.category===i.category);if(g.length<2){window.FilmHome.layout(context());return;}selectItem(g[(g.indexOf(i)+delta+g.length)%g.length].id);window.FilmHome.sync(context(),delta);}
 function open(title,body,type='generic'){if(['generation-consent','recolour-consent'].includes(type)&&!history.state?.generationSheet){
   history.pushState({...history.state,generationSheet:type,draftId:draft().id},'',location.href);
  }
@@ -131,6 +131,25 @@ function confirmWorkSelection(){
 function confirmDelete(kind,id){const record=state[kind]?.find(x=>x.id===id);if(!record)return;const title=record.title||record.snapshot?.title||'未命名草稿';open('确认删除'+({drafts:'草稿',works:'作品',submissions:'演示投稿记录'}[kind]),`<p>将从此浏览器删除“${V.esc(title)}”。此操作无法撤销。</p><p>其他草稿、作品与成长记录会保留。${kind==='works'&&state.submissions.some(x=>x.workId===id)?'已留存的演示投稿快照也会保留。':''}</p>${V.btn('确认删除','confirm-delete','danger full',`data-kind="${kind}" data-id="${id}"`)}${V.btn('保留，返回','close','secondary full')}`,'delete');}
 document.addEventListener('change',e=>{if(page==='gallery'&&e.target.matches('.gallery-form'))handle('gallery-category',{dataset:{id:e.target.value}});});
 async function handle(action,el){if(busy&&action!=='close')return;const id=el?.dataset.id;
+if(action==='ai-connection'){
+ const address=window.AIConnection.selected()||(/^https?:$/.test(location.protocol)&&!location.hostname.endsWith('.github.io')?location.origin:'');
+ open('连接生成服务',`<form id="ai-connect-form"><p>填写管理员提供的服务地址和访问码。访问码只用于本次浏览器会话。</p><label class="field">服务地址<input name="endpoint" type="url" required placeholder="https://…" value="${V.esc(address)}" autocomplete="url"></label><label class="field">访问码<input name="access" type="password" autocomplete="off" maxlength="256" placeholder="管理员提供的访问码"></label><p class="muted">这里不填写百炼 API Key。</p><button class="btn primary full" type="submit">连接</button><p id="ai-connect-note" role="status"></p></form>`,'ai-connection');
+ const form=$('#ai-connect-form');
+ form.onsubmit=async e=>{
+  e.preventDefault();const button=form.querySelector('button'),note=form.querySelector('#ai-connect-note');
+  button.disabled=true;note.textContent='正在连接，首次唤醒服务可能需要约一分钟…';
+  try{
+   await window.AIConnection.configure(form.elements.endpoint.value.trim(),form.elements.access.value.trim());
+   if(!form.isConnected||!$('#dialog').open)return;
+   if(!await window.BailianPatterns.connect())throw Error('服务规则版本不一致或暂不可用，请更新后端后重试。');
+   if(!form.isConnected||!$('#dialog').open)return;
+   close();render();toast('AI 服务已连接');
+  }catch(e){if(form.isConnected)note.textContent=e.name==='TimeoutError'?'服务启动较慢，请稍后重试。':e.message==='Failed to fetch'?'连接失败，请检查服务地址与网络。':e.message;}
+  finally{if(form.isConnected)button.disabled=false;}
+ };
+ form.oninput=()=>{form.querySelector('#ai-connect-note').textContent='';};
+ return;
+}
 if(action.startsWith('wb-'))return window.Workbench.handle(action,el);
 if(window.Inspiration&&action.startsWith('in-'))return window.Inspiration.handle(action,el);
 if(window.EditorObject.handle(action,el))return;
@@ -321,9 +340,9 @@ document.addEventListener('change',e=>{
  syncWorkSelection();
 });
 document.addEventListener('change',e=>{if(e.target.dataset.field){M.edit(draft(),{[e.target.dataset.field]:Number(e.target.value)});rangeStart=null;changed();render();}});
-document.addEventListener('pointerdown',e=>{if(busy||!loaded)return;if(e.target.closest('#work-preview')){drag={startX:e.clientX,startY:e.clientY,draft:M.snapshot(draft()),target:e.target.closest('#work-preview'),next:null};drag.target.setPointerCapture(e.pointerId);e.preventDefault();}else if(e.target.closest('#object-stage')){swipe={x:e.clientX,y:e.clientY,time:Date.now(),id:e.pointerId,target:e.target.closest('#object-stage')};}});
-document.addEventListener('pointermove',e=>{if(swipe&&page==='discover'){const dx=e.clientX-swipe.x,dy=e.clientY-swipe.y;if(Math.abs(dx)>6&&Math.abs(dx)>Math.abs(dy)){if(!swipe.target.hasPointerCapture(swipe.id))swipe.target.setPointerCapture(swipe.id);window.FilmHome.layout(context(),Math.max(-160,Math.min(160,dx)));}}if(!drag)return;const rect=drag.target.getBoundingClientRect(),factor=340/Math.max(200,rect.width);drag.next={...draft(),x:Math.max(-60,Math.min(60,Math.round(drag.draft.x+(e.clientX-drag.startX)*factor))),y:Math.max(-60,Math.min(60,Math.round(drag.draft.y+(e.clientY-drag.startY)*factor)))};previewUpdate(drag.next);});
-document.addEventListener('pointerup',e=>{if(drag){if(drag.next){M.edit(draft(),{x:drag.next.x,y:drag.next.y});changed();}drag=null;render();}if(swipe){const dx=e.clientX-swipe.x,dy=e.clientY-swipe.y;if((Math.abs(dx)>35||(Math.abs(dx)>16&&Math.abs(dx)/Math.max(1,Date.now()-swipe.time)>.35))&&Math.abs(dx)>Math.abs(dy)*1.4){suppressClick=true;cycle(dx<0?1:-1);setTimeout(()=>suppressClick=false,250);}else window.FilmHome.layout(context());swipe=null;}});
+document.addEventListener('pointerdown',e=>{if(busy||!loaded)return;if(swipe&&e.pointerId!==swipe.id){swipe=null;window.FilmHome.layout(context());return;}if(e.isPrimary===false||e.button>0)return;if(e.target.closest('#work-preview')){drag={startX:e.clientX,startY:e.clientY,draft:M.snapshot(draft()),target:e.target.closest('#work-preview'),next:null};drag.target.setPointerCapture(e.pointerId);e.preventDefault();}else if(e.target.closest('#object-stage')){swipe={x:e.clientX,y:e.clientY,time:Date.now(),id:e.pointerId,target:e.target.closest('#object-stage'),axis:null,moved:false};window.FilmHome.begin?.();}});
+document.addEventListener('pointermove',e=>{if(swipe&&page==='discover'&&e.pointerId===swipe.id){const dx=e.clientX-swipe.x,dy=e.clientY-swipe.y;if(!swipe.axis&&Math.max(Math.abs(dx),Math.abs(dy))>6)swipe.axis=Math.abs(dx)>Math.abs(dy)*1.2?'x':'y';if(swipe.axis==='x'){swipe.moved=true;if(!swipe.target.hasPointerCapture(swipe.id))swipe.target.setPointerCapture(swipe.id);window.FilmHome.layout(context(),dx);}}if(!drag)return;const rect=drag.target.getBoundingClientRect(),factor=340/Math.max(200,rect.width);drag.next={...draft(),x:Math.max(-60,Math.min(60,Math.round(drag.draft.x+(e.clientX-drag.startX)*factor))),y:Math.max(-60,Math.min(60,Math.round(drag.draft.y+(e.clientY-drag.startY)*factor)))};previewUpdate(drag.next);});
+document.addEventListener('pointerup',e=>{if(drag){if(drag.next){M.edit(draft(),{x:drag.next.x,y:drag.next.y});changed();}drag=null;render();}if(swipe&&e.pointerId===swipe.id){if(swipe.moved){suppressClick=true;setTimeout(()=>suppressClick=false,250);}const dx=e.clientX-swipe.x,dy=e.clientY-swipe.y;if(swipe.axis==='x'&&(Math.abs(dx)>35||(Math.abs(dx)>16&&Math.abs(dx)/Math.max(1,Date.now()-swipe.time)>.35))&&Math.abs(dx)>Math.abs(dy)*1.4){cycle(dx<0?1:-1);}else window.FilmHome.layout(context());swipe=null;}});
 document.addEventListener('pointercancel',()=>{drag=null;swipe=null;if(loaded&&page==='editor'&&!window.EditorObject.enabled(draft()))render();if(loaded&&page==='discover')window.FilmHome.layout(context());});
 $('#dialog').addEventListener('cancel',e=>{window.Inspiration?.cancelUpload();if(busy){e.preventDefault();return;}if(history.state?.generationSheet===modal){e.preventDefault();close();return;}modal='';window.SearchAssistant?.cancel();});
 async function compress(file){if(!['image/jpeg','image/png','image/webp'].includes(file.type))throw Error('请选择 JPG、PNG 或 WebP 图片。');if(file.size>12*1024*1024)throw Error('图片超过 12 MB，请换一张较小的图片。');const url=URL.createObjectURL(file);try{const image=new Image();image.src=url;try{await image.decode();}catch{throw Error('这张图片无法解码，可能已损坏。请重新选择 JPG、PNG 或 WebP。');}if(!image.width||!image.height)throw Error('无法读取这张图片，请重新选择。');const ratio=Math.min(1,1400/Math.max(image.width,image.height));const canvas=document.createElement('canvas');canvas.width=Math.round(image.width*ratio);canvas.height=Math.round(image.height*ratio);canvas.getContext('2d').drawImage(image,0,0,canvas.width,canvas.height);return await new Promise((resolve,reject)=>canvas.toBlob(b=>b?resolve(b):reject(Error('无法处理图片，请重试。')),'image/png'));}finally{URL.revokeObjectURL(url);}}

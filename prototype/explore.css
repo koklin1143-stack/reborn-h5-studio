@@ -17,20 +17,17 @@
 }
 .enamel-object {
   --across:0%;--drop:0%;--turn:0deg;--zoom:1;--alpha:1;--blur:0px;
-  position:absolute;top:calc(50% + var(--drop));left:calc(50% + var(--across));
+  position:absolute;top:50%;left:50%;
   width:min(60cqw,98cqh);aspect-ratio:1;margin:0;padding:0;border:0;background:transparent;
-  transform:translate(calc(-50% + var(--drag,0px)*.35),-50%) rotate(var(--turn)) scale(var(--zoom));
-  filter:blur(var(--blur));opacity:var(--alpha);z-index:2;
-  transition:left .52s var(--ease),top .52s var(--ease),transform .52s var(--ease),opacity .4s,filter .4s;
+  transform:translate3d(-50%,-50%,0);opacity:var(--alpha);z-index:2;
+  will-change:transform,opacity;contain:layout style;user-select:none;-webkit-user-select:none;
 }
 .enamel-object svg {position:relative;display:block;width:100%;height:100%}
-.print-paper {position:absolute;inset:0;background:linear-gradient(152deg,#acacac,#e5e5e5 74%,#cdcdcd);border:8px solid white;box-shadow:0 3px 9px #0004;transition:opacity .32s}
+.print-paper {position:absolute;inset:0;background:linear-gradient(152deg,#acacac,#e5e5e5 74%,#cdcdcd);border:8px solid white;box-shadow:0 3px 9px #0004;will-change:opacity}
 .enamel-object[data-offset="0"] {z-index:4;pointer-events:none;filter:none}
 .enamel-object[data-offset="0"]::after {content:'';position:absolute;inset:14%;pointer-events:auto}
 .enamel-object[data-offset="0"] .print-paper {opacity:0}
-.enamel-object:not([data-offset="0"]) :is(.object-photo,svg) {filter:grayscale(1);opacity:.95}
-.enamel-object .object-photo{position:relative;display:block;width:100%;height:100%;box-sizing:border-box;object-fit:contain;padding:4%}
-.enamel-object[data-offset="0"] .object-photo{padding:1%;translate:var(--optical-x,0%) 0}
+.enamel-object .object-photo{position:relative;display:block;width:100%;height:100%;box-sizing:border-box;object-fit:contain;padding:1%;translate:var(--optical-x,0%) 0;pointer-events:none}
 .catalog-row>img.object-photo{width:70px;height:72px;object-fit:contain;flex:none;background:var(--ui-bg);border-radius:3px}
 .photo-detail figure{margin:14px 0 20px}
 .photo-detail figure img{display:block;width:100%;height:clamp(220px,36dvh,345px);object-fit:contain;background:var(--ui-bg)}

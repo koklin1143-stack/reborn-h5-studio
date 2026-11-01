@@ -1,24 +1,28 @@
 const http=require('node:http'),fs=require('node:fs'),path=require('node:path'),AI=require('./search-service.cjs');
 const root=path.resolve(__dirname,'..');
-const {createHandler}=require('./bailian-image.cjs');
+const {createHandler,configured}=require('./bailian-image.cjs');
+const {createAccess}=require('./server-access.cjs');
 const mime={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.png':'image/png','.jpg':'image/jpeg','.webp':'image/webp','.svg':'image/svg+xml','.json':'application/json'};
-function createServer(patternOptions){let active=0,last=0;const pattern=createHandler(patternOptions);return http.createServer(async(req,res)=>{
- const json=(code,data)=>{if(!res.destroyed){res.writeHead(code,{'Content-Type':'application/json','Cache-Control':'no-store'});res.end(JSON.stringify(data));}};
+function createServer(patternOptions){let active=0,last=0;const env=patternOptions?.env||process.env,access=createAccess(env),pattern=createHandler(patternOptions);return http.createServer(async(req,res)=>{
+ const json=(code,data)=>{if(!res.destroyed){res.writeHead(code,{'Content-Type':'application/json','Cache-Control':'no-store'});res.end(JSON.stringify(req.url?.split('?')[0].endsWith('/status')?{...data,...access.description(req)}:data));}};
  let pathname;try{pathname=decodeURIComponent(new URL(req.url,'http://localhost').pathname);}catch{return json(400,{error:'INVALID_URL'});}
- const allowedHosts=new Set(['127.0.0.1','localhost']);let host;try{host=new URL('http://'+req.headers.host);}catch{return json(403,{});}
- if(!allowedHosts.has(host.hostname))return json(403,{});
+ let host;try{host=new URL('http://'+req.headers.host);}catch{return json(403,{});}
+ if(!access.hostAllowed(host))return json(403,{});
+ if(pathname==='/healthz'&&req.method==='GET')return json(200,{ok:true});
  if(pathname.startsWith('/api/')){
   // Keep existing drafts on :8879 when the image service runs beside a static preview.
   const patternRoute=pathname==='/api/pattern'||pathname==='/api/pattern/status';
  const searchRoute=['/api/search','/api/search/status','/api/search/transcribe'].includes(pathname);
  const sibling=(patternRoute||searchRoute)&&['127.0.0.1:8881','127.0.0.1:8882'].includes(host.host)&&req.headers.origin==='http://127.0.0.1:8879';
-  if(req.headers.origin&&req.headers.origin!==host.origin&&!sibling)return json(403,{error:'ORIGIN_REJECTED'});
-  if(sibling){
+  if(!access.originAllowed(req.headers.origin,host,sibling))return json(403,{error:'ORIGIN_REJECTED'});
+  if(req.headers.origin){
    res.setHeader('Access-Control-Allow-Origin',req.headers.origin);res.setHeader('Vary','Origin');
    if(req.method==='OPTIONS'){
-    res.writeHead(204,{'Access-Control-Allow-Methods':'GET, POST','Access-Control-Allow-Headers':'Content-Type'});res.end();return;
+    res.writeHead(204,{'Access-Control-Allow-Methods':'GET, POST','Access-Control-Allow-Headers':'Content-Type, Authorization','Access-Control-Max-Age':'600'});res.end();return;
    }
   }
+  if((req.method==='POST'||pathname==='/api/access')&&!access.granted(req))return json(401,{error:'ACCESS_CODE_REQUIRED'});
+  if(pathname==='/api/access'&&req.method==='GET')return json(200,{service:'reborn-h5',available:configured(env)});
   if(pathname==='/api/pattern'||pathname==='/api/pattern/status')return pattern(req,res,pathname,json);
   if(pathname==='/api/search/status'&&req.method==='GET')return json(200,{available:AI.available(patternOptions?.env),provider:'bailian'});
   const speech=pathname==='/api/search/transcribe';
@@ -42,5 +46,5 @@ function createServer(patternOptions){let active=0,last=0;const pattern=createHa
  const file=path.resolve(root,'.'+pathname);
  try{const real=await fs.promises.realpath(file);if(!real.startsWith(root+path.sep))return json(403,{});const data=await fs.promises.readFile(real);res.writeHead(200,{'Content-Type':mime[path.extname(file)],'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'});res.end(req.method==='HEAD'?undefined:data);}catch{json(404,{error:'NOT_FOUND'});}
  });}
-if(require.main===module){const port=Number(process.env.PORT)||8765;createServer().listen(port,'127.0.0.1',()=>console.log('Local: http://127.0.0.1:'+port));}
+if(require.main===module){const port=Number(process.env.PORT)||8765,host=process.env.HOST||'127.0.0.1';createServer().listen(port,host,()=>console.log('Listening on '+host+':'+port));}
 module.exports={createServer};

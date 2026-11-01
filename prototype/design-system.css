@@ -694,3 +694,7 @@
 .crop-tint summary{display:flex;gap:9px;align-items:center;min-height:44px;cursor:pointer}.crop-tint summary span{color:var(--ui-secondary);font-size:12px}
 .app .inspiration-screen:has(.sample-desk) .input-content{justify-content:flex-start}
 @media(max-height:650px){.app .sample-proof{min-height:135px}.app .sample-proof .study-print :is(canvas,img){height:116px}.sample-set{margin-top:3px}}
+#ai-connect-form .field{display:grid;gap:8px;margin:16px 0;font:400 13px/1.5 var(--ui-font)}
+#ai-connect-form input{box-sizing:border-box;width:100%;min-height:48px;border:1px solid var(--line);border-radius:8px;padding:10px 12px;background:var(--surface);color:var(--ui-text);font:400 16px/1.4 var(--ui-font)}
+#ai-connect-form input:focus-visible{outline:2px solid var(--ui-text);outline-offset:2px}
+#ai-connect-form .muted,#ai-connect-note{font:400 12px/1.6 var(--ui-font);color:var(--ui-secondary)}

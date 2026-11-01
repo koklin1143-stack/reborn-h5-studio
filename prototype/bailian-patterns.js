@@ -140,7 +140,7 @@
     const image=sketch?sketch.image:source?await readUrl(source):null;
     const recipe=input.recipe;
     if(!recipe || recipe.version!==window.PatternGrammar.version)throw Error('请先确认纹样方案。');
-    const response = await fetch(endpoint, {method:'POST', signal, headers:{'Content-Type':'application/json'},
+    const response = await fetch(endpoint, {method:'POST', signal, headers:{'Content-Type':'application/json',...window.AIConnection.headers(endpoint)},
       body:JSON.stringify({consent:input.consent===true,method:input.method,reference:input.sourceMotifId,
         direction:input.direction,prompt:input.method==='text'?input.prompt:'',subject:input.method==='sketch'&&!decorate?input.sketchSubject:'',
         sketchMode:recipe.sketchMode,technique:recipe.technique,requestedInks:recipe.requestedInks,layout:recipe.layout,reading:recipe.reading,ruleVersion:recipe.version,stage,refinement:input.refinement,
@@ -175,15 +175,14 @@
     return {provider:'阿里云百炼',model:stage==='recolour'?result.planner:model,stage,identity:result.identity,recipe:{...recipe,...(finish?{technique:result.technique,colorStudy:plates?(plates.length===3?'三色套印':'双色套印'):finish.name,printInks:plates?plates.map(p=>p.hex):finish.inks}:{}),...(printTechnique?{paperVersion:window.EnamelPaper.version}:{}),planner:result.planner||recipe.planner,design:result.design},variants:[variant]};
   }
   async function connect() {
-    if (!['127.0.0.1','localhost'].includes(location.hostname) || location.protocol !== 'http:') return false;
-    const paths=['/api/pattern'];
-    if(location.origin==='http://127.0.0.1:8879')paths.push('http://127.0.0.1:8882/api/pattern','http://127.0.0.1:8881/api/pattern');
+    window.Services.configure('ai',null);
+    const paths=window.AIConnection.paths('pattern');
     for(const path of paths){
       try {
-        const response=await fetch(path+'/status',{cache:'no-store',signal:AbortSignal.timeout(3500)});
+        const response=await fetch(path+'/status',{cache:'no-store',headers:window.AIConnection.headers(path),signal:AbortSignal.timeout(8000)});
         if(!response.ok)continue;
         const info=await response.json();
-        if(info.available&&info.model===model&&info.ruleVersion===window.PatternGrammar.version){endpoint=path;window.Services.configure('ai',{run});return true;}
+        if(info.available&&info.accessGranted!==false&&info.model===model&&info.ruleVersion===window.PatternGrammar.version){endpoint=path;window.Services.configure('ai',{run});return true;}
       }catch{ /* Manual editing stays available when a local service is absent. */ }
     }
     return false;

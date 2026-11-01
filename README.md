@@ -34,6 +34,8 @@ npm start
 
 ## 外部 AI
 
+GitHub 页面接入方式见 [线上 AI 部署与连接](docs/online-ai-setup.md)。仓库提供 `render.yaml`，但需要在云平台账号内创建服务并填写环境变量后才能在线调用；默认未填写任何虚构的后端地址。
+
 配置服务进程的 `DASHSCOPE_API_KEY`、`BAILIAN_WORKSPACE_ID` 后，百炼可处理找物、语音转写与纹样生成。密钥只在服务端使用，不写进前端或 Git。服务运行后可查看 `/api/pattern/status`。
 
 已有 8879 静态预览时，可运行 `powershell -File scripts/start-pattern.ps1` 启动 8882 同机规则服务。首页选择图片、文字或手绘输入，确认生成说明后才提交。已提交的请求按提供方实际计费；取消会中止本地等待及尚未开始的后续步骤。
@@ -50,12 +52,14 @@ npm test
 npm run build
 ```
 
-`lint` 检查脚本语法、资源引用与 CSS 括号；单元测试目前 139 项。修改 `source/cup3d.js` 或器物几何后，先执行 `npm run build:cup`，再执行 `npm run build`。
+`lint` 检查脚本语法、资源引用与 CSS 括号；单元测试目前 141 项。修改 `source/cup3d.js` 或器物几何后，先执行 `npm run build:cup`，再执行 `npm run build`。
 
 浏览器回归需要外部安装的 Playwright 与对应浏览器。可用 `PLAYWRIGHT_MODULE` 指向其模块目录；Chromium 测试使用 Edge，跨引擎测试还需要 Playwright WebKit。以下脚本创建隔离浏览器数据，不删除日常浏览器里的作品：
 
 ```powershell
 node scripts/qa-novice-fixes.cjs
+node scripts/qa-home-motion.cjs
+node scripts/qa-hosted-api.cjs
 node scripts/qa-work-selection.cjs
 node scripts/qa-gallery-editions.cjs
 node scripts/qa-material-selection.cjs
