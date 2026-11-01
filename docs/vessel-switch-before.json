@@ -1,0 +1,98 @@
+[
+  {
+    "selected": "cup",
+    "canvasLabel": "搪瓷杯真实三维模型，可拖动旋转",
+    "mode": "three",
+    "camera": {
+      "yaw": 0.28000000000000114,
+      "pitch": 0.28,
+      "distance": 4.8
+    },
+    "modelId": "91d41884-f498-4de2-8ff3-3c959bfe4b1d",
+    "vesselType": "cup",
+    "printRegion": {
+      "thetaMin": -1.02,
+      "thetaMax": 1.02,
+      "yMin": -0.68,
+      "yMax": 0.68
+    },
+    "handleHasMap": false,
+    "bodyHasMap": false,
+    "textureRevision": 1,
+    "draws": 3,
+    "triangles": 13186,
+    "textures": 6,
+    "geometries": 8
+  },
+  {
+    "selected": "bowl",
+    "canvasLabel": "搪瓷杯真实三维模型，可拖动旋转",
+    "mode": "three",
+    "camera": {
+      "yaw": 0.28000000000000114,
+      "pitch": 0.28,
+      "distance": 4.8
+    },
+    "modelId": "91d41884-f498-4de2-8ff3-3c959bfe4b1d",
+    "vesselType": "bowl",
+    "printRegion": {
+      "radius": 0.84,
+      "zone": "碗内底与内壁"
+    },
+    "handleHasMap": false,
+    "bodyHasMap": false,
+    "textureRevision": 2,
+    "draws": 5,
+    "triangles": 13186,
+    "textures": 6,
+    "geometries": 8
+  },
+  {
+    "selected": "plate",
+    "canvasLabel": "搪瓷杯真实三维模型，可拖动旋转",
+    "mode": "three",
+    "camera": {
+      "yaw": 0.28000000000000114,
+      "pitch": 0.28,
+      "distance": 4.8
+    },
+    "modelId": "91d41884-f498-4de2-8ff3-3c959bfe4b1d",
+    "vesselType": "plate",
+    "printRegion": {
+      "radius": 1.08,
+      "zone": "盘面内侧"
+    },
+    "handleHasMap": false,
+    "bodyHasMap": false,
+    "textureRevision": 3,
+    "draws": 7,
+    "triangles": 13186,
+    "textures": 6,
+    "geometries": 8
+  },
+  {
+    "selected": "cup",
+    "canvasLabel": "搪瓷杯真实三维模型，可拖动旋转",
+    "mode": "three",
+    "camera": {
+      "yaw": 0.28000000000000114,
+      "pitch": 0.28,
+      "distance": 4.8
+    },
+    "modelId": "91d41884-f498-4de2-8ff3-3c959bfe4b1d",
+    "vesselType": "cup",
+    "printRegion": {
+      "thetaMin": -1.02,
+      "thetaMax": 1.02,
+      "yMin": -0.68,
+      "yMax": 0.68
+    },
+    "handleHasMap": false,
+    "bodyHasMap": false,
+    "textureRevision": 4,
+    "draws": 9,
+    "triangles": 13186,
+    "textures": 6,
+    "geometries": 8
+  }
+]

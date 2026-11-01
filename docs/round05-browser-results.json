@@ -1,0 +1,71 @@
+{
+  "engine": "Headless Microsoft Edge / mobile touch simulation",
+  "results": [
+    "真实WebGL、单指旋转、双指缩放、视角按钮与重置；交互前后模型UUID相同",
+    "纹样替换、大小/水平/垂直/配色及釉面实际更新同一杯子；恢复材质保留纹样",
+    "刷新恢复纹样/相机/器型；3D→编辑器→灵感输入返回层级正确，再进入保留参数",
+    "注入贴图失败显示错误，重试真实导出纹样后恢复",
+    "主动静态预览与刷新保持、WebGL真实上下文丢失降级、重试重建三维通过",
+    "320/375/390/430px：无横向溢出，模型与底部操作可见，创作中底栏隐藏",
+    "静止不持续渲染，重复换图后GPU资源数量稳定",
+    "个人图片作为实际PNG贴图显示，刷新恢复Blob引用；另存非馆藏UV方向测试截图",
+    "完全无WebGL的设备显示静态示意与重试入口"
+  ],
+  "layouts": [
+    {
+      "width": 320,
+      "overflow": 0,
+      "bottom": 640,
+      "height": 640,
+      "canvasHeight": 141,
+      "navHidden": true
+    },
+    {
+      "width": 375,
+      "overflow": 0,
+      "bottom": 812,
+      "height": 812,
+      "canvasHeight": 251,
+      "navHidden": true
+    },
+    {
+      "width": 390,
+      "overflow": 0,
+      "bottom": 844,
+      "height": 844,
+      "canvasHeight": 283,
+      "navHidden": true
+    },
+    {
+      "width": 430,
+      "overflow": 0,
+      "bottom": 932,
+      "height": 932,
+      "canvasHeight": 371,
+      "navHidden": true
+    }
+  ],
+  "performance": {
+    "mode": "three",
+    "camera": {
+      "yaw": 0.28000000000000114,
+      "pitch": 0.28,
+      "distance": 4.8
+    },
+    "modelId": "d45e2908-5e83-4244-a794-3deac43aca55",
+    "printRegion": {
+      "thetaMin": -1.02,
+      "thetaMax": 1.02,
+      "yMin": -0.68,
+      "yMax": 0.68
+    },
+    "handleHasMap": false,
+    "bodyHasMap": false,
+    "textureRevision": 6,
+    "draws": 17,
+    "triangles": 13186,
+    "textures": 6,
+    "geometries": 8
+  },
+  "errors": []
+}

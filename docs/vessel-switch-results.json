@@ -1,0 +1,83 @@
+{
+  "results": [
+    {
+      "selected": "bowl",
+      "mesh": "procedural-enamel-bowl-v1",
+      "bounds": {
+        "width": 2.3919999599456787,
+        "height": 1.3459999980032449,
+        "depth": 2.3919999599456787
+      },
+      "handle": false
+    },
+    {
+      "selected": "plate",
+      "mesh": "procedural-enamel-plate-v1",
+      "bounds": {
+        "width": 3.0160000324249268,
+        "height": 0.478000000417233,
+        "depth": 3.0160000324249268
+      },
+      "handle": false
+    },
+    {
+      "selected": "cup",
+      "mesh": "procedural-enamel-cup-v1",
+      "bounds": {
+        "width": 2.6245648860931396,
+        "height": 2.036000000685454,
+        "depth": 2.007999897003174
+      },
+      "handle": true
+    },
+    {
+      "selected": "basin",
+      "mesh": "procedural-enamel-basin-v1",
+      "bounds": {
+        "width": 3.430000066757202,
+        "height": 1.0249999992549426,
+        "depth": 3.430000066757202
+      },
+      "handle": false
+    },
+    {
+      "selected": "cup",
+      "mesh": "procedural-enamel-cup-v1",
+      "bounds": {
+        "width": 2.6245648860931396,
+        "height": 2.036000000685454,
+        "depth": 2.007999897003174
+      },
+      "handle": true
+    },
+    {
+      "selected": "plate",
+      "mesh": "procedural-enamel-plate-v1",
+      "bounds": {
+        "width": 3.0160000324249268,
+        "height": 0.478000000417233,
+        "depth": 3.0160000324249268
+      },
+      "handle": false
+    },
+    {
+      "selected": "bowl",
+      "mesh": "procedural-enamel-bowl-v1",
+      "bounds": {
+        "width": 2.3919999599456787,
+        "height": 1.3459999980032449,
+        "depth": 2.3919999599456787
+      },
+      "handle": false
+    }
+  ],
+  "checks": [
+    "真实几何/模型ID/杯柄/包围盒与器型一致",
+    "同一可变草稿首次切换",
+    "撤销重做、刷新、快照后切换",
+    "快速连续切换、迟到贴图",
+    "同器型编辑不重建模型",
+    "375和390px逐器型截图"
+  ],
+  "errors": []
+}

@@ -1,0 +1,29 @@
+{
+  "version": "enamel-ornament-2",
+  "method": "text",
+  "reference": "motif:enamel-peony",
+  "direction": "classic",
+  "layout": "sprig",
+  "layoutName": "折枝成簇",
+  "idea": "两枚樱桃共用一枝果梗，一高一低，叶片顺枝梗回转，留出一弯月牙形的空地。",
+  "reading": "",
+  "needsReading": false,
+  "materialRule": "从名词、数量和动作确定主次与呼应。",
+  "formation": "沿一条弯势安排主形，辅形向一侧收小，对侧留空。",
+  "colorStudy": "牡丹与晕边",
+  "source": "牡丹搪瓷盤",
+  "accession": "2004.028.0442",
+  "sourceUrl": "https://collections.nmth.gov.tw/CollectionContent.aspx?a=132&rno=2004.028.0442",
+  "planner": "qwen3.6-flash",
+  "design": {
+    "subject": "两枚樱桃共用一枝果梗，一高一低",
+    "traits": [
+      "果实饱满圆润",
+      "果梗呈S形弯曲"
+    ],
+    "redraw": "提取樱桃轮廓与叶脉弧势，简化为装饰性主纹",
+    "unit": "单片回转叶片作为陪衬，重复两次点缀枝梗两侧",
+    "arrangement": "高果居右上，低果居左下，形成对角呼应之势",
+    "void": "两果之间留出一弯月牙形空地，不填色"
+  }
+}

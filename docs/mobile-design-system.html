@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>物之再生 · 手机界面设计规范</title>
+<link rel="stylesheet" href="../prototype/design-system.css">
+<style>
+  * {box-sizing:border-box}
+  body {max-width:760px;margin:0 auto;padding:32px clamp(16px,5vw,40px) 64px;background:var(--ui-surface);line-height:1.65}
+  h1,h2,h3 {line-height:1.3;letter-spacing:-.025em;text-wrap:balance}
+  h1 {font-size:2rem;margin:8px 0 12px} h2 {font-size:1.35rem;margin:0 0 16px} h3 {font-size:1rem}
+  header,section {margin-bottom:32px} section {border-top:1px solid var(--ui-line);padding-top:24px}
+  header small,figcaption,dt {color:var(--ui-secondary)} p,dd,figure {margin:0 0 12px} dd {margin-left:0}
+  a {color:inherit;text-underline-offset:.2em} li {margin-bottom:7px} ul {padding-left:1.2em}
+  .swatches,.screens {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;list-style:none;padding:0}
+  .swatches li {font-size:13px}.swatches b {display:block;width:100%;height:34px;border:1px solid var(--ui-line);border-radius:8px;margin-bottom:4px}
+  .screens {grid-template-columns:repeat(2,minmax(0,1fr))}.screens img {width:100%;border-radius:12px;border:1px solid var(--ui-line);display:block}
+  figcaption {font-size:13px;padding-top:4px} dl {display:grid;grid-template-columns:max-content minmax(0,1fr);gap:8px 16px}
+  code {font-size:.88em;overflow-wrap:anywhere} table {width:100%;border-collapse:collapse} th,td {text-align:left;padding:10px 4px;border-bottom:1px solid var(--ui-line);vertical-align:top}
+</style>
+<header>
+  <small>物之再生 / 手机 H5</small>
+  <h1>界面设计规范</h1>
+  <p>共创、积分和作品管理共享一套黑白灰界面。真实的创作颜色留给展品、用户图片、纹样、釉色和取色工具。</p>
+  <a href="../prototype/index.html#discover">进入共创</a> · <a href="../prototype/index.html#points">查看成长档案</a>
+</header>
+<section><h2>从 Apple 的设计中取用什么</h2>
+  <p>将有关联的元素放在一起。贴近器物的控件改变器物，工作台底部承载完成作品等任务操作。一级页面以清晰的栏目标题定位，内页使用紧凑标题和返回按钮。<a href="https://developer.apple.com/design/tips/">Apple 界面设计提示</a> · <a href="https://developer.apple.com/design/human-interface-guidelines/layout">Layout</a></p>
+  <p>主导航用于切换共创、积分和我的。浏览详情保留返回路径，沉浸编辑隐藏底栏。搜索、来源、颜色选择和完成确认使用保留上下文的抽屉。<a href="https://developer.apple.com/design/human-interface-guidelines/sheets">Sheets</a> · <a href="https://github.com/apple/sample-food-truck">Apple 的 Food Truck 示例工程</a></p>
+  <p>以下数值是本项目针对手机网页选定的 CSS 尺寸。文字使用系统字体，优先继承设备的字形与中文回退字体。<a href="https://developer.apple.com/design/human-interface-guidelines/typography">Typography</a></p>
+</section>
+<section><h2>颜色与状态</h2>
+  <ul class="swatches">
+    <li><b style="background:var(--ui-text)"></b>主文字 / 主操作<br>#171717</li>
+    <li><b style="background:var(--ui-secondary)"></b>次级文字<br>#555555</li>
+    <li><b style="background:var(--ui-caption)"></b>注释与元数据<br>#676767</li>
+    <li><b style="background:var(--ui-line)"></b>分隔线<br>#D9D9D9</li>
+    <li><b style="background:var(--ui-bg)"></b>分组页底色<br>#F5F5F5</li>
+    <li><b style="background:var(--ui-surface)"></b>内容与抽屉表面<br>#FFFFFF</li>
+  </ul>
+  <p>黑底白字表示主要动作。互斥选项在灰色轨道上使用白色选中块和加粗文字。已收藏、选中、失败与不可用同时使用图标形态或文字说明。键盘焦点使用独立轮廓。</p>
+</section>
+<section><h2>排版与空间</h2><dl>
+  <dt>字号</dt><dd>一级标题 25，窄屏 23。章节标题 19，正文 16，操作 15，说明 13。共创入口的居中题签使用宋体，界面文字用常规黑体，英文档案眉题与编号用等宽字体。数字余额单独放大，统计数字等宽对齐。</dd>
+  <dt>边距</dt><dd>页面、工具栏与抽屉共用左右 20。宽度不超过 360 时收为 16。作品图像可以延伸至屏幕边缘，题名和按钮对齐内容边线。</dd>
+  <dt>间距</dt><dd>4 与 8 用于紧密相关的信息，12 与 16 用于卡片内部分组，20、24 与 32 用于区分独立任务。</dd>
+  <dt>点击区域</dt><dd>主要按钮高度 48，导航、分段选项与常用触控目标至少 44。底部操作另留安全区。</dd>
+  <dt>圆角</dt><dd>共创与素材页的主按钮 5，常规控件 12，卡片 18，底部抽屉上角 24。列表同组行优先用间距与细线区分。</dd>
+</dl></section>
+<section><h2>各页面怎么用</h2>
+  <table><thead><tr><th>位置</th><th>布局与操作</th></tr></thead><tbody>
+    <tr><td>共创首页、物件详情</td><td>无框器物两侧各有三张同系列胶片。题名与来源标签居中，轻划或点侧面胶片切换器物。共创操作位于展品下方，介绍与出处在详情展开。品类栏共 12 类，每屏四项。右侧固定语音找物，点到预告类别时说明开放状态。</td></tr>
+    <tr><td>作品广场、作品详情</td><td>筛选在双列作品上方，进入详情后保留作者、素材来源和收藏入口。</td></tr>
+    <tr><td>灵感输入、工作台、三维预览</td><td>可以直接用参考纹样，或选择照片、文字、手绘作为输入。后三种先选择参考纹样，在本机提取色块与线条，或解释支持的主题、配色和构图关键词。确认透明印花预览后进入工作台，原输入和转化结果分别保存在草稿中。</td></tr>
+    <tr><td>完成页、我的作品</td><td>预览与管理分层。我的作品使用全宽列表，把缩略图、标题、状态、编辑与档案放在同一行组。</td></tr>
+    <tr><td>积分</td><td>余额和作品、投稿、入选三项统计合并为一张深色卡。下方依次为明细或足迹、文化权益入口。</td></tr>
+  </tbody></table>
+</section>
+<section><h2>375px 实际页面</h2>
+  <p>共创入口采用项目参考图中的题签与留白。浏览和细读分层也参考了博物馆藏品的组织方式。<a href="https://www.vam.ac.uk/collections/ceramics">V&amp;A 陶瓷藏品</a> · <a href="https://www.rijksmuseum.nl/en/collection">Rijksmuseum 藏品入口</a></p>
+  <div class="screens">
+    <figure><a href="../previews/mobile-system-after/discover.png"><img alt="共创首页" src="../previews/mobile-system-after/discover.png" loading="lazy"></a><figcaption>共创</figcaption></figure>
+    <figure><a href="../previews/mobile-system-after/inspiration.png"><img alt="素材页与所选纹样的来源题签" src="../previews/mobile-system-after/inspiration.png" loading="lazy"></a><figcaption>创作素材</figcaption></figure>
+    <figure><a href="../previews/mobile-system-after/points-saved.png"><img alt="有积分记录的成长档案" src="../previews/mobile-system-after/points-saved.png" loading="lazy"></a><figcaption>成长档案</figcaption></figure>
+    <figure><a href="../previews/mobile-system-after/object.png"><img alt="工作台器物预览" src="../previews/mobile-system-after/object.png" loading="lazy"></a><figcaption>工作台</figcaption></figure>
+    <figure><a href="../previews/mobile-system-after/mine-saved.png"><img alt="作品管理列表" src="../previews/mobile-system-after/mine-saved.png" loading="lazy"></a><figcaption>我的作品</figcaption></figure>
+  </div>
+</section>
+<footer><a href="../prototype/design-system.css">设计变量与组件样式</a> · 项目验收脚本 <code>scripts/qa-mobile-system.cjs</code></footer>
+</html>

@@ -1,15 +1,33 @@
 <!doctype html>
 <html lang="zh-CN"><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#fafafa">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#ffffff">
 <meta name="description" content="物之再生 · 手机端工业文化共创。作品保存在本地，投稿与积分均为演示。"><title>物之再生 · 共创工作室</title>
 <link rel="stylesheet" href="styles.css">
 <link rel="stylesheet" href="film.css">
 <link rel="stylesheet" href="frame3d.css">
-<script defer src="model.js"></script><script defer src="storage.js"></script><script defer src="art.js"></script><script defer src="objects.js"></script><script defer src="views.js"></script><script defer src="reel.js"></script><script defer src="frame3d.js"></script><script defer src="film-optics.js"></script><script defer src="film-home.js"></script><script defer src="app.js"></script>
+<link rel="stylesheet" href="archive.css">
+<link rel="stylesheet" href="foundation.css">
+<link rel="stylesheet" href="explore.css">
+<link rel="stylesheet" href="inspiration.css">
+<link rel="stylesheet" href="editor.css">
+<link rel="stylesheet" href="cup.css"><link rel="stylesheet" href="workbench.css"><link rel="stylesheet" href="ink-picker.css">
+<link rel="stylesheet" href="design-system.css"><link rel="stylesheet" href="gallery-folio.css">
+<script defer src="object-display.js"></script>
+<script defer src="model.js"></script><script defer src="vessels.js"></script><script defer src="photo-catalogue.js"></script><script defer src="explore.js"></script><script defer src="gallery-editions.js"></script><script defer src="community.js"></script>
+<script defer src="object-records.js"></script><script defer src="foundation.js"></script><script defer src="services.js"></script><script defer src="archive-service.js"></script><script defer src="storage-driver.js"></script><script defer src="storage.js"></script><script defer src="art.js"></script><script defer src="objects.js"></script><script defer src="views.js"></script><script defer src="reel.js"></script><script defer src="frame3d.js"></script><script defer src="film-optics.js"></script><script defer src="film-home.js"></script><script defer src="archive-views.js"></script><script defer src="foundation-views.js"></script><script defer src="explore-home.js"></script><script defer src="inspiration-model.js"></script><script defer src="enamel-transfer.js"></script><script defer src="pattern-grammar.js"></script><script defer src="vendor/magenta-data-tool.js"></script><script defer src="enamel-paper.js"></script><script defer src="bailian-patterns.js"></script><script defer src="vendor/perfect-freehand.js"></script><script defer src="print-style.js"></script><script defer src="photo-extraction.js"></script><script defer src="material-color.js"></script><script defer src="photo-picker.js"></script><script defer src="photo-layout.js"></script><script defer src="photo-materials.js"></script><script defer src="inspiration.js"></script><script defer src="editor-model.js"></script><script defer src="pattern-layouts.js"></script><script defer src="spot-paint.js"></script><script defer src="pattern-texture.js"></script><script defer src="editor-views.js"></script><script defer src="cup3d.js"></script><script defer src="cup-view.js"></script><script defer src="editor-object.js"></script>
+<script defer src="work-result.js"></script><script defer src="gallery-folio.js"></script>
+<script defer src="manage-model.js"></script>
+<script defer src="manage-views.js"></script>
+<script defer src="search-assistant.js"></script><script defer src="touch-transform.js"></script><script defer src="ink-picker.js"></script><script defer src="workbench.js"></script><script defer src="app.js"></script>
 </head><body><div class="app">
 <header id="header" class="header"></header>
 <div id="storage-banner" class="error-banner" role="alert" hidden><span></span><button data-action="retry">重试</button></div>
 <main id="main" tabindex="-1"><div class="loading"><strong>物之再生</strong><span>正在打开本地创作档案…</span></div></main>
+<div id="work-batch-bar" class="work-batch-bar" role="group" aria-label="批量管理作品" hidden>
+  <label class="batch-all"><input type="checkbox" id="works-select-all">全选</label>
+  <span id="work-selection-count" role="status">已选 0 件</span>
+  <button class="btn primary" data-action="delete-selected-works" disabled>删除所选</button>
+</div>
 <nav id="nav" class="bottom-nav" aria-label="主导航" hidden></nav>
 <dialog id="dialog" aria-labelledby="dialog-title"></dialog><div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 <input id="image-file" type="file" accept="image/png,image/jpeg,image/webp" hidden aria-label="选择个人图像">

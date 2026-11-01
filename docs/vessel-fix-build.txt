@@ -1,0 +1,5 @@
+
+> reborn-h5-studio@14.0.0 build
+> node scripts/build.cjs
+
+Built single-file HTML: 1481290 bytes

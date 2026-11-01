@@ -1,0 +1,6 @@
+(function(root,factory){if(typeof module==='object'&&module.exports)module.exports=factory(require('./foundation.js'));else root.Management=factory(root.Studio);})(globalThis,M=>{
+ const valid=d=>Boolean(d&&M.items.some(i=>i.id===d.itemId)&&Array.isArray(d.past)&&Array.isArray(d.future)&&['scale','x','y','rotation'].every(k=>Number.isFinite(d[k])));
+ function duplicate(s,kind,id,repair=false){const original=s[kind]?.find(x=>x.id===id),record=kind==='submissions'?original?.snapshot:original;if(!record)throw Error('原记录不存在，请刷新列表');let d=M.copy(record);if(repair){const defaults=M.fresh(record.itemId);for(const key of ['scale','x','y','rotation','cropWidth','cropHeight'])if(!Number.isFinite(d[key]))d[key]=defaults[key]??100;d.itemId=defaults.itemId;d.category=defaults.category;d.pattern=defaults.pattern;if(!M.vessels.some(v=>v.type===d.canvas))d.canvas=defaults.canvas;}
+ Object.assign(d,{id:M.uid('draft'),recordType:'draft',lineageId:M.uid('design'),rewardRootId:record.rewardRootId||record.lineageId,workId:null,derivedFrom:{kind,id:record.id,createdAt:M.now(),repair},title:(record.title||'未命名')+' · 副本',past:[],future:[],createdAt:M.now(),updatedAt:M.now()});delete d.previewAssetId;delete d.appliedVessel;delete d.previewKind;M.normalizeRecord(d);s.drafts.push(d);s.ui.activeDraftId=d.id;return d;}
+ return {valid,duplicate};
+});

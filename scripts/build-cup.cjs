@@ -1,0 +1,1 @@
+const path=require('node:path');require('esbuild').buildSync({entryPoints:[path.resolve(__dirname,'../source/cup3d.js')],outfile:path.resolve(__dirname,'../prototype/cup3d.js'),bundle:true,format:'iife',loader:{'.hdr':'binary'},target:['es2020'],minify:true,legalComments:'inline',logLevel:'info'});

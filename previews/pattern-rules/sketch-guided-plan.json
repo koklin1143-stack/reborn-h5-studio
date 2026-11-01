@@ -1,0 +1,29 @@
+{
+  "version": "enamel-ornament-2",
+  "method": "sketch",
+  "reference": "motif:enamel-peony",
+  "direction": "classic",
+  "layout": "sprig",
+  "layoutName": "折枝成簇",
+  "idea": "同枝的一对樱桃",
+  "reading": "",
+  "needsReading": false,
+  "materialRule": "保留动作和辨识特征，重新设计线面。",
+  "formation": "沿一条弯势安排主形，辅形向一侧收小，对侧留空。",
+  "colorStudy": "牡丹与晕边",
+  "source": "牡丹搪瓷盤",
+  "accession": "2004.028.0442",
+  "sourceUrl": "https://collections.nmth.gov.tw/CollectionContent.aspx?a=132&rno=2004.028.0442",
+  "planner": "qwen3.6-flash",
+  "design": {
+    "subject": "同枝双樱桃",
+    "traits": [
+      "大小错落的双圆果体",
+      "呈V字分叉的细长果梗"
+    ],
+    "redraw": "将草线中僵硬的直线转折改为柔和的S形弧度，强化果柄连接处的自然弯曲。",
+    "unit": "提取右侧叶片边缘的锯齿状缺口，简化为三个连续的半圆弧纹样。",
+    "arrangement": "主纹位于画面偏左下，两果一高一低斜向排列，叶柄向右上方舒展。",
+    "void": "右上方留白区域作为背景，不填充枝叶，仅保留果梗末端的呼吸空间。"
+  }
+}

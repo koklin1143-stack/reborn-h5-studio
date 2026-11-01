@@ -1,0 +1,13 @@
+{
+  "gesture": {
+    "axis": "头部朝左，尾部向右延伸，四肢呈迈步姿态支撑躯干。",
+    "proportion": "躯干明显长于头部与颈部，腿部线条较短。",
+    "accent": "头部轮廓呈现明显的尖吻部特征。"
+  },
+  "subject": "狗",
+  "family": "quadruped",
+  "pose": "行走",
+  "facing": "向左",
+  "cue": "竖耳",
+  "count": 1
+}

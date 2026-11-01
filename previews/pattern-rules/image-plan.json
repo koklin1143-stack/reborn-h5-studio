@@ -1,0 +1,29 @@
+{
+  "version": "enamel-ornament-2",
+  "method": "image",
+  "reference": "motif:enamel-peony",
+  "direction": "classic",
+  "layout": "sprig",
+  "layoutName": "折枝成簇",
+  "idea": "",
+  "reading": "",
+  "needsReading": false,
+  "materialRule": "提炼姿态与关键细节，重组剪影。",
+  "formation": "沿一条弯势安排主形，辅形向一侧收小，对侧留空。",
+  "colorStudy": "牡丹与晕边",
+  "source": "牡丹搪瓷盤",
+  "accession": "2004.028.0442",
+  "sourceUrl": "https://collections.nmth.gov.tw/CollectionContent.aspx?a=132&rno=2004.028.0442",
+  "planner": "qwen3.6-flash",
+  "design": {
+    "subject": "樱桃",
+    "traits": [
+      "饱满的圆球体轮廓",
+      "果梗连接处的凹陷"
+    ],
+    "redraw": "将果实归纳为舒展的大弧与转折，保留果梗连接的负形特征。",
+    "unit": "抽取果梗的细线形态作为陪衬纹元，重复三次。",
+    "arrangement": "主纹居中偏右，果梗向左上方延伸；陪衬纹元沿主形外缘分布。",
+    "void": "画面左下角留白，形成视觉呼吸空间。"
+  }
+}

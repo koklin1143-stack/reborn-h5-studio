@@ -10,7 +10,7 @@
     {id:'blue',color:'#dce7e5',rim:'#245b71',name:'浅搪瓷蓝'}
   ];
   const names = {magpie:'喜鹊花枝',peony:'牡丹花开',happiness:'双喜记忆'};
-  const icons={back:'<path d="m15 18-6-6 6-6"/>',arrow:'<path d="m9 18 6-6-6-6"/>',home:'<path d="m3 10 9-7 9 7v10H3z"/><path d="M9 20v-7h6v7"/>',pen:'<path d="m12 19 7-7 3 3-7 7-4 1zM19 12l-2-2 2-2 2 2"/><path d="M3 21h6"/>',user:'<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3-7 8-7s8 3 8 7"/>',heart:'<path d="M20 7c-1-4-6-4-8 0-2-4-7-4-8 0-1 4 3 7 8 12 5-5 9-8 8-12z"/>',plus:'<path d="M12 5v14M5 12h14"/>',upload:'<path d="M12 17V3m0 0-5 5m5-5 5 5M4 15v5h16v-5"/>',check:'<path d="m5 12 4 4L19 6"/>',file:'<path d="M6 3h9l4 4v14H6zM15 3v5h4M9 12h7M9 16h6"/>',clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l4 3"/>',layers:'<path d="m2 9 10-6 10 6-10 6zM2 14l10 6 10-6"/>',award:'<circle cx="12" cy="9" r="6"/><path d="m8 14-2 8 6-3 6 3-2-8"/>',spark:'<path d="m12 2 2 7 7 3-7 2-2 8-2-8-7-2 7-3z"/>',info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7h.01"/>',trash:'<path d="M4 6h16M8 6V4h8v2m2 0-1 15H7L6 6M10 10v7M14 10v7"/>',mic:'<rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v4m-4 0h8"/>',gift:'<rect x="3" y="9" width="18" height="12" rx="1"/><path d="M3 13h18M12 9v12M12 9c-6 0-9-2-7-5s7 5 7 5zm0 0c6 0 9-2 7-5s-7 5-7 5z"/>',recycle:'<path d="m9 3 3-1 3 5M8 7 6 11l-4-2M5 9l3-6 3 1M19 10l3 5-4 1M22 15l-3 5-3-1M17 21h-7l1-4M10 21H4l1-4"/>',move:'<path d="M12 3v18M3 12h18m-9-9-3 3m3-3 3 3M3 12l3-3m-3 3 3 3m15-3-3-3m3 3-3 3m-6 6-3-3m3 3 3-3"/>'};
+  const icons={back:'<path d="m15 18-6-6 6-6"/>',arrow:'<path d="m9 18 6-6-6-6"/>',home:'<path d="m3 10 9-7 9 7v10H3z"/><path d="M9 20v-7h6v7"/>',pen:'<path d="m12 19 7-7 3 3-7 7-4 1zM19 12l-2-2 2-2 2 2"/><path d="M3 21h6"/>',user:'<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3-7 8-7s8 3 8 7"/>',heart:'<path d="M20 7c-1-4-6-4-8 0-2-4-7-4-8 0-1 4 3 7 8 12 5-5 9-8 8-12z"/>',plus:'<path d="M12 5v14M5 12h14"/>',upload:'<path d="M12 17V3m0 0-5 5m5-5 5 5M4 15v5h16v-5"/>',check:'<path d="m5 12 4 4L19 6"/>',file:'<path d="M6 3h9l4 4v14H6zM15 3v5h4M9 12h7M9 16h6"/>',clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l4 3"/>',layers:'<path d="m2 9 10-6 10 6-10 6zM2 14l10 6 10-6"/>',award:'<circle cx="12" cy="9" r="6"/><path d="m8 14-2 8 6-3 6 3-2-8"/>',spark:'<path d="m12 2 2 7 7 3-7 2-2 8-2-8-7-2 7-3z"/>',palette:'<circle cx="9" cy="9" r="6"/><circle cx="15" cy="15" r="6"/>',more:'<circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/>',snapshot:'<rect x="3" y="5" width="18" height="15" rx="3"/><circle cx="12" cy="12" r="4"/>',info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7h.01"/>',trash:'<path d="M4 6h16M8 6V4h8v2m2 0-1 15H7L6 6M10 10v7M14 10v7"/>',mic:'<rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v4m-4 0h8"/>',gift:'<rect x="3" y="9" width="18" height="12" rx="1"/><path d="M3 13h18M12 9v12M12 9c-6 0-9-2-7-5s7 5 7 5zm0 0c6 0 9-2 7-5s-7 5-7 5z"/>',recycle:'<path d="m9 3 3-1 3 5M8 7 6 11l-4-2M5 9l3-6 3 1M19 10l3 5-4 1M22 15l-3 5-3-1M17 21h-7l1-4M10 21H4l1-4"/>',move:'<path d="M12 3v18M3 12h18m-9-9-3 3m3-3 3 3M3 12l3-3m-3 3 3 3m15-3-3-3m3 3-3 3m-6 6-3-3m3 3 3-3"/>'};
 function ic(n,size=20){return `<svg class="ic" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${icons[n]||icons.info}</svg>`}
 
   function blossom(x,y,s=1) {
@@ -65,7 +65,28 @@ function ic(n,size=20){return `<svg class="ic" width="${size}" height="${size}" 
       <g fill="${C.red}"><circle cy="69" r="3.4"/><circle cx="-11" cy="68" r="2"/><circle cx="11" cy="68" r="2"/></g>
     </g>`;
   }
-  function motif(type='magpie') {return type==='peony'?peony():type==='happiness'?happiness():magpie();}
+  const inkParts={
+    magpie:[{name:'鸟身',key:'bird',colors:[C.blue,'#8ba6ad','#7595a1']},{name:'花朵',key:'flower',colors:[C.red]},{name:'枝叶',key:'leaf',colors:[C.green]}],
+    peony:[{name:'花瓣',key:'flower',colors:[C.red,'#f1d2c6','#e5ac99','#d98d77']},{name:'枝叶',key:'leaf',colors:[C.green,'#536f64']},{name:'花心',key:'center',colors:[C.gold]}],
+    happiness:[{name:'喜字',key:'letter',colors:[C.red]},{name:'枝叶',key:'leaf',colors:[C.green]},{name:'金边',key:'rim',colors:[C.gold]}]
+  };
+  function motif(type='magpie',inks,baseColor) {
+    const original=type==='peony'?peony():type==='happiness'?happiness():magpie();
+    if(!inks||!Object.keys(inks).length)return original;
+    const replacements=new Map();
+    for(const part of inkParts[type]||[]){
+      const chosen=inks[type+'/'+part.key];
+      if(!/^#[0-9a-f]{6}$/i.test(chosen))continue;
+      const channels=h=>h.slice(1).match(/../g).map(v=>parseInt(v,16));
+      const base=channels(part.colors[0]),next=channels(chosen);
+      // Transfer the painted highlights and veins along with the base pigment.
+      for(const old of part.colors){
+        const tinted=channels(old).map((v,i)=>v>=base[i]?next[i]+(255-next[i])*(v-base[i])/(255-base[i]||1):next[i]*v/(base[i]||1));
+        replacements.set(old,'#'+tinted.map(n=>Math.round(n).toString(16).padStart(2,'0')).join(''));
+      }
+    }
+    return original.replace(/#[0-9a-f]{6}/gi,h=>replacements.get(h)||baseColor?.(h)||h);
+  }
   function disk(type='magpie') {
     const id='plate-'+(++sequence);
     return `<svg viewBox="0 0 220 200" role="img" aria-label="${names[type] || names.magpie}搪瓷纹样示意"><defs><linearGradient id="${id}-glaze" x1="0" x2="1" y2="1"><stop stop-color="#fffef9"/><stop offset="1" stop-color="#edf0e8"/></linearGradient></defs><ellipse cx="110" cy="104" rx="86" ry="83" fill="#203c45" opacity=".07"/><circle cx="110" cy="99" r="83" fill="url(#${id}-glaze)" stroke="${C.blue}" stroke-width="4"/><circle cx="110" cy="99" r="76.5" fill="none" stroke="${C.blue}" stroke-width=".7" opacity=".45"/><circle cx="110" cy="99" r="70" fill="none" stroke="${C.gold}" stroke-width=".7" opacity=".5"/><g transform="translate(110 99) scale(.79)">${motif(type)}</g></svg>`;
@@ -99,5 +120,5 @@ function ic(n,size=20){return `<svg class="ic" width="${size}" height="${size}" 
     <path d="M72 215C103 232 213 232 243 215" fill="none" stroke="#a1b5b4" stroke-width="1" opacity=".5"/>
     </svg>`;
   }
-  window.Art={cup,disk,icon:ic,palette,panel,motif};
+  window.Art={cup,disk,icon:ic,palette,panel,motif,inkParts};
 })();

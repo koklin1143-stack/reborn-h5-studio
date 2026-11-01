@@ -1,0 +1,65 @@
+{
+  "engine": "Headless Edge / mobile touch simulation",
+  "results": [
+    "编辑器默认直接在真实搪瓷杯上显示当前纹样",
+    "拖动控件尚未松手时贴图已更新；切工具/纹样色/釉色保留同一模型实例",
+    "在杯身上真实触摸拖动纹样改变UV位置，撤销/重做有效",
+    "器物/平面使用同一草稿与历史，切换及刷新不丢参数或视图选择",
+    "转动物件与移动纹样模式互不混淆，全屏查看及返回保留相机",
+    "320/375/390/430px实测：无横向溢出、底部操作无遮挡",
+    "器物编辑视图WebGL丢失显示静态降级，工具可用并可重试恢复"
+  ],
+  "layouts": [
+    {
+      "width": 320,
+      "overflow": 0,
+      "bottom": 640,
+      "height": 640,
+      "canvas": 117
+    },
+    {
+      "width": 375,
+      "overflow": 0,
+      "bottom": 812,
+      "height": 812,
+      "canvas": 249
+    },
+    {
+      "width": 390,
+      "overflow": 0,
+      "bottom": 844,
+      "height": 844,
+      "canvas": 281
+    },
+    {
+      "width": 430,
+      "overflow": 0,
+      "bottom": 932,
+      "height": 932,
+      "canvas": 369
+    }
+  ],
+  "performance": {
+    "mode": "three",
+    "camera": {
+      "yaw": 0.28000000000000114,
+      "pitch": 0.28,
+      "distance": 4.8
+    },
+    "modelId": "2576902a-008e-4146-83f7-3226855c9de0",
+    "printRegion": {
+      "thetaMin": -1.02,
+      "thetaMax": 1.02,
+      "yMin": -0.68,
+      "yMax": 0.68
+    },
+    "handleHasMap": false,
+    "bodyHasMap": false,
+    "textureRevision": 1,
+    "draws": 3,
+    "triangles": 13186,
+    "textures": 6,
+    "geometries": 8
+  },
+  "errors": []
+}

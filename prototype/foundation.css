@@ -1,0 +1,8 @@
+/* Foundational views inherit the semantic tokens from design-system.css. */
+
+.app{background:var(--paper)}.gallery-content,.growth-screen,.gallery-detail,.gallery-filter-bar,.bottom-nav{background:var(--paper)}
+.bottom-nav button{flex-direction:row;font-size:12px;min-height:48px}.bottom-nav button[aria-current=page]{color:var(--graphite)}
+.btn:focus-visible,.icon-btn:focus-visible,button:focus-visible{outline:2px solid var(--focus);outline-offset:3px}.check-row input,.range-field input{accent-color:var(--blue)}
+.state-panel{padding:24px 14px;text-align:center;border:1px solid var(--line);border-radius:var(--radius);background:var(--paper)}.state-panel h2{font-size:17px;font-weight:500;margin:10px 0}.state-panel p{font-size:12px;color:var(--muted);line-height:1.8}.state-panel .btn{margin-top:16px;min-height:44px}.state-panel[data-state=error]{border-color:var(--danger)}.state-panel[data-state=loading]{opacity:.8}.state-panel .eyebrow{color:var(--blue)}
+.foundation-entry{display:flex;gap:4px}.foundation-entry .btn{font-size:11px;min-height:44px;padding-inline:6px}.foundation-plaque{font-size:10px;line-height:1.7;letter-spacing:.3px;color:var(--muted);border-bottom:1px solid var(--line);padding:8px 18px}.foundation-plaque b{font-weight:500;color:var(--blue)}
+@media(max-width:350px){.header{padding-inline:18px}.foundation-entry .btn{font-size:10px;padding-inline:4px}.brand{font-size:15px}.brand small{letter-spacing:0}.foundation-plaque{font-size:9px}}

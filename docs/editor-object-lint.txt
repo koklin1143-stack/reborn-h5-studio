@@ -1,0 +1,32 @@
+
+> reborn-h5-studio@14.0.0 lint
+> node scripts/check.cjs
+
+Syntax OK: app.js
+Syntax OK: archive-service.js
+Syntax OK: archive-views.js
+Syntax OK: art.js
+Syntax OK: community.js
+Syntax OK: cup-view.js
+Syntax OK: cup3d.js
+Syntax OK: editor-model.js
+Syntax OK: editor-object.js
+Syntax OK: editor-views.js
+Syntax OK: explore-home.js
+Syntax OK: explore.js
+Syntax OK: film-home.js
+Syntax OK: film-optics.js
+Syntax OK: foundation-views.js
+Syntax OK: foundation.js
+Syntax OK: frame3d.js
+Syntax OK: inspiration-model.js
+Syntax OK: inspiration.js
+Syntax OK: model.js
+Syntax OK: objects.js
+Syntax OK: pattern-texture.js
+Syntax OK: reel.js
+Syntax OK: services.js
+Syntax OK: storage-driver.js
+Syntax OK: storage.js
+Syntax OK: views.js
+Local asset references and CSS block balance OK

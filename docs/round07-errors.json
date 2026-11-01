@@ -1,0 +1,4 @@
+{
+  "loadFailure": "initial read fails, write paused; retry restores app",
+  "modelFailure": "WebGL disabled, explicit static fallback; flat editing accessible"
+}

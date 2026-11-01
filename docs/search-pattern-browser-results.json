@@ -1,0 +1,11 @@
+{
+  "results": [
+    "真实本地HTTP代理未配置时明确回退；外发前必须确认",
+    "受控响应：AI结果、输入改变后忽略旧响应、停止等待通过（非真实供应商）",
+    "新排布参数、双调、撤销/重做、版本切换及刷新恢复",
+    "512px真实PNG导出及真实3D加载；320/375/390/430布局与操作可达"
+  ],
+  "errors": [],
+  "realAIRequest": false,
+  "engine": "Headless Edge / mobile emulation"
+}

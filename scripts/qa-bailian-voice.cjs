@@ -1,0 +1,23 @@
+/* QA_AUDIO is a WAV containing the spoken query “我想找一个有人物画的盘子”. */
+const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
+const assert=require('node:assert/strict'),path=require('node:path');
+(async()=>{if(!process.env.QA_AUDIO)throw Error('Set QA_AUDIO to the test WAV.');
+ const browser=await chromium.launch({channel:'msedge',args:['--use-fake-device-for-media-stream','--use-fake-ui-for-media-stream','--use-file-for-fake-audio-capture='+path.resolve(process.env.QA_AUDIO)]});
+ try{const context=await browser.newContext({viewport:{width:375,height:812},isMobile:true,permissions:['microphone']});
+ const page=await context.newPage(),posts=[],errors=[];page.on('pageerror',e=>errors.push(e.message));
+ page.on('request',r=>{if(r.method()==='POST')posts.push(new URL(r.url()).pathname);});
+ const tap=a=>page.locator('[data-action="'+a+'"]:visible').first().click();
+ await page.goto('http://127.0.0.1:8879/index.html#discover');await tap('search');
+ await page.locator('#search-ai-settings').waitFor();assert.deepEqual(posts,[]);
+ await tap('search-voice');await page.waitForFunction(()=>document.querySelector('#voice-toggle').getAttribute('aria-pressed')==='true');
+ await page.waitForTimeout(4300);await tap('search-voice');
+ await page.waitForFunction(()=>document.querySelector('#search-status')?.textContent.includes('百炼匹配'),{},{timeout:38000});
+ console.log('spoken query:',await page.locator('#search-query').inputValue());
+ assert.match(await page.locator('#search-results').innerText(),/立鹤牌西湖博览会纪念盘/);
+ if(process.env.QA_OUT)await page.screenshot({path:path.join(process.env.QA_OUT,'voice-375.png')});
+ assert.deepEqual(posts,['/api/search/transcribe','/api/search']);await page.locator('#search-results .catalog-row').first().click();
+ await tap('search');await page.locator('#search-ai-settings').waitFor();await tap('search-voice');await page.waitForFunction(()=>document.querySelector('#voice-toggle').getAttribute('aria-pressed')==='true');await tap('close');await page.waitForTimeout(200);assert.equal(posts.length,2);
+ await page.setViewportSize({width:390,height:844});await tap('search');await page.locator('#search-ai-settings').waitFor();
+ await page.locator('#search-query').fill('小时候洗脸用的盆');await page.locator('#search-query').press('Enter');await page.waitForFunction(()=>document.querySelector('#search-status')?.textContent.includes('百炼匹配'));assert.match(await page.locator('#search-results').innerText(),/平海铭文搪瓷脸盆/);
+ assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);assert.deepEqual(errors,[]);console.log('375px voice → plate, cancel; 390px text → basin passed');
+ }finally{await browser.close();}})().catch(e=>{console.error(e.message);process.exitCode=1;});

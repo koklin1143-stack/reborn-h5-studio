@@ -1,0 +1,160 @@
+{
+  "variations": [
+    {
+      "patch": {},
+      "hash": 2809679957
+    },
+    {
+      "patch": {
+        "sampleWidth": 25,
+        "sampleHeight": 25
+      },
+      "hash": 223442613
+    },
+    {
+      "patch": {
+        "sampleX": 29
+      },
+      "hash": 4090884557
+    },
+    {
+      "patch": {
+        "sampleY": -31
+      },
+      "hash": 1758910901
+    },
+    {
+      "patch": {
+        "sampleMirror": true,
+        "sampleX": 48,
+        "sampleY": -42
+      },
+      "hash": 4127488213
+    },
+    {
+      "patch": {
+        "sampleMirror": true,
+        "sampleX": 32,
+        "sampleY": -29,
+        "sampleRotation": 47
+      },
+      "hash": 1394055949
+    },
+    {
+      "patch": {
+        "sampleRotation": 37
+      },
+      "hash": 1880269333
+    },
+    {
+      "patch": {
+        "repeatDensity": 6
+      },
+      "hash": 2597682312
+    },
+    {
+      "patch": {
+        "patternLayout": "weave"
+      },
+      "hash": 1780871901
+    },
+    {
+      "patch": {
+        "patternLayout": "diamond"
+      },
+      "hash": 2534753662
+    },
+    {
+      "patch": {
+        "patternLayout": "echo"
+      },
+      "hash": 1659920285
+    },
+    {
+      "patch": {
+        "patternLayout": "echo",
+        "echoIterations": 5
+      },
+      "hash": 3423448477
+    },
+    {
+      "patch": {
+        "patternLayout": "echo",
+        "echoRatio": 40
+      },
+      "hash": 2843610621
+    },
+    {
+      "patch": {
+        "patternLayout": "hexflower"
+      },
+      "hash": 2813358522
+    },
+    {
+      "patch": {
+        "patternLayout": "chevron"
+      },
+      "hash": 363455497
+    },
+    {
+      "patch": {
+        "patternLayout": "chevron",
+        "foldSlope": 80
+      },
+      "hash": 3561353
+    },
+    {
+      "patch": {
+        "flowEnabled": true,
+        "flowStrength": 55
+      },
+      "hash": 2092477666
+    },
+    {
+      "patch": {
+        "flowEnabled": true,
+        "flowStrength": 55,
+        "flowKind": "swirl"
+      },
+      "hash": 4185999656
+    },
+    {
+      "patch": {
+        "flowEnabled": true,
+        "flowStrength": 75,
+        "flowKind": "swirl",
+        "patternInk": "duotone"
+      },
+      "hash": 4093860420
+    },
+    {
+      "patch": {
+        "patternInk": "custom",
+        "inkColor": "#8953ad"
+      },
+      "hash": 2069584101
+    },
+    {
+      "patch": {
+        "patternInk": "custom",
+        "inkColor": "#36875a"
+      },
+      "hash": 1941275037
+    }
+  ],
+  "seams": [
+    {
+      "patternLayout": "weave",
+      "edgeMeanDifference": 0
+    },
+    {
+      "patternLayout": "kaleido",
+      "edgeMeanDifference": 0
+    },
+    {
+      "patternLayout": "echo",
+      "edgeMeanDifference": 0
+    }
+  ],
+  "missing": true
+}

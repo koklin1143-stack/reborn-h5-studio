@@ -1,0 +1,20 @@
+{
+  "red": [
+    255,
+    0,
+    0,
+    255
+  ],
+  "green": [
+    0,
+    255,
+    0,
+    255
+  ],
+  "transparent": 0,
+  "opaque": 255,
+  "faded": 128,
+  "embedded": true,
+  "hasBlobUrl": false,
+  "periodShiftDifference": 0.0014667510986328125
+}
