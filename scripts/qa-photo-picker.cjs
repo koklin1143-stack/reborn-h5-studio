@@ -1,6 +1,7 @@
 /* Exercise the actual 12 printed marks, irregular masks and the saved output through the H5. */
 const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),{pathToFileURL}=require('node:url');
+const picker=require('./qa-picker-controls.cjs');
 (async()=>{
  const browser=await chromium.launch({channel:'msedge'});
  try{
@@ -17,46 +18,46 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('n
    const fingerprint=()=>proof.evaluate(c=>c.toDataURL());
    await p.goto(entry+'#discover');await tap('browse');await p.locator('dialog [data-id="enamel-plate-01"]').click();await tap('start');
    await tap('in-photo-inspect');await p.locator('.crop-apply:enabled').waitFor();assert.equal(await p.locator('.source-zoom').innerText(),'看全图');await p.locator('dialog [data-action=close]').click();
-   await tap('in-photo-crop');await p.locator('.crop-apply:enabled').waitFor();await p.locator('[data-shape=smart]').click();await p.locator('.picker-found:visible').waitFor();
+   await tap('in-photo-crop');await picker.selection(p);await p.locator('[data-shape=smart]').click();await p.locator('.picker-found:visible').waitFor();
    const seen=new Set();
    for(const [x,y] of [[.297,.651],[.25,.503],[.267,.358],[.351,.254],[.453,.202],[.567,.205],[.68,.264],[.748,.372],[.769,.516],[.706,.66],[.561,.752],[.416,.75]]){
     await clickAt(board,x,y);const label=await p.locator('.picker-found span').innerText();assert.match(label,/候选 \d+ \/ \d+/);seen.add(label);
     assert.equal(await p.locator('.crop-apply').isEnabled(),true);
    }
    assert.equal(seen.size,12);
-   await clickAt(board,.68,.264);await p.locator('[name=crop-name]').fill('远端淡字');
+   await clickAt(board,.68,.264);await picker.name(p,'远端淡字');
    await p.locator('[data-zoom="2"]').click();await paint();await shot('盘沿淡字实时放大',p.locator('.proof-panel'));
    const a=await fingerprint();await p.locator('[data-zoom="4"]').click();await paint();assert.notEqual(await fingerprint(),a);
    await p.locator('[data-proof="source"]').click();await paint();const b=await fingerprint();
    await clickAt(proof,.52,.50);assert.equal(await p.locator('[data-proof="result"]').getAttribute('aria-pressed'),'true');assert.notEqual(await fingerprint(),b);
-   await p.locator('.picker-found [data-step="1"]').click();await paint();
-   await clickAt(board,.68,.264);await p.locator('[data-zoom="1"]').click();await paint();await p.locator('.crop-apply').click();await p.locator('dialog').waitFor({state:'hidden'});
-   await tap('in-photo-crop');await p.locator('.crop-apply:enabled').waitFor();await p.locator('[data-shape=smart]').click();await p.locator('.picker-found:visible').waitFor();await clickAt(board,.25,.503);
+   await picker.selection(p);await p.locator('.picker-found [data-step="1"]').click();await paint();
+   await clickAt(board,.68,.264);await picker.adjust(p);await p.locator('[data-zoom="1"]').click();await paint();await p.locator('.crop-apply').click();await p.locator('dialog').waitFor({state:'hidden'});
+   await tap('in-photo-crop');await picker.selection(p);await p.locator('[data-shape=smart]').click();await p.locator('.picker-found:visible').waitFor();await clickAt(board,.25,.503);await picker.adjust(p);
    await fillColor('#17317b');const neutral=await fingerprint();
    await p.locator('[name=ink-range]').fill('83');await paint();assert.notEqual(await fingerprint(),neutral);await p.locator('[name=ink-range]').fill('45');await paint();
    await p.locator('.picked-palette button').first().click();await paint();assert.notEqual(await fingerprint(),neutral);await fillColor('#17317b');
-   await p.locator('[name=crop-name]').fill('盘缘蓝字');await paint();
+   await picker.name(p,'盘缘蓝字');await paint();
    await shot('图3蓝字实时预览',p.locator('.proof-panel'));
    const proofSnapshot=await fingerprint();
    await p.locator('.crop-apply').click();await p.locator('dialog').waitFor({state:'hidden'});
    async function drawShape(tool,points,name){
-    await tap('in-photo-crop');await p.locator('.crop-apply:enabled').waitFor();await p.locator('[data-shape="'+tool+'"]').click();
+    await tap('in-photo-crop');await picker.selection(p);await p.locator('[data-shape="'+tool+'"]').click();
     await board.scrollIntoViewIfNeeded();const b=await board.boundingBox();
     const screen=([x,y])=>[b.x+b.width*x,b.y+b.height*y];await p.mouse.move(...screen(points[0]));await p.mouse.down();
     for(const pt of points.slice(1))await p.mouse.move(...screen(pt),{steps:6});await p.mouse.up();await paint();
-    await p.locator('[name=crop-name]').fill(name);assert.ok(await p.locator('.crop-apply').isEnabled());
+    await picker.name(p,name);assert.ok(await p.locator('.crop-apply').isEnabled());
     await p.locator('.crop-apply').click();await p.locator('dialog').waitFor({state:'hidden'});
    }
    await drawShape('ellipse',[[.30,.30],[.67,.62]],'椭圆庭院');
    await drawShape('lasso',[[.30,.30],[.67,.30],[.30,.62],[.30,.30]],'套索庭院');
-   await tap('in-photo-crop');await p.locator('.crop-apply:enabled').waitFor();await p.locator('[name=extract]').selectOption('line');await paint();
+   await tap('in-photo-crop');await picker.adjust(p);await p.locator('[name=extract]').selectOption('line');await paint();
    await p.locator('.proof-panel').scrollIntoViewIfNeeded();
    const alphaHash=()=>proof.evaluate(c=>{const d=c.getContext('2d').getImageData(0,0,c.width,c.height).data;let n=0;for(let i=3;i<d.length;i+=4)n=(n*31+d[i])|0;return n;});
    const alphaBefore=await alphaHash(),beforeColour=await fingerprint();await fillColor('#963928');
    assert.equal(await alphaHash(),alphaBefore);assert.notEqual(await fingerprint(),beforeColour);
    await shot('盘心人物明暗线纹',p.locator('.proof-panel'));
    for(const width of [320,430]){await p.setViewportSize({width,height:812});assert.ok(await p.locator('.photo-picker').evaluate(el=>el.scrollWidth<=el.clientWidth+1));}
-   await p.locator('[name=crop-name]').fill('庭院人物线纹');await p.locator('.crop-apply').click();await p.locator('dialog').waitFor({state:'hidden'});
+   await picker.name(p,'庭院人物线纹');await p.locator('.crop-apply').click();await p.locator('dialog').waitFor({state:'hidden'});
    await p.reload();await p.locator('.study-sheet').waitFor();assert.equal(Number(await p.locator('.sample-count').getAttribute('data-count')),6);
    await require('./qa-material-controls.cjs').focusSample(p,(await meta()).photoSelection.find(m=>m.name==='套索庭院').id);assert.equal(await p.locator('.study-original polygon').count(),2);assert.equal(await p.locator('.study-original ellipse').count(),0);
    await require('./qa-material-controls.cjs').focusSample(p,(await meta()).photoSelection.find(m=>m.name==='椭圆庭院').id);assert.equal(await p.locator('.study-original ellipse').count(),2);

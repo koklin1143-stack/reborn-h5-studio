@@ -1,5 +1,6 @@
 const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
 const assert=require('node:assert/strict'),path=require('node:path'),fs=require('node:fs'),{pathToFileURL}=require('node:url');
+const picker=require('./qa-picker-controls.cjs');
 (async()=>{
  const browser=await chromium.launch({channel:'msedge'});
  try{
@@ -26,9 +27,9 @@ const assert=require('node:assert/strict'),path=require('node:path'),fs=require(
    await p.waitForFunction(()=>Number(document.querySelector('.sample-count').dataset.count)===3);
    await p.reload();await p.locator('.study-sheet').waitFor();assert.equal(Number(await p.locator('.sample-count').getAttribute('data-count')),3);
    await screenshot('纪念盘多选');
-   await tap('in-photo-crop');await p.locator('.crop-apply:enabled').waitFor();const board=p.locator('.crop-source'),box=await board.boundingBox();
+   await tap('in-photo-crop');await picker.selection(p);const board=p.locator('.crop-source'),box=await board.boundingBox();
    await p.mouse.move(box.x+box.width*.28,box.y+box.height*.30);await p.mouse.down();await p.mouse.move(box.x+box.width*.63,box.y+box.height*.60,{steps:6});await p.mouse.up();
-   await p.locator('[name=crop-name]').fill('我的盘心局部');await p.locator('.crop-apply').click();
+   await picker.name(p,'我的盘心局部');await p.locator('.crop-apply').click();
    await p.waitForFunction(()=>Number(document.querySelector('.sample-count').dataset.count)===4);
    await tap('in-continue');await p.waitForURL(/#editor/);const d=await draft(),original=d.imageId;
    assert.equal(d.provenance.parts.length,4);assert.equal(d.provenance.parts[3].custom,true);
@@ -52,10 +53,10 @@ const assert=require('node:assert/strict'),path=require('node:path'),fs=require(
    await p.locator('.study-sheet').waitFor();
    for(const button of await draft().then(d=>d.photoSelection.map(m=>m.id)))await require('./qa-material-controls.cjs').toggleSample(p,button);
    await p.locator('[data-action=in-continue]:disabled').waitFor();
-   await tap('in-photo-crop');await p.locator('.crop-apply:enabled').waitFor();
+   await tap('in-photo-crop');await picker.selection(p);
    const b=await p.locator('.crop-source').boundingBox();
    await p.mouse.move(b.x+b.width*.24,b.y+b.height*.57);await p.mouse.down();await p.mouse.move(b.x+b.width*.36,b.y+b.height*.72,{steps:4});await p.mouse.up();
-   await p.locator('[name=extract]').selectOption('ink');await p.locator('[name=crop-name]').fill('自取蓝色点花');await p.locator('.crop-apply').click();
+   await picker.adjust(p);await p.locator('[name=extract]').selectOption('ink');await picker.name(p,'自取蓝色点花');await p.locator('.crop-apply').click();
    await p.locator('.sample-count[data-count="1"]').waitFor();await tap('in-continue');await p.waitForURL(/#editor/);await p.reload();await p.locator('.editor-screen').waitFor();
    const solo=await draft();assert.equal(solo.provenance.parts.length,1);assert.match(solo.sourceMotifId,/^crop:westlake:/);
    assert.equal(solo.provenance.parts[0].ink,'#17317b');
@@ -63,7 +64,7 @@ const assert=require('node:assert/strict'),path=require('node:path'),fs=require(
    await tap('wb-tool','sample');await tap('manage-photo-picks');
    for(const id of [first,second,scene,'motif:westlake-crane'])await require('./qa-material-controls.cjs').toggleSample(p,id);
    await p.waitForFunction(()=>Number(document.querySelector('.sample-count').dataset.count)===5);
-   await tap('in-photo-crop');await p.locator('.crop-apply:enabled').click();await p.locator('dialog').waitFor({state:'hidden'});assert.equal(Number(await p.locator('.sample-count').getAttribute('data-count')),6);await tap('in-photo-crop');assert.equal(await p.locator('.crop-apply:enabled').innerText(),'存入素材库');await p.locator('dialog [data-action=close]').click();
+   await tap('in-photo-crop');await picker.adjust(p);await p.locator('.crop-apply:enabled').click();await p.locator('dialog').waitFor({state:'hidden'});assert.equal(Number(await p.locator('.sample-count').getAttribute('data-count')),6);await tap('in-photo-crop');assert.equal(await p.locator('.crop-apply:enabled').innerText(),'存入素材库');await p.locator('dialog [data-action=close]').click();
    for(const width of [320,430]){
     await p.setViewportSize({width,height:740});assert.ok(await p.locator('.study-sheet').evaluate(el=>el.scrollWidth<=el.clientWidth+1));
    }

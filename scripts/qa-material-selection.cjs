@@ -1,6 +1,7 @@
 /* Touch-size UI, original pixels, recolouring across draft lifecycles, and a large shelf. */
 const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright'),{toggleSample,focusSample}=require('./qa-material-controls.cjs');
 const assert=require('node:assert/strict'),path=require('node:path'),fs=require('node:fs'),{pathToFileURL}=require('node:url');
+const picker=require('./qa-picker-controls.cjs');
 (async()=>{
  const browser=await chromium.launch({channel:'msedge'});
  try{for(const url of ['http://127.0.0.1:8879/index.html',pathToFileURL(path.resolve('物之再生-H5-单文件.html')).href]){
@@ -34,8 +35,8 @@ const assert=require('node:assert/strict'),path=require('node:path'),fs=require(
   },single);assert.equal(solid.dims[0],solid.dims[2]);assert.equal(solid.dims[1],solid.dims[3]);assert.ok(solid.count>100&&solid.bad===0&&solid.alpha===0,JSON.stringify(solid));
   await tap('wb-tool','sample');await tap('manage-photo-picks');await toggleSample(p,garden);await tint(green);
   assert.deepEqual((await getDraft()).photoSelection.map(v=>v.tint),[red,green]);
-  await tap('in-photo-crop');await p.locator('.crop-apply:enabled').waitFor();await p.locator('.crop-tint summary').tap();await p.locator('.crop-tint [data-tint="#33466c"]').tap();
-  await p.locator('[name=crop-name]').fill('我的庭院局部');await p.locator('.crop-apply').tap();await endDialog();const custom=(await getDraft()).photoSelection.at(-1).id;
+  await tap('in-photo-crop');await picker.setting(p,'tint');await p.locator('.crop-tint [data-tint="#33466c"]').tap();
+  await picker.name(p,'我的庭院局部');await p.locator('.crop-apply').tap();await endDialog();const custom=(await getDraft()).photoSelection.at(-1).id;
   await toggleSample(p,custom);await p.reload();await p.locator('.sample-count').waitFor();assert.ok((await getDraft()).photoLibrary.some(m=>m.id===custom&&m.tint==='#33466c'));
   await toggleSample(p,custom);await focusSample(p,garden);
   // Many saved source regions must not grow the main page or the number of rendered catalogue tiles.
@@ -53,7 +54,7 @@ const assert=require('node:assert/strict'),path=require('node:path'),fs=require(
   const extra=['46','45','44'].map(n=>'crop:westlake:qa-'+n);
   async function changeExtra(){await filter.selectOption('custom');for(const id of extra){await search.fill('样片 '+id.slice(-2));await tap('in-photo-toggle',id);}await search.fill('');}
   await changeExtra();assert.equal(Number(await p.locator('.sample-count').getAttribute('data-count')),6);await tap('in-photo-crop');assert.equal(await p.locator('.crop-apply:enabled').innerText(),'存入素材库');
-  await p.locator('[data-shape=rect]').tap();await p.locator('[name=crop-name]').fill('满组选外新增');await p.locator('.crop-apply').tap();await endDialog();
+  await picker.selection(p);await p.locator('[data-shape=rect]').tap();await picker.name(p,'满组选外新增');await p.locator('.crop-apply').tap();await endDialog();
   assert.ok((await getDraft()).photoLibrary.some(v=>v.name==='满组选外新增'));assert.equal(Number(await p.locator('.sample-count').getAttribute('data-count')),6);await changeExtra();assert.equal(Number(await p.locator('.sample-count').getAttribute('data-count')),3);
   await tap('in-photo-layout');await p.locator('.layout-apply:enabled').waitFor();await p.locator('.placement-more summary').tap();assert.equal(await p.locator('[data-layout-tab],[data-layer-command=turn],[data-layer-field=size],[data-layer-field=rotation]').count(),0);
   await p.locator('[data-layer="0"]').tap();await p.locator('.layer-front').tap();await p.locator('.layer-handle').press('Shift+ArrowRight');await p.locator('.layout-apply').tap();await p.waitForURL(/#editor$/);

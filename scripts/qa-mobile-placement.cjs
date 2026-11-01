@@ -1,6 +1,7 @@
 /* Real touch-size layouts, isolated browser storage and both production entry points. */
 const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),{pathToFileURL}=require('node:url');
+const picker=require('./qa-picker-controls.cjs');
 (async()=>{
  const browser=await chromium.launch({channel:'msedge'});
  try{
@@ -16,11 +17,11 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('n
    const red='motif:blue-enamel-redglaze';await require('./qa-material-controls.cjs').toggleSample(p,red);await act('in-photo-layout').waitFor();
    const round=await p.locator('.study-print img').evaluate(async im=>{await im.decode();const c=document.createElement('canvas');c.width=im.naturalWidth;c.height=im.naturalHeight;const ctx=c.getContext('2d');ctx.drawImage(im,0,0);return [c.width,c.height,ctx.getImageData(0,0,1,1).data[3],ctx.getImageData(Math.floor(c.width/2),Math.floor(c.height/2),1,1).data[3]];});
    assert.equal(round[0],round[1]);assert.deepEqual(round.slice(2),[0,255]);assert.ok(await p.locator('.study-original circle').count());
-   await tap('in-photo-crop');await p.locator('.crop-apply:enabled').waitFor();
+   await tap('in-photo-crop');await picker.selection(p);
    assert.equal(await p.locator('[data-shape="circle"]').getAttribute('aria-pressed'),'true');
    const board=p.locator('.crop-source');await board.scrollIntoViewIfNeeded();const rect=await board.boundingBox();
    await p.mouse.move(rect.x+rect.width*.32,rect.y+rect.height*.49);await p.mouse.down();await p.mouse.move(rect.x+rect.width*.63,rect.y+rect.height*.54,{steps:8});await p.mouse.up();
-   await p.locator('[name=crop-name]').fill('圆形试样');await p.locator('.crop-apply').click();await p.locator('dialog').waitFor({state:'hidden'});
+   await picker.name(p,'圆形试样');await p.locator('.crop-apply').click();await p.locator('dialog').waitFor({state:'hidden'});
    await tap('in-photo-layout');await p.locator('.layout-apply:enabled').waitFor();await p.locator('[data-layer="0"]').click();
    await p.locator('.placement-more summary').click();await p.locator('.layer-front').click();await p.locator('.layer-handle').press('ArrowDown');await p.locator('.layer-handle').press('ArrowDown');await p.locator('.layout-apply').click();await p.waitForURL(/#editor/);
    let d=await draft();assert.equal(d.provenance.parts.length,3);assert.equal(d.provenance.parts.at(-1).id,'motif:blue-enamel-scroll');assert.equal(d.provenance.parts.at(-1).size,.39);

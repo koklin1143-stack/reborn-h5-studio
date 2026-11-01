@@ -57,22 +57,31 @@
  }
  async function open({p,choices,load,api,tool:initial,focus,count,canAdd,add}){
   const label={smart:'点选识别',circle:'圆形',rect:'矩形',ellipse:'椭圆',lasso:'套索'};
-  api.open('从原照取样',`<div class="crop-maker photo-picker">
+  api.open('从原照取样',`<div class="crop-maker photo-picker" data-step="select">
+   <div class="picker-steps" role="group" aria-label="取样步骤"><button type="button" data-picker-step="select" aria-pressed="true"><span>1</span> 选范围</button><button type="button" data-picker-step="adjust" aria-pressed="false" disabled><span>2</span> 调效果</button></div>
+   <section class="picker-selection" aria-label="选择取样范围">
    <div class="picker-tools" role="group" aria-label="选区工具">${Object.entries(label).map(([k,v])=>`<button type="button" data-shape="${k}" aria-pressed="${k===initial}">${v}</button>`).join('')}</div>
    <div class="picker-photo"><canvas class="crop-source" tabindex="0" aria-label="原照选区，方向键移动，Shift 调整尺寸。套索可按空格加点、回车闭合"></canvas></div>
    <div class="picker-caption"><span class="pick-help" role="status"></span><button type="button" class="source-zoom">放大选区</button></div>
    <div class="picker-found" hidden><span aria-live="polite"></span><button type="button" data-step="-1" aria-label="上一处候选">上一处</button><button type="button" data-step="1" aria-label="下一处候选">下一处</button></div>
    <button type="button" class="close-lasso" hidden>闭合套索</button>
-   <div class="crop-settings"><label>提取方式<select class="input" name="extract"><option value="photo">保留原色</option><option value="ink">提取单色</option><option value="line">按明暗提线</option></select></label>
-   <label class="crop-ink" hidden><span>取样色</span><input type="color" value="#17317b"></label></div>
-   <div class="ink-options" hidden><div class="picked-palette" role="group" aria-label="从选区换色"></div><label><span>取色范围</span> <input type="range" name="ink-range" min="0" max="100" value="45"><output>45</output></label></div>
+   </section>
+   <section class="picker-adjustment" aria-label="调整取样效果" hidden>
    <section class="proof-panel"><div class="proof-heading"><strong>局部预览</strong><div role="group" aria-label="预览倍率">${[1,2,4].map(z=>`<button type="button" data-zoom="${z}" aria-pressed="${z===1}">${z}×</button>`).join('')}</div></div>
     <div class="crop-result"><canvas tabindex="0" aria-label="放大的局部预览"></canvas></div>
     <div class="proof-tabs" role="group" aria-label="对照预览"><button type="button" data-proof="result" aria-pressed="true">提取结果</button><button type="button" data-proof="source" aria-pressed="false">原照取色</button></div>
     <small class="proof-hint"></small></section>
-   <details class="crop-tint"><summary>素材颜色 <span>原色</span></summary>${window.MaterialColor.controls()}</details>
-   <label class="crop-name">素材名称<input class="input" name="crop-name" maxlength="16" value="自取局部 ${count+1}"></label>
-   <button class="btn primary full crop-apply" disabled>${canAdd?'加入这组素材':'存入素材库'}</button></div>`);
+   <div class="picker-adjust-tools">
+    <div class="picker-settings-tabs" role="group" aria-label="素材设置"><button type="button" data-picker-setting="extract" aria-pressed="true">提取</button><button type="button" data-picker-setting="tint" aria-pressed="false">改色</button><button type="button" data-picker-setting="name" aria-pressed="false">名称</button></div>
+    <div class="picker-setting-panel" data-setting-panel="extract">
+   <div class="crop-settings"><label>提取方式<select class="input" name="extract"><option value="photo">保留原色</option><option value="ink">提取单色</option><option value="line">按明暗提线</option></select></label>
+   <label class="crop-ink" hidden><span>取样色</span><input type="color" value="#17317b"></label></div>
+   <div class="ink-options" hidden><div class="picked-palette" role="group" aria-label="从选区换色"></div><label><span>取色范围</span> <input type="range" name="ink-range" min="0" max="100" value="45"><output>45</output></label></div>
+    </div>
+    <div class="picker-setting-panel crop-tint" data-setting-panel="tint" hidden><div class="picker-setting-label">素材颜色 <span>原色</span></div>${window.MaterialColor.controls()}</div>
+    <div class="picker-setting-panel" data-setting-panel="name" hidden><label class="crop-name">素材名称<input class="input" name="crop-name" maxlength="16" value="自取局部 ${count+1}"></label></div>
+   </div></section>
+   <footer class="picker-footer"><div class="picker-mini"><canvas width="80" height="80" aria-label="当前取样预览"></canvas><span>取样预览</span></div><button type="button" class="btn primary picker-next" disabled>下一步 · 调效果</button><button type="button" class="btn secondary picker-back" hidden>改范围</button><button class="btn primary full crop-apply" disabled hidden>${canAdd?'加入这组素材':'存入素材库'}</button></footer></div>`);
   const root=document.querySelector('.photo-picker'),get=q=>root.querySelector(q),all=q=>[...root.querySelectorAll(q)];
   const im=await load(p.studyKey||p.key);if(!root.isConnected||!root.closest('dialog')?.open)return;
   const board=get('.crop-source'),proof=get('.crop-result canvas'),mode=get('[name=extract]'),color=get('.crop-ink input'),range=get('[name=ink-range]'),help=get('.pick-help'),apply=get('.crop-apply');
@@ -82,7 +91,21 @@
   let tool=initial,shape=focus?.recipe?.shape||focus?.shape||(initial==='circle'?'circle':'rect'),points=focus?.recipe?.points||[],trace=[],drag=null,discovered=null,candidate=-1,ready=initial!=='smart'||Boolean(focus);
   let zoom=1,proofMode='result',centre=[.5,.5],frame=0,raw=null,cut=null,lastROI='',lastCut='',hasInk=false,proofMap=null,notice='',saving=false,keyboardPen=null;
   let tint=initial==='inspect'?focus?.tint||null:null;
-  const tintLabel=get('.crop-tint summary span');tintLabel.textContent=tint?'已改色':'原色';
+  const tintLabel=get('.crop-tint .picker-setting-label span');tintLabel.textContent=tint?'已改色':'原色';
+  function showStep(step){
+   if(step==='adjust'&&!ready)return;
+   root.dataset.step=step;get('.picker-selection').hidden=step!=='select';get('.picker-adjustment').hidden=step!=='adjust';
+   get('.picker-mini').hidden=get('.picker-next').hidden=step!=='select';get('.picker-back').hidden=apply.hidden=step!=='adjust';
+   all('[data-picker-step]').forEach(el=>el.setAttribute('aria-pressed',String(el.dataset.pickerStep===step)));
+   refresh();
+  }
+  all('[data-picker-step]').forEach(el=>el.onclick=()=>showStep(el.dataset.pickerStep));
+  get('.picker-next').onclick=()=>showStep('adjust');get('.picker-back').onclick=()=>showStep('select');
+  all('[data-picker-setting]').forEach(el=>el.onclick=()=>{
+   all('[data-picker-setting]').forEach(b=>b.setAttribute('aria-pressed',String(b===el)));
+   all('[data-setting-panel]').forEach(panel=>panel.hidden=panel.dataset.settingPanel!==el.dataset.pickerSetting);
+   refresh();
+  });
   window.MaterialColor.bind(get('.sample-colors'),tint,value=>{tint=value;tintLabel.textContent=tint?'已改色':'原色';proofMode='result';refresh();});
   if(focus?.ink){mode.value=focus.recipe?.method==='line'?'line':'ink';color.value=focus.ink;range.value=focus.recipe?.range??45;}
   const recipe=()=>({version:2,shape,...(shape==='lasso'?{points}:{}),...(mode.value==='line'?{method:'line'}:{}),...(mode.value!=='photo'?{range:Number(range.value)}:{})});
@@ -119,6 +142,9 @@
    return '#'+[0,1,2].map(ch=>Array.from({length:9},(_,i)=>data[4*i+ch]).sort((a,b)=>a-b)[4].toString(16).padStart(2,'0')).join('');
   }
   function proofDraw(){
+   const mini=get('.picker-mini canvas'),mc=mini.getContext('2d');mc.clearRect(0,0,80,80);
+   if(ready&&cut){const source=window.MaterialColor.paint(cut,{tint,treatment:mode.value==='photo'?'colour':'ink'}),scale=Math.min(80/source.width,80/source.height);mc.drawImage(source,(80-source.width*scale)/2,(80-source.height*scale)/2,source.width*scale,source.height*scale);}
+   if(root.dataset.step!=='adjust')return;
    const b=proof.getBoundingClientRect(),d=Math.min(devicePixelRatio||1,2),pw=Math.max(1,Math.round(b.width*d)),ph=Math.max(1,Math.round(b.height*d));
    if(proof.width!==pw)proof.width=pw;if(proof.height!==ph)proof.height=ph;
    const ctx=proof.getContext('2d'),src=proofMode==='source'?raw:cut&&window.MaterialColor.paint(cut,{tint,treatment:mode.value==='photo'?'colour':'ink'});
@@ -156,7 +182,7 @@
    get('.crop-result').classList.toggle('proof-dark',ink&&proofMode==='result'&&lightInk>165);
    get('.crop-result').classList.toggle('proof-empty',!ready);
    get('.proof-hint').textContent=!ready?'先在原照上选一处字纹。':proofMode==='source'?'轻点局部吸取颜色，随即查看单色结果。':!hasInk?'当前颜色未取到笔画，可换色或放宽范围。':zoom>1?'拖动预览查看放大后的边缘。':'可放大查看笔画与透明边缘。';
-   apply.disabled=saving||!ready||!hasInk;renderBoard();proofDraw();
+   apply.disabled=saving||!ready||!hasInk;get('.picker-next').disabled=get('[data-picker-step=adjust]').disabled=saving||!ready;renderBoard();proofDraw();
   }
   function refresh(){if(!frame)frame=requestAnimationFrame(()=>{frame=0;update();});}
   async function find(){
@@ -256,7 +282,7 @@
   };
   const resize=new ResizeObserver(()=>{if(root.isConnected)proofDraw();});resize.observe(get('.crop-result'));
   root.closest('dialog').addEventListener('close',()=>{resize.disconnect();if(frame)cancelAnimationFrame(frame);},{once:true});
-  if(tool==='smart')find();update();
+  if(tool==='smart')find();if(initial==='inspect')showStep('adjust');update();
  }
  window.PhotoPicker={open};
 })();

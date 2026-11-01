@@ -125,8 +125,9 @@
 .app .publication-file .detail-action-bar .btn{min-height:44px;background:var(--surface);color:var(--ui-text);border:1px solid #dbdbdb;border-radius:24px;box-shadow:none}
 .app .publication-file .detail-action-bar .card-like{display:grid;min-width:44px;width:auto;padding:0 6px;place-items:center}
 .publication-file .card-like .like-mark{border:0;padding:2px;background:none}
-.app .publication-file .detail-action-bar [data-action=gallery-like][aria-pressed=true]{background:#393939}
-.publication-file .card-like[aria-pressed=true] svg{fill:var(--ui-text);stroke:var(--ui-text)}
+.app .publication-file .detail-action-bar :is([data-action=gallery-like],[data-action=gallery-collect])[aria-pressed=true]{background:#393939;border-color:#393939;color:#fff}
+.app .publication-file .detail-action-bar .like-mark{background:transparent;color:inherit}
+.app .publication-file .detail-action-bar .like-mark svg{fill:none;stroke:currentColor}
 .app .publication-file .detail-action-bar .primary{flex:0 1 auto;margin-left:auto;padding:0 13px;font-size:13px;background:#262626;color:white;border-color:#262626}
 .app .publication-file .file-withdraw{padding:0 4px;font-size:12px}
 

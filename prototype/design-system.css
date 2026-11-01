@@ -698,3 +698,72 @@
 #ai-connect-form input{box-sizing:border-box;width:100%;min-height:48px;border:1px solid var(--line);border-radius:8px;padding:10px 12px;background:var(--surface);color:var(--ui-text);font:400 16px/1.4 var(--ui-font)}
 #ai-connect-form input:focus-visible{outline:2px solid var(--ui-text);outline-offset:2px}
 #ai-connect-form .muted,#ai-connect-note{font:400 12px/1.6 var(--ui-font);color:var(--ui-secondary)}
+/* Keep the two photo-picking steps and their actions within the mobile sheet. */
+.app dialog[open]:has(.photo-picker){display:flex;flex-direction:column;height:min(92dvh,800px);max-height:92dvh;overflow:hidden}
+.app dialog:has(.photo-picker) .dialog-head{flex:none;padding-block:8px}
+.app dialog:has(.photo-picker) .dialog-body{display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden;padding:0 var(--gutter)}
+.app .photo-picker{display:grid;flex:1;grid-template-rows:auto minmax(0,1fr) auto;gap:10px;width:100%;min-width:0;min-height:0}
+.photo-picker .picker-steps{display:flex;gap:16px;border-bottom:1px solid var(--line)}
+.photo-picker .picker-steps button{position:relative;display:flex;align-items:center;justify-content:center;gap:7px;flex:1;min-height:44px;border:0;background:none;color:var(--ui-secondary);font:500 14px/1.4 var(--ui-font)}
+.photo-picker .picker-steps button[aria-pressed=true]{color:var(--ui-text);font-weight:650}
+.photo-picker .picker-steps button[aria-pressed=true]:after{content:'';position:absolute;bottom:-1px;left:20%;right:20%;height:2px;background:currentColor}
+.photo-picker .picker-steps button span{display:grid;place-items:center;width:20px;height:20px;border:1px solid var(--line);border-radius:50%;font-size:11px;font-variant-numeric:tabular-nums}
+.photo-picker .picker-steps button[aria-pressed=true] span{background:var(--ui-text);border-color:var(--ui-text);color:var(--surface)}
+.photo-picker .picker-steps button:disabled{opacity:.5}
+.photo-picker :is(.picker-selection,.picker-adjustment){min-width:0;min-height:0;display:grid;gap:6px}
+.photo-picker .picker-selection{grid-template-rows:auto minmax(0,1fr) auto}
+.photo-picker .picker-photo{min-height:0;container-type:size;border-radius:8px}
+.app .photo-picker .crop-source{max-width:100cqw;max-height:100cqh;width:auto;height:auto}
+.photo-picker .picker-tools{gap:0;padding:2px}
+.photo-picker .picker-tools button{padding:4px 1px;font-size:12px;white-space:nowrap}
+.photo-picker .picker-caption{margin:0;font-size:12px;line-height:1.5}
+.photo-picker .picker-caption .pick-help{flex:1;min-width:0}
+.photo-picker .picker-caption .source-zoom{flex:none;padding-inline:5px;font-size:12px}
+.photo-picker .picker-found{grid-row:4;align-items:center;justify-content:space-between;min-height:44px}
+.photo-picker .close-lasso{grid-row:5}
+.photo-picker .picker-adjustment{grid-template-rows:minmax(0,1fr) auto}
+.photo-picker .proof-panel{display:grid;grid-template-rows:44px minmax(0,1fr) 44px auto;min-height:0;gap:3px}
+.photo-picker .proof-heading strong{font:600 14px/1.4 var(--ui-font)}
+.photo-picker .proof-heading button{min-width:44px;padding-inline:6px}
+.photo-picker .crop-result{min-height:0;position:relative}
+.app .photo-picker .crop-result canvas{position:absolute;inset:0;width:100%;height:100%;max-height:none}
+.photo-picker .proof-hint{margin:0;font-size:11px;line-height:1.4}
+.photo-picker .picker-adjust-tools{border-top:1px solid var(--line);min-height:0}
+.photo-picker .picker-settings-tabs{display:flex;gap:3px;padding-block:4px}
+.photo-picker .picker-settings-tabs button{flex:1;min-height:44px;border:0;border-radius:7px;background:transparent;color:var(--ui-secondary);font:500 14px/1.4 var(--ui-font)}
+.photo-picker .picker-settings-tabs button[aria-pressed=true]{background:var(--ui-bg);color:var(--ui-text);font-weight:600}
+.photo-picker .picker-setting-panel{max-height:150px;overflow:auto;overscroll-behavior:contain;padding:3px 0}
+.photo-picker .crop-settings{gap:8px;align-items:center}
+.photo-picker .crop-settings label{display:flex;align-items:center;gap:8px;font-size:12px;white-space:nowrap}
+.photo-picker .crop-settings select{width:0;flex:1;min-width:0;min-height:44px;padding:8px;font-size:14px}
+.photo-picker .crop-settings .crop-ink{flex:none}
+.photo-picker .crop-ink input{width:44px;height:44px}
+.photo-picker .ink-options{gap:0}
+.photo-picker .ink-options input[type=range]{min-height:44px;min-width:0}
+.photo-picker .picked-palette{flex-wrap:nowrap;overflow-x:auto}
+.photo-picker .picked-palette button{flex-shrink:0}
+.photo-picker .picker-setting-label,.photo-picker .crop-name{font:400 12px/1.5 var(--ui-font)}
+.photo-picker .picker-setting-label span{margin-left:8px;color:var(--ui-secondary)}
+.photo-picker .crop-name{display:flex;align-items:center;gap:10px}
+.photo-picker .crop-name input{min-width:0;width:0;flex:1;min-height:44px;font-size:16px}
+.photo-picker .sample-colors{margin:0}
+.photo-picker .picker-footer{display:flex;align-items:center;gap:10px;border-top:1px solid var(--line);padding:10px 0 max(10px,env(safe-area-inset-bottom));background:var(--surface)}
+.photo-picker .picker-mini{display:flex;align-items:center;gap:8px;font:400 12px/1.4 var(--ui-font);color:var(--ui-secondary)}
+.photo-picker .picker-mini canvas{display:block;width:40px;height:40px;object-fit:contain;border-radius:5px;background:var(--ui-bg)}
+.app .photo-picker .picker-footer .btn{min-height:48px;margin:0;font-size:14px;padding:10px 14px}
+.photo-picker .picker-next{flex:1}.photo-picker .picker-back{flex:0 0 auto}.photo-picker .crop-apply{flex:1;min-width:0;width:auto}
+.photo-picker [hidden]{display:none!important}
+@media(max-height:650px){
+ .app dialog[open]:has(.photo-picker){height:96dvh;max-height:96dvh}
+ .app .photo-picker{gap:6px}
+ .photo-picker .picker-footer{padding-block:6px max(6px,env(safe-area-inset-bottom))}
+ .photo-picker .picker-settings-tabs{padding-block:2px}
+ .photo-picker .proof-panel{grid-template-columns:minmax(0,1fr) 132px;grid-template-rows:44px minmax(0,1fr) auto}
+ .photo-picker .proof-heading{grid-column:2;grid-row:1}
+ .photo-picker .proof-heading strong{display:none}
+ .photo-picker .proof-heading [role=group]{gap:0}
+ .photo-picker .proof-tabs{grid-column:1;grid-row:1;gap:0}
+ .photo-picker .proof-tabs button{font-size:11px;padding-inline:2px}
+ .photo-picker .crop-result{grid-column:1/-1;grid-row:2}
+ .photo-picker .proof-hint{grid-column:1/-1;grid-row:3}
+}
