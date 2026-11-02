@@ -1,6 +1,6 @@
 # GitHub 页面连接 AI
 
-GitHub Pages 只托管网页文件，不能运行本项目的 Node 生成服务。目前已使用阿里云函数计算托管后端，仍调用原有百炼 API。2026-11-02 已通过云端真实出图测试；网页预设服务地址，连接时只需补充独立访问码，不能填写百炼密钥。
+GitHub Pages 只托管网页文件，不能运行本项目的 Node 生成服务。目前已使用阿里云函数计算托管后端，仍调用原有百炼 API。2026-11-02 已通过云端真实出图测试；网页预设服务地址，测试者可通过专用邀请链接自动连接，或手动填写独立访问码；不能填写百炼密钥。
 
 当前部署与后续维护见 [FC 上传包与配置步骤](aliyun-fc-setup.md)。以下 Render 步骤作为备选方案保留，无需重复创建后端。
 
@@ -58,7 +58,7 @@ GitHub Pages 只托管网页文件，不能运行本项目的 Node 生成服务�
 3. 填写 Render 返回的 HTTPS 根地址，例如 `https://你的服务.onrender.com`，以及独立访问码。
 4. 连接通过后再正常确认生成。
 
-地址保存在当前浏览器，访问码只保存在当前标签页会话中。这里不填写百炼密钥。生成、找物与语音共用连接。服务睡眠时可等待唤醒后重试，不会因连接检查而生成图片或扣除模型调用费用。
+地址保存在当前浏览器。勾选“在这台设备记住连接”会在本机长期保留测试访问凭证，不设自动过期；取消勾选则只保留当前会话。这里不填写百炼密钥。生成、找物与语音共用连接。服务睡眠时可等待唤醒后重试，不会因连接检查而生成图片或扣除模型调用费用。
 
 确认长期地址后，可把 `prototype/api-config.js` 的 `apiBase` 改成这个公开 HTTPS 根地址，再构建并提交；这样新访问者不用填写地址，只需访问码。没有真实地址时保持空值。
 
@@ -87,6 +87,15 @@ GitHub Pages 只托管网页文件，不能运行本项目的 Node 生成服务�
 - 页面连接时验证 `GET /api/access`，错误访问码返回 401。
 - 配置后在真实线上页面完成一次生成、工作台使用及刷新恢复，才算线上 AI 验收完成。
 
-目前已验证本地服务及 HTTPS/跨域浏览器模拟。尚需账号创建云服务、填写运行时密钥与真实云端生成验证。
+2026-11-02 已验证 FC 的真实出图、百炼目录匹配和合成测试录音识别。邀请、手动连接、跨会话恢复和三种创作入口已通过桌面浏览器手机尺寸模拟；这不等于真机 Safari 验收。
 
-参考：[GitHub Pages 定义](https://docs.github.com/en/pages/getting-started-with-github-pages/what-is-github-pages)、[Render 首次部署](https://render.com/docs/your-first-deploy)、[Web Service 配置](https://render.com/docs/web-services)、[Render Blueprint](https://render.com/docs/blueprint-spec)、[免费实例限制](https://render.com/docs/free)。部署入口说明于 2026-11-02 根据绑卡弹窗补充，尚未完成该账号的云端部署。
+参考：[GitHub Pages 定义](https://docs.github.com/en/pages/getting-started-with-github-pages/what-is-github-pages)、[Render 首次部署](https://render.com/docs/your-first-deploy)、[Web Service 配置](https://render.com/docs/web-services)、[Render Blueprint](https://render.com/docs/blueprint-spec)、[免费实例限制](https://render.com/docs/free)。部署入口说明于 2026-11-02 根据绑卡弹窗补充，Render 未部署，当前实际使用 FC。
+
+## 测试邀请与长期记住
+
+- 邀请格式为正式网页地址加 `#ai-invite=独立的48位十六进制测试访问码`。只把实际链接放在仓库外的私有文件中，不提交到 GitHub。
+- 网页先从地址栏移除片段，再向内置的后端地址验证；验证通过才长期保存。链接不能指定任意后端。普通页面访问不会触发模型生成。
+- 测试者首次打开邀请链接即可使用，之后同一浏览器无需重新输入。清除网站数据、无痕窗口或换浏览器需重新打开邀请。
+- “我的 → AI 连接设置 → 清除此设备的连接”可在本机退出。云端更换 `AI_ACCESS_CODE` 并部署，会撤销全部旧邀请与设备凭证；当前不支持单独撤销某个测试者。
+- 这是受邀测试方案：链接和本机凭证都授予共享调用权限，不能当作无害的公开链接。百炼密钥始终只在后端。当前没有用户级每日额度，正式公开测试应先加入账号/设备令牌、服务端额度与费用上限。
+- 浏览器持久存储可被同源脚本访问，不声称它等同于 HttpOnly 会话保护；参见 [OWASP 本地存储说明](https://cheatsheetseries.owasp.org/cheatsheets/HTML5_Security_Cheat_Sheet.html#local-storage)。

@@ -4,7 +4,7 @@
  const V=window.Views,E=window.Explore,el=id=>document.getElementById(id);
  let active=null;
  function voiceControls(){return V.btn(V.icon('mic',19)+'<span>说话</span>','search-voice','query-mic','id="voice-toggle" aria-label="开始说话" aria-pressed="false" disabled');}
- function controls(){return `<div id="search-ai-settings" hidden><div class="query-submit">${V.btn('查找','search-ai','primary','hidden')}${V.btn('取消查找','search-stop','text','hidden')}</div><small>语音和提交的搜索词由百炼处理</small></div><p id="search-status" role="status"></p>`;}
+ function controls(){return `<div id="search-connect" hidden>${V.btn('连接 AI，开启找物与语音','ai-connection','primary full')}</div><div id="search-ai-settings" hidden><div class="query-submit">${V.btn('查找','search-ai','primary','hidden')}${V.btn('取消查找','search-stop','text','hidden')}</div><small>语音和提交的搜索词由百炼处理</small></div><p id="search-status" role="status"></p>`;}
  function syncQuery(){
   const filled=Boolean(el('search-query').value.trim()),sheet=el('search-query').closest('.voice-search-sheet');
   sheet.querySelector('[data-action=clear-search]').hidden=!el('search-query').value;
@@ -68,6 +68,9 @@
  }
  async function mount(onTranscript){
   const s={onTranscript,endpoint:null,job:null,capture:null};active=s;syncQuery();
+  voiceNote('正在检查 AI 连接…');
+  await window.AIConnection.ready;
+  if(active!==s)return;
   el('search-query').onkeydown=e=>{if(e.key==='Enter'&&!e.isComposing){e.preventDefault();run();}};
   const paths=window.AIConnection.paths('search');
   for(const path of paths){if(active!==s)break;
@@ -76,8 +79,9 @@
   if(active!==s)return;el('search-ai-settings').hidden=!s.endpoint;
   const canRecord=Boolean(s.endpoint&&navigator.mediaDevices?.getUserMedia&&window.MediaRecorder);
   el('voice-toggle').disabled=!canRecord;syncQuery();
-  if(!canRecord)voiceNote(s.endpoint?'此浏览器暂不能录音，可输入查找。':'AI 未连接，可输入查找。');
-  if(!s.endpoint)el('search-status').innerHTML=V.btn('连接生成服务','ai-connection','text');
+  if(!canRecord)voiceNote(s.endpoint?'此浏览器暂不能录音，可输入查找。':window.AIConnection.hasAccess()?'AI 暂时无法连接，可先输入查找。':'首次使用需连接 AI，开启智能找物和语音。');
+  else voiceNote('说出想找的器物，或输入后点查找。');
+  el('search-connect').hidden=Boolean(s.endpoint);
  }
  document.addEventListener('visibilitychange',()=>{if(document.hidden&&active?.capture){disposeVoice();voiceNote('已取消录音');}});
  window.addEventListener('pagehide',cancel);

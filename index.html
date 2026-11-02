@@ -1435,6 +1435,9 @@
  .photo-picker .proof-hint{grid-column:1/-1;grid-row:3}
 }
 
+/* A single mobile connection form for search, voice and creation. */
+#ai-connect-form{display:grid;gap:16px}#ai-connect-form>p{margin:0;line-height:1.65}#ai-connect-form .check-row{margin:0;min-height:48px;align-items:center}#ai-connect-form .check-row small{display:block;color:var(--muted,#666);font-size:12px;line-height:1.6}#ai-connect-form input[type=checkbox]{width:20px;height:20px;flex-shrink:0}#ai-connect-form .field input{min-height:48px;font-size:16px}.ai-address summary{padding:10px 0;cursor:pointer}.ai-address .field{margin-top:8px}.ai-settings-row{margin:20px 0 8px}#search-connect{margin:12px 0}
+
 </style><style>
 /* The catalogue shares the app's neutral UI surfaces; only the objects and inks carry colour. */
 .app[data-view=gallery]{background:var(--ui-bg)}
@@ -1651,6 +1654,7 @@ window.RebornConfig={apiBase:['localhost','127.0.0.1'].includes(location.hostnam
 /* One endpoint and access-code policy for generation, search and speech. */
 (()=>{
  const key='reborn-api-base',codes=new Map();
+ const rememberedKey=origin=>'reborn-test-access:'+origin;
  function stored(store,name){try{return store.getItem(name)||'';}catch{return '';}}
  function base(value){
   const url=new URL(value);
@@ -1659,7 +1663,7 @@ window.RebornConfig={apiBase:['localhost','127.0.0.1'].includes(location.hostnam
   return url.origin;
  }
  function selected(){
-  try{return base(window.RebornConfig?.apiBase||stored(localStorage,key));}catch{return '';}
+  try{return base(stored(localStorage,key)||window.RebornConfig?.apiBase);}catch{return '';}
  }
  function paths(kind){
   const remote=selected(),list=remote?[remote+'/api/'+kind]:[];
@@ -1670,10 +1674,10 @@ window.RebornConfig={apiBase:['localhost','127.0.0.1'].includes(location.hostnam
  function headers(path){
   const origin=new URL(path,location.href).origin;
   if(!paths('pattern').some(p=>new URL(p,location.href).origin===origin))return {};
-  const code=codes.get(origin)||stored(sessionStorage,'reborn-access:'+origin);
+  const code=codes.get(origin)||stored(sessionStorage,'reborn-access:'+origin)||stored(localStorage,rememberedKey(origin));
   return code?{Authorization:'Bearer '+code}:{};
  }
- async function configure(address,code){
+ async function configure(address,code,{remember=false}={}){
   const origin=base(address),response=await fetch(origin+'/api/access',{cache:'no-store',headers:code?{Authorization:'Bearer '+code}:{},signal:AbortSignal.timeout(75000)});
   const data=await response.json().catch(()=>({}));
   if(response.status===401)throw Error('访问码不正确，请检查后重试。');
@@ -1681,9 +1685,25 @@ window.RebornConfig={apiBase:['localhost','127.0.0.1'].includes(location.hostnam
   if(!data.available)throw Error('服务已启动，但尚未配置 AI。请在服务端填写百炼配置。');
   codes.set(origin,code);
   try{localStorage.setItem(key,origin);sessionStorage.setItem('reborn-access:'+origin,code);}catch{}
+  try{if(remember)localStorage.setItem(rememberedKey(origin),code);else localStorage.removeItem(rememberedKey(origin));}catch{}
   return true;
  }
- window.AIConnection={paths,headers,configure,selected};
+ function hasAccess(){const address=selected();return !!(address&&headers(address+'/api/pattern').Authorization);}
+ function remembered(){return !!stored(localStorage,rememberedKey(selected()));}
+ function forget(){const origin=selected();codes.delete(origin);try{sessionStorage.removeItem('reborn-access:'+origin);localStorage.removeItem(rememberedKey(origin));}catch{}}
+ // Invitation fragments are never sent to the web host. Remove them before routing or analytics.
+ async function acceptInvitation(){
+  if(!location.hash.startsWith('#ai-invite='))return null;
+  const token=new URLSearchParams(location.hash.slice(1)).get('ai-invite')||'';
+  history.replaceState(history.state,'',location.pathname+location.search+'#discover');
+  if(!/^[a-f0-9]{48}$/.test(token))return {ok:false,message:'邀请链接不完整，请重新打开完整链接。'};
+  // Only the built-in deployment may receive an invitation credential, never a URL from the link or storage.
+  const address=window.RebornConfig?.apiBase;
+  if(!address)return {ok:false,message:'请在正式测试网页打开邀请链接。'};
+  try{await configure(address,token,{remember:true});return {ok:true,remembered:remembered()};}
+  catch(error){return {ok:false,message:error.message==='Failed to fetch'?'暂时无法连接 AI，请检查网络后重试邀请链接。':error.message};}
+ }
+ window.AIConnection={paths,headers,configure,selected,hasAccess,remembered,forget,receiveInvitation:()=>window.AIConnection.ready=acceptInvitation(),ready:acceptInvitation()};
 })();
 
 </script>
@@ -2443,7 +2463,7 @@ function workPick(w,ids){
  const displayName=split>0&&title.slice(split+1).trim()===vessel?title.slice(0,split).trim():title;
  return `<label class="work-card work-pick"><span class="work-cover" aria-hidden="true">${art(w)}</span><span class="work-pick-copy"><strong>${esc(displayName||title)}</strong><small>${esc(vessel||M.category(w.category).name)} · ${date(w.updatedAt||w.savedAt)}</small></span><input type="checkbox" data-work-pick value="${esc(w.id)}" aria-label="选择作品：${esc(title)}" ${ids.has(w.id)?'checked':''}></label>`;
 }
-function mine(c){const pubSaved=(c.s.galleryCollections||[]).filter(id=>M.findPublication(c.s,id));const f=c.s.ui.filter||'works',counts=[c.s.works.length,c.s.drafts.length,c.s.submissions.length,c.s.favorites.length+pubSaved.length];let list='';if(f==='works'||f==='drafts')list=c.s[f].length?`<div class="work-grid${c.selectedWorkIds?' work-selection-grid':''}">${[...c.s[f]].reverse().map(w=>f==='works'&&c.selectedWorkIds?workPick(w,c.selectedWorkIds):mini(w,f,f==='works'&&c.s.publications?.find(p=>p.workId===w.id&&p.state==='published'))).join('')}</div>`:empty(f==='drafts'?'还没有草稿':'还没有作品',f==='drafts'?'进行中的创作会出现在这里。':'从「共创」选择一件器物开始。');if(f==='submissions')list=c.s.submissions.length?c.s.submissions.slice().reverse().map(x=>row(x.snapshot.title,x.status+' · '+date(x.createdAt),'submission',`data-id="${x.id}"`)).join(''):empty('还没有演示投稿','先保存作品，再按自己的意愿参与。');if(f==='favorites')list=c.s.favorites.length?c.s.favorites.map(id=>{const i=M.getItem(id);return `<button class="catalog-row" data-action="choose" data-id="${i.id}">${A.object({itemId:i.id},true)}<span><strong>${i.name}</strong><small>${M.category(i.category).name} · 原创示意</small></span>${icon('arrow',18)}</button>`;}).join(''):empty('还没有收藏','在首页或物件详情点击收藏，方便下次找回。');if(f==='favorites'&&pubSaved.length){if(!c.s.favorites.length)list='';list+='<div class="section-heading"><h2>收藏的广场作品</h2></div>'+window.Views.savedGallery(c);}return `<section class="page-content mine-screen"><div class="my-tabs" role="group" aria-label="作品分组">${[['works','作品'],['drafts','草稿'],['submissions','投稿'],['favorites','收藏']].map(([id,label],i)=>btn(`${label} <small>${counts[i]}</small>`,'filter','',`data-id="${id}" aria-pressed="${f===id}"`)).join('')}</div>${list}<details class="archive-disclosure"${c.selectedWorkIds?' hidden':''}><summary>作品存储说明</summary><p>作品默认私有，保存在当前浏览器。清除网站数据会删除记录。</p></details></section>`;}
+function mine(c){const pubSaved=(c.s.galleryCollections||[]).filter(id=>M.findPublication(c.s,id));const f=c.s.ui.filter||'works',counts=[c.s.works.length,c.s.drafts.length,c.s.submissions.length,c.s.favorites.length+pubSaved.length];let list='';if(f==='works'||f==='drafts')list=c.s[f].length?`<div class="work-grid${c.selectedWorkIds?' work-selection-grid':''}">${[...c.s[f]].reverse().map(w=>f==='works'&&c.selectedWorkIds?workPick(w,c.selectedWorkIds):mini(w,f,f==='works'&&c.s.publications?.find(p=>p.workId===w.id&&p.state==='published'))).join('')}</div>`:empty(f==='drafts'?'还没有草稿':'还没有作品',f==='drafts'?'进行中的创作会出现在这里。':'从「共创」选择一件器物开始。');if(f==='submissions')list=c.s.submissions.length?c.s.submissions.slice().reverse().map(x=>row(x.snapshot.title,x.status+' · '+date(x.createdAt),'submission',`data-id="${x.id}"`)).join(''):empty('还没有演示投稿','先保存作品，再按自己的意愿参与。');if(f==='favorites')list=c.s.favorites.length?c.s.favorites.map(id=>{const i=M.getItem(id);return `<button class="catalog-row" data-action="choose" data-id="${i.id}">${A.object({itemId:i.id},true)}<span><strong>${i.name}</strong><small>${M.category(i.category).name} · 原创示意</small></span>${icon('arrow',18)}</button>`;}).join(''):empty('还没有收藏','在首页或物件详情点击收藏，方便下次找回。');if(f==='favorites'&&pubSaved.length){if(!c.s.favorites.length)list='';list+='<div class="section-heading"><h2>收藏的广场作品</h2></div>'+window.Views.savedGallery(c);}return `<section class="page-content mine-screen"><div class="my-tabs" role="group" aria-label="作品分组">${[['works','作品'],['drafts','草稿'],['submissions','投稿'],['favorites','收藏']].map(([id,label],i)=>btn(`${label} <small>${counts[i]}</small>`,'filter','',`data-id="${id}" aria-pressed="${f===id}"`)).join('')}</div>${list}<div class="ai-settings-row"${c.selectedWorkIds?' hidden':''}>${btn('AI 连接设置','ai-connection','text full')}</div><details class="archive-disclosure"${c.selectedWorkIds?' hidden':''}><summary>作品存储说明</summary><p>作品默认私有，保存在当前浏览器。清除网站数据会删除记录。</p></details></section>`;}
 function catalog(mode){return M.categories.map(cat=>`<div class="catalog-section"><h3>${cat.name}<small>${cat.en}</small></h3>${M.items.filter(i=>i.category===cat.id).map(i=>`<button class="catalog-row" data-action="${mode==='swap'?'swap-select':'choose'}" data-id="${i.id}">${A.object({itemId:i.id},true)}<span><strong>${i.name}</strong><small>自绘示意 · ${cat.name}</small></span>${icon('arrow',18)}</button>`).join('')}</div>`).join('');}
 function searchResults(q){const found=M.search(q);return !q.trim()?'<p class="search-empty">描述一种图案、颜色或物件，开始查找。</p>':found.length?found.map(i=>`<button class="catalog-row" data-action="choose" data-id="${i.id}">${A.object({itemId:i.id},true)}<span><strong>${i.name}</strong><small>${i.subtitle}</small></span>${icon('arrow',18)}</button>`).join(''):`<div class="search-empty"><h3>暂时没找到匹配物件</h3><p>试试“牡丹”“喜鹊”“邮票”或“糖纸”。</p>${btn('浏览全部物件','browse','secondary')}</div>`;}
 window.Views={esc,btn,ib,icon,tag,date,row,empty,art,nav,header,detail,editor,tools,result,points,mine,catalog,searchResults};
@@ -8034,6 +8054,7 @@ var DataTool = {};
     return {provider:'阿里云百炼',model:stage==='recolour'?result.planner:model,stage,identity:result.identity,recipe:{...recipe,...(finish?{technique:result.technique,colorStudy:plates?(plates.length===3?'三色套印':'双色套印'):finish.name,printInks:plates?plates.map(p=>p.hex):finish.inks}:{}),...(printTechnique?{paperVersion:window.EnamelPaper.version}:{}),planner:result.planner||recipe.planner,design:result.design},variants:[variant]};
   }
   async function connect() {
+    await window.AIConnection.ready;
     window.Services.configure('ai',null);
     const paths=window.AIConnection.paths('pattern');
     for(const path of paths){
@@ -9297,7 +9318,7 @@ var PerfectFreehand=(()=>{var Q=Object.defineProperty;var zn=Object.getOwnProper
   }
   if(form) {
    const offline=configured?'':'<p class="input-feedback" role="status">AI 服务未连接，素形已保留。</p>';
-   const action=configured?primary('用这个造型制纹','in-decorate',busy):primary('重新连接 AI','in-reconnect',connecting);
+   const action=configured?primary('用这个造型制纹','in-decorate',busy):primary('连接 AI','ai-connection',connecting);
    return problem+offline+action+other('重新设计一个造型','in-ai',busy||!configured);
   }
   if(d.inputTab==='motif'&&sourceObject(d)?.photo){
@@ -9308,8 +9329,8 @@ var PerfectFreehand=(()=>{var Q=Object.defineProperty;var zn=Object.getOwnProper
   const returnToForm=adjusting&&matchForm(d)?other('返回已生成的造型','in-show-form'):'';
   const local=d.inputTab==='sketch'?'':other('仅用本地规则预览','in-convert',!ready||busy);
   if(!configured){
-   const status=connecting?'正在连接 AI…':'AI 服务未连接，素材已保留';
-   return '<p class="input-feedback" role="status" data-ai-state="unconfigured">'+status+'</p>'+primary('重新连接 AI','in-reconnect',connecting)+other('连接生成服务','ai-connection',connecting)+returnToForm+local;
+   const status=connecting?'正在连接 AI…':window.AIConnection.hasAccess()?'AI 暂时无法连接，素材已保留':'首次连接 AI 后，图片、文字和手绘都能生成纹样';
+   return '<p class="input-feedback" role="status" data-ai-state="unconfigured">'+status+'</p>'+primary('连接 AI','ai-connection',connecting)+returnToForm+local;
   }
   return problem+primary(state==='failed'?'重试 AI 生成':'生成搪瓷纹样','in-ai',!ready||busy)+returnToForm+local;
  }
@@ -15024,7 +15045,7 @@ inkPosition=position; inkRow=profileRow; sheetCoord=vec2(uv.x,profileArc); skyLi
  const V=window.Views,E=window.Explore,el=id=>document.getElementById(id);
  let active=null;
  function voiceControls(){return V.btn(V.icon('mic',19)+'<span>说话</span>','search-voice','query-mic','id="voice-toggle" aria-label="开始说话" aria-pressed="false" disabled');}
- function controls(){return `<div id="search-ai-settings" hidden><div class="query-submit">${V.btn('查找','search-ai','primary','hidden')}${V.btn('取消查找','search-stop','text','hidden')}</div><small>语音和提交的搜索词由百炼处理</small></div><p id="search-status" role="status"></p>`;}
+ function controls(){return `<div id="search-connect" hidden>${V.btn('连接 AI，开启找物与语音','ai-connection','primary full')}</div><div id="search-ai-settings" hidden><div class="query-submit">${V.btn('查找','search-ai','primary','hidden')}${V.btn('取消查找','search-stop','text','hidden')}</div><small>语音和提交的搜索词由百炼处理</small></div><p id="search-status" role="status"></p>`;}
  function syncQuery(){
   const filled=Boolean(el('search-query').value.trim()),sheet=el('search-query').closest('.voice-search-sheet');
   sheet.querySelector('[data-action=clear-search]').hidden=!el('search-query').value;
@@ -15088,6 +15109,9 @@ inkPosition=position; inkRow=profileRow; sheetCoord=vec2(uv.x,profileArc); skyLi
  }
  async function mount(onTranscript){
   const s={onTranscript,endpoint:null,job:null,capture:null};active=s;syncQuery();
+  voiceNote('正在检查 AI 连接…');
+  await window.AIConnection.ready;
+  if(active!==s)return;
   el('search-query').onkeydown=e=>{if(e.key==='Enter'&&!e.isComposing){e.preventDefault();run();}};
   const paths=window.AIConnection.paths('search');
   for(const path of paths){if(active!==s)break;
@@ -15096,8 +15120,9 @@ inkPosition=position; inkRow=profileRow; sheetCoord=vec2(uv.x,profileArc); skyLi
   if(active!==s)return;el('search-ai-settings').hidden=!s.endpoint;
   const canRecord=Boolean(s.endpoint&&navigator.mediaDevices?.getUserMedia&&window.MediaRecorder);
   el('voice-toggle').disabled=!canRecord;syncQuery();
-  if(!canRecord)voiceNote(s.endpoint?'此浏览器暂不能录音，可输入查找。':'AI 未连接，可输入查找。');
-  if(!s.endpoint)el('search-status').innerHTML=V.btn('连接生成服务','ai-connection','text');
+  if(!canRecord)voiceNote(s.endpoint?'此浏览器暂不能录音，可输入查找。':window.AIConnection.hasAccess()?'AI 暂时无法连接，可先输入查找。':'首次使用需连接 AI，开启智能找物和语音。');
+  else voiceNote('说出想找的器物，或输入后点查找。');
+  el('search-connect').hidden=Boolean(s.endpoint);
  }
  document.addEventListener('visibilitychange',()=>{if(document.hidden&&active?.capture){disposeVoice();voiceNote('已取消录音');}});
  window.addEventListener('pagehide',cancel);
@@ -15689,24 +15714,29 @@ function confirmDelete(kind,id){const record=state[kind]?.find(x=>x.id===id);if(
 document.addEventListener('change',e=>{if(page==='gallery'&&e.target.matches('.gallery-form'))handle('gallery-category',{dataset:{id:e.target.value}});});
 async function handle(action,el){if(busy&&action!=='close')return;const id=el?.dataset.id;
 if(action==='ai-connection'){
+ const returnToSearch=modal==='search';
+ window.SearchAssistant?.cancel();
  const address=window.AIConnection.selected()||(/^https?:$/.test(location.protocol)&&!location.hostname.endsWith('.github.io')?location.origin:'');
- open('连接生成服务',`<form id="ai-connect-form"><p>填写管理员提供的服务地址和访问码。访问码只用于本次浏览器会话。</p><label class="field">服务地址<input name="endpoint" type="url" required placeholder="https://…" value="${V.esc(address)}" autocomplete="url"></label><label class="field">访问码<input name="access" type="password" autocomplete="off" maxlength="256" placeholder="管理员提供的访问码"></label><p class="muted">这里不填写百炼 API Key。</p><button class="btn primary full" type="submit">连接</button><p id="ai-connect-note" role="status"></p></form>`,'ai-connection');
+ open('连接 AI',`<form id="ai-connect-form"><p>连接一次，即可使用智能找物、语音和纹样生成。也可以直接打开测试邀请链接完成连接。</p><label class="field">测试访问码<input name="access" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="256" placeholder="粘贴测试访问码"></label><label class="check-row"><input name="remember" type="checkbox" checked><span>在这台设备记住连接<small>不自动过期；共用设备请取消勾选。</small></span></label><details class="ai-address"${address?'':' open'}><summary>服务地址</summary><label class="field">AI 服务地址<input name="endpoint" type="url" required placeholder="https://…" value="${V.esc(address)}" autocomplete="url"></label></details><button class="btn primary full" type="submit">连接 AI</button>${window.AIConnection.hasAccess()?V.btn('清除此设备的连接','ai-forget','text full'):''}<p id="ai-connect-note" role="status"></p></form>`,'ai-connection');
  const form=$('#ai-connect-form');
  form.onsubmit=async e=>{
   e.preventDefault();const button=form.querySelector('button'),note=form.querySelector('#ai-connect-note');
   button.disabled=true;note.textContent='正在连接，首次唤醒服务可能需要约一分钟…';
   try{
-   await window.AIConnection.configure(form.elements.endpoint.value.trim(),form.elements.access.value.trim());
+   const target=form.elements.endpoint.value.trim();
+   const code=form.elements.access.value.trim()||(target===address?window.AIConnection.headers(address+'/api/pattern').Authorization?.replace(/^Bearer /,''):'')||'';
+   await window.AIConnection.configure(form.elements.endpoint.value.trim(),code,{remember:form.elements.remember.checked});
    if(!form.isConnected||!$('#dialog').open)return;
    if(!await window.BailianPatterns.connect())throw Error('服务规则版本不一致或暂不可用，请更新后端后重试。');
    if(!form.isConnected||!$('#dialog').open)return;
-   close();render();toast('AI 服务已连接');
+   close();render();if(returnToSearch)showSearch();toast(window.AIConnection.remembered()?'AI 已连接，这台设备已记住':'AI 已连接，本次会话有效');
   }catch(e){if(form.isConnected)note.textContent=e.name==='TimeoutError'?'服务启动较慢，请稍后重试。':e.message==='Failed to fetch'?'连接失败，请检查服务地址与网络。':e.message;}
   finally{if(form.isConnected)button.disabled=false;}
  };
  form.oninput=()=>{form.querySelector('#ai-connect-note').textContent='';};
  return;
 }
+if(action==='ai-forget'){window.AIConnection.forget();window.Services.configure('ai',null);close();render();toast('已清除此设备的 AI 连接');return;}
 if(action.startsWith('wb-'))return window.Workbench.handle(action,el);
 if(window.Inspiration&&action.startsWith('in-'))return window.Inspiration.handle(action,el);
 if(window.EditorObject.handle(action,el))return;
@@ -15917,7 +15947,7 @@ window.addEventListener('popstate',event=>{
   window.Inspiration.confirmAI(sheet==='recolour-consent');
  }
 });
-window.addEventListener('hashchange',async()=>{if(!loaded||location.hash==='#'+routeString())return;const oldFile=page==='galleryDetail'?state.ui.galleryId:null,oldLeaf=folioLeaf;if(page==='inspiration'&&!await window.Inspiration.leave()){history.replaceState({},'','#inspiration');return;}if(['editor','cup'].includes(page)&&!await save()){history.replaceState({},'','#'+page);return;}close();scrolls[page]=$('#main').scrollTop;if(page==='gallery')state.ui.gallery.scroll=$('#main').scrollTop;readRoute();render();$('#main').scrollTop=page==='gallery'?state.ui.gallery.scroll:page==='discover'?0:(scrolls[page]||0);if(oldFile)restoreFileFocus(oldFile,oldLeaf);});
+window.addEventListener('hashchange',async()=>{if(location.hash.startsWith('#ai-invite=')){await finishInvitation(window.AIConnection.receiveInvitation());return;}if(!loaded||location.hash==='#'+routeString())return;const oldFile=page==='galleryDetail'?state.ui.galleryId:null,oldLeaf=folioLeaf;if(page==='inspiration'&&!await window.Inspiration.leave()){history.replaceState({},'','#inspiration');return;}if(['editor','cup'].includes(page)&&!await save()){history.replaceState({},'','#'+page);return;}close();scrolls[page]=$('#main').scrollTop;if(page==='gallery')state.ui.gallery.scroll=$('#main').scrollTop;readRoute();render();$('#main').scrollTop=page==='gallery'?state.ui.gallery.scroll:page==='discover'?0:(scrolls[page]||0);if(oldFile)restoreFileFocus(oldFile,oldLeaf);});
 function readRoute(){const [route,id,leaf]=location.hash.slice(1).split('/');folioLeaf=route==='gallery'&&id&&window.GalleryFolio?.hasLeaf(leaf)?leaf:'';page=['discover','detail','editor','inspiration','cup','result','points','mine','gallery'].includes(route)?route:'discover';if(['editor','inspiration','cup'].includes(page)&&!draft())page='mine';if(page==='cup'&&draft()?.category!=='enamel')page='editor';if(route==='gallery'&&id){page='galleryDetail';state.ui.galleryParent=history.state?.folioParent||'gallery';state.ui.galleryId=decodeURIComponent(id);}if(route==='discover'&&id==='gallery')page='gallery';state.ui.coView='explore';if(['editor','cup'].includes(page)){parent=state.ui.editorParent||'discover';if(parent==='result')resultId=state.ui.resultId||null;}if(page==='galleryDetail'&&state.ui.galleryParent==='result')resultId=state.ui.resultId||null;if(page==='result')resultId=decodeURIComponent(id||state.ui.resultId||'');state.ui.route=routeString();if(resultId)state.ui.resultId=resultId;}
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&dirty)save();});window.addEventListener('pagehide',()=>{if(dirty)save();});window.addEventListener('beforeunload',e=>{if(dirty||busy){e.preventDefault();e.returnValue='';}});
 async function boot(){try{state=await S.load();await S.preload(state);loaded=true;clearError();readRoute();if(page==='discover')state.ui.category='enamel';render();if(page==='gallery')$('#main').scrollTop=state.ui.gallery.scroll;if(state.legacyImported&&!state.ui.legacyNotice){state.ui.legacyNotice=true;changed();toast('已导入旧版作品，旧数据仍保留');}}catch(e){loaded=false;report(e);$('#main').innerHTML='<div class="loading"><strong>暂时无法打开档案</strong><p>为保护原有记录，已暂停写入。请保留此页面，恢复浏览器存储权限后点击上方“重试”。</p></div>';}}
@@ -15927,7 +15957,12 @@ window.CupView?.init({draft,changed,page:()=>page,render,toEditor:back});
 window.EditorObject?.init({draft,changed,render,history:()=>{const d=draft();const u=$('[data-action=undo]'),r=$('[data-action=redo]');if(u)u.disabled=!d.past.length;if(r)r.disabled=!d.future.length;}});
 window.Inspiration?.init({draft,changed,render,atomic,save,compress,open,close,dialogError,toast,managePicks:()=>handle('manage-photo-picks'),page:()=>page,toEditor:()=>{if(state.ui.inputsFromEditor)window.Workbench.restoreImagePanel();parent=state.ui.inputsFromEditor?(state.ui.editorParent||'mine'):'inspiration';state.ui.inputsFromEditor=false;state.ui.editorParent=parent;tool='compose';navigate('editor');}});
 window.Workbench?.init({draft,update,applyInk,render,atomic,open,close,dialogError,previewUpdate,changed,toast});
-boot();
+async function finishInvitation(promise){
+ const invitation=await promise;if(!loaded||!invitation)return;
+ if(invitation.ok){await window.BailianPatterns.connect();render();toast(invitation.remembered?'测试邀请已连接，这台设备下次可直接使用':'AI 已连接；浏览器未允许记住，下次请重开邀请链接');}
+ else {await handle('ai-connection');const note=$('#ai-connect-note');if(note)note.textContent=invitation.message;}
+}
+boot().then(()=>finishInvitation(window.AIConnection.ready));
 })();
 
 </script>

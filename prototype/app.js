@@ -132,24 +132,29 @@ function confirmDelete(kind,id){const record=state[kind]?.find(x=>x.id===id);if(
 document.addEventListener('change',e=>{if(page==='gallery'&&e.target.matches('.gallery-form'))handle('gallery-category',{dataset:{id:e.target.value}});});
 async function handle(action,el){if(busy&&action!=='close')return;const id=el?.dataset.id;
 if(action==='ai-connection'){
+ const returnToSearch=modal==='search';
+ window.SearchAssistant?.cancel();
  const address=window.AIConnection.selected()||(/^https?:$/.test(location.protocol)&&!location.hostname.endsWith('.github.io')?location.origin:'');
- open('连接生成服务',`<form id="ai-connect-form"><p>填写管理员提供的服务地址和访问码。访问码只用于本次浏览器会话。</p><label class="field">服务地址<input name="endpoint" type="url" required placeholder="https://…" value="${V.esc(address)}" autocomplete="url"></label><label class="field">访问码<input name="access" type="password" autocomplete="off" maxlength="256" placeholder="管理员提供的访问码"></label><p class="muted">这里不填写百炼 API Key。</p><button class="btn primary full" type="submit">连接</button><p id="ai-connect-note" role="status"></p></form>`,'ai-connection');
+ open('连接 AI',`<form id="ai-connect-form"><p>连接一次，即可使用智能找物、语音和纹样生成。也可以直接打开测试邀请链接完成连接。</p><label class="field">测试访问码<input name="access" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="256" placeholder="粘贴测试访问码"></label><label class="check-row"><input name="remember" type="checkbox" checked><span>在这台设备记住连接<small>不自动过期；共用设备请取消勾选。</small></span></label><details class="ai-address"${address?'':' open'}><summary>服务地址</summary><label class="field">AI 服务地址<input name="endpoint" type="url" required placeholder="https://…" value="${V.esc(address)}" autocomplete="url"></label></details><button class="btn primary full" type="submit">连接 AI</button>${window.AIConnection.hasAccess()?V.btn('清除此设备的连接','ai-forget','text full'):''}<p id="ai-connect-note" role="status"></p></form>`,'ai-connection');
  const form=$('#ai-connect-form');
  form.onsubmit=async e=>{
   e.preventDefault();const button=form.querySelector('button'),note=form.querySelector('#ai-connect-note');
   button.disabled=true;note.textContent='正在连接，首次唤醒服务可能需要约一分钟…';
   try{
-   await window.AIConnection.configure(form.elements.endpoint.value.trim(),form.elements.access.value.trim());
+   const target=form.elements.endpoint.value.trim();
+   const code=form.elements.access.value.trim()||(target===address?window.AIConnection.headers(address+'/api/pattern').Authorization?.replace(/^Bearer /,''):'')||'';
+   await window.AIConnection.configure(form.elements.endpoint.value.trim(),code,{remember:form.elements.remember.checked});
    if(!form.isConnected||!$('#dialog').open)return;
    if(!await window.BailianPatterns.connect())throw Error('服务规则版本不一致或暂不可用，请更新后端后重试。');
    if(!form.isConnected||!$('#dialog').open)return;
-   close();render();toast('AI 服务已连接');
+   close();render();if(returnToSearch)showSearch();toast(window.AIConnection.remembered()?'AI 已连接，这台设备已记住':'AI 已连接，本次会话有效');
   }catch(e){if(form.isConnected)note.textContent=e.name==='TimeoutError'?'服务启动较慢，请稍后重试。':e.message==='Failed to fetch'?'连接失败，请检查服务地址与网络。':e.message;}
   finally{if(form.isConnected)button.disabled=false;}
  };
  form.oninput=()=>{form.querySelector('#ai-connect-note').textContent='';};
  return;
 }
+if(action==='ai-forget'){window.AIConnection.forget();window.Services.configure('ai',null);close();render();toast('已清除此设备的 AI 连接');return;}
 if(action.startsWith('wb-'))return window.Workbench.handle(action,el);
 if(window.Inspiration&&action.startsWith('in-'))return window.Inspiration.handle(action,el);
 if(window.EditorObject.handle(action,el))return;
@@ -360,7 +365,7 @@ window.addEventListener('popstate',event=>{
   window.Inspiration.confirmAI(sheet==='recolour-consent');
  }
 });
-window.addEventListener('hashchange',async()=>{if(!loaded||location.hash==='#'+routeString())return;const oldFile=page==='galleryDetail'?state.ui.galleryId:null,oldLeaf=folioLeaf;if(page==='inspiration'&&!await window.Inspiration.leave()){history.replaceState({},'','#inspiration');return;}if(['editor','cup'].includes(page)&&!await save()){history.replaceState({},'','#'+page);return;}close();scrolls[page]=$('#main').scrollTop;if(page==='gallery')state.ui.gallery.scroll=$('#main').scrollTop;readRoute();render();$('#main').scrollTop=page==='gallery'?state.ui.gallery.scroll:page==='discover'?0:(scrolls[page]||0);if(oldFile)restoreFileFocus(oldFile,oldLeaf);});
+window.addEventListener('hashchange',async()=>{if(location.hash.startsWith('#ai-invite=')){await finishInvitation(window.AIConnection.receiveInvitation());return;}if(!loaded||location.hash==='#'+routeString())return;const oldFile=page==='galleryDetail'?state.ui.galleryId:null,oldLeaf=folioLeaf;if(page==='inspiration'&&!await window.Inspiration.leave()){history.replaceState({},'','#inspiration');return;}if(['editor','cup'].includes(page)&&!await save()){history.replaceState({},'','#'+page);return;}close();scrolls[page]=$('#main').scrollTop;if(page==='gallery')state.ui.gallery.scroll=$('#main').scrollTop;readRoute();render();$('#main').scrollTop=page==='gallery'?state.ui.gallery.scroll:page==='discover'?0:(scrolls[page]||0);if(oldFile)restoreFileFocus(oldFile,oldLeaf);});
 function readRoute(){const [route,id,leaf]=location.hash.slice(1).split('/');folioLeaf=route==='gallery'&&id&&window.GalleryFolio?.hasLeaf(leaf)?leaf:'';page=['discover','detail','editor','inspiration','cup','result','points','mine','gallery'].includes(route)?route:'discover';if(['editor','inspiration','cup'].includes(page)&&!draft())page='mine';if(page==='cup'&&draft()?.category!=='enamel')page='editor';if(route==='gallery'&&id){page='galleryDetail';state.ui.galleryParent=history.state?.folioParent||'gallery';state.ui.galleryId=decodeURIComponent(id);}if(route==='discover'&&id==='gallery')page='gallery';state.ui.coView='explore';if(['editor','cup'].includes(page)){parent=state.ui.editorParent||'discover';if(parent==='result')resultId=state.ui.resultId||null;}if(page==='galleryDetail'&&state.ui.galleryParent==='result')resultId=state.ui.resultId||null;if(page==='result')resultId=decodeURIComponent(id||state.ui.resultId||'');state.ui.route=routeString();if(resultId)state.ui.resultId=resultId;}
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&dirty)save();});window.addEventListener('pagehide',()=>{if(dirty)save();});window.addEventListener('beforeunload',e=>{if(dirty||busy){e.preventDefault();e.returnValue='';}});
 async function boot(){try{state=await S.load();await S.preload(state);loaded=true;clearError();readRoute();if(page==='discover')state.ui.category='enamel';render();if(page==='gallery')$('#main').scrollTop=state.ui.gallery.scroll;if(state.legacyImported&&!state.ui.legacyNotice){state.ui.legacyNotice=true;changed();toast('已导入旧版作品，旧数据仍保留');}}catch(e){loaded=false;report(e);$('#main').innerHTML='<div class="loading"><strong>暂时无法打开档案</strong><p>为保护原有记录，已暂停写入。请保留此页面，恢复浏览器存储权限后点击上方“重试”。</p></div>';}}
@@ -370,5 +375,10 @@ window.CupView?.init({draft,changed,page:()=>page,render,toEditor:back});
 window.EditorObject?.init({draft,changed,render,history:()=>{const d=draft();const u=$('[data-action=undo]'),r=$('[data-action=redo]');if(u)u.disabled=!d.past.length;if(r)r.disabled=!d.future.length;}});
 window.Inspiration?.init({draft,changed,render,atomic,save,compress,open,close,dialogError,toast,managePicks:()=>handle('manage-photo-picks'),page:()=>page,toEditor:()=>{if(state.ui.inputsFromEditor)window.Workbench.restoreImagePanel();parent=state.ui.inputsFromEditor?(state.ui.editorParent||'mine'):'inspiration';state.ui.inputsFromEditor=false;state.ui.editorParent=parent;tool='compose';navigate('editor');}});
 window.Workbench?.init({draft,update,applyInk,render,atomic,open,close,dialogError,previewUpdate,changed,toast});
-boot();
+async function finishInvitation(promise){
+ const invitation=await promise;if(!loaded||!invitation)return;
+ if(invitation.ok){await window.BailianPatterns.connect();render();toast(invitation.remembered?'测试邀请已连接，这台设备下次可直接使用':'AI 已连接；浏览器未允许记住，下次请重开邀请链接');}
+ else {await handle('ai-connection');const note=$('#ai-connect-note');if(note)note.textContent=invitation.message;}
+}
+boot().then(()=>finishInvitation(window.AIConnection.ready));
 })();

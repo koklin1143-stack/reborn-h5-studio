@@ -72,7 +72,7 @@
   }
   if(form) {
    const offline=configured?'':'<p class="input-feedback" role="status">AI 服务未连接，素形已保留。</p>';
-   const action=configured?primary('用这个造型制纹','in-decorate',busy):primary('重新连接 AI','in-reconnect',connecting);
+   const action=configured?primary('用这个造型制纹','in-decorate',busy):primary('连接 AI','ai-connection',connecting);
    return problem+offline+action+other('重新设计一个造型','in-ai',busy||!configured);
   }
   if(d.inputTab==='motif'&&sourceObject(d)?.photo){
@@ -83,8 +83,8 @@
   const returnToForm=adjusting&&matchForm(d)?other('返回已生成的造型','in-show-form'):'';
   const local=d.inputTab==='sketch'?'':other('仅用本地规则预览','in-convert',!ready||busy);
   if(!configured){
-   const status=connecting?'正在连接 AI…':'AI 服务未连接，素材已保留';
-   return '<p class="input-feedback" role="status" data-ai-state="unconfigured">'+status+'</p>'+primary('重新连接 AI','in-reconnect',connecting)+other('连接生成服务','ai-connection',connecting)+returnToForm+local;
+   const status=connecting?'正在连接 AI…':window.AIConnection.hasAccess()?'AI 暂时无法连接，素材已保留':'首次连接 AI 后，图片、文字和手绘都能生成纹样';
+   return '<p class="input-feedback" role="status" data-ai-state="unconfigured">'+status+'</p>'+primary('连接 AI','ai-connection',connecting)+returnToForm+local;
   }
   return problem+primary(state==='failed'?'重试 AI 生成':'生成搪瓷纹样','in-ai',!ready||busy)+returnToForm+local;
  }

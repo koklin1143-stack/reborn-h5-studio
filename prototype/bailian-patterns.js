@@ -175,6 +175,7 @@
     return {provider:'阿里云百炼',model:stage==='recolour'?result.planner:model,stage,identity:result.identity,recipe:{...recipe,...(finish?{technique:result.technique,colorStudy:plates?(plates.length===3?'三色套印':'双色套印'):finish.name,printInks:plates?plates.map(p=>p.hex):finish.inks}:{}),...(printTechnique?{paperVersion:window.EnamelPaper.version}:{}),planner:result.planner||recipe.planner,design:result.design},variants:[variant]};
   }
   async function connect() {
+    await window.AIConnection.ready;
     window.Services.configure('ai',null);
     const paths=window.AIConnection.paths('pattern');
     for(const path of paths){
