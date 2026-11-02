@@ -768,5 +768,19 @@
  .photo-picker .proof-hint{grid-column:1/-1;grid-row:3}
 }
 
+/* Public examples are shared by every device, outside personal work counts. */
+.mine-examples{margin-top:var(--s5);border-top:1px solid var(--line);padding-top:var(--s3)}
+.mine-examples .section-heading{margin:0;gap:12px}
+.mine-examples .section-heading .btn{min-height:44px;padding:0;font:var(--exhibit-register);white-space:nowrap}
+.mine-examples>p{margin:0 0 var(--s4);font:var(--exhibit-register);color:var(--ui-secondary)}
+.mine-examples-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--s3)}
+.mine-example{display:flex;flex-direction:column;align-items:stretch;min-width:0;border:0;background:transparent;padding:0;text-align:left;color:var(--ui-text);font-family:var(--ui-font)}
+.mine-example-art{display:grid;place-items:center;aspect-ratio:1;background:var(--ui-stage,#ececec);margin-bottom:var(--s2)}
+.mine-example-art img{display:block;width:76%;height:76%;object-fit:contain}
+.mine-example-art[data-vessel=cup] img{width:70%;height:70%}
+.mine-example strong{font:var(--exhibit-entry);overflow-wrap:anywhere}
+.mine-example small{display:flex;align-items:center;justify-content:space-between;gap:8px;font:var(--exhibit-register);color:var(--ui-secondary);min-height:32px}
+.mine-example:focus-visible{outline:2px solid var(--ui-text);outline-offset:4px}
+
 /* A single mobile connection form for search, voice and creation. */
 #ai-connect-form{display:grid;gap:16px}#ai-connect-form>p{margin:0;line-height:1.65}#ai-connect-form .check-row{margin:0;min-height:48px;align-items:center}#ai-connect-form .check-row small{display:block;color:var(--muted,#666);font-size:12px;line-height:1.6}#ai-connect-form input[type=checkbox]{width:20px;height:20px;flex-shrink:0}#ai-connect-form .field input{min-height:48px;font-size:16px}.ai-address summary{padding:10px 0;cursor:pointer}.ai-address .field{margin-top:8px}.ai-settings-row{margin:20px 0 8px}#search-connect{margin:12px 0}
