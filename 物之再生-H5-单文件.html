@@ -2463,7 +2463,7 @@ function workPick(w,ids){
  const displayName=split>0&&title.slice(split+1).trim()===vessel?title.slice(0,split).trim():title;
  return `<label class="work-card work-pick"><span class="work-cover" aria-hidden="true">${art(w)}</span><span class="work-pick-copy"><strong>${esc(displayName||title)}</strong><small>${esc(vessel||M.category(w.category).name)} · ${date(w.updatedAt||w.savedAt)}</small></span><input type="checkbox" data-work-pick value="${esc(w.id)}" aria-label="选择作品：${esc(title)}" ${ids.has(w.id)?'checked':''}></label>`;
 }
-function mine(c){const pubSaved=(c.s.galleryCollections||[]).filter(id=>M.findPublication(c.s,id));const f=c.s.ui.filter||'works',counts=[c.s.works.length,c.s.drafts.length,c.s.submissions.length,c.s.favorites.length+pubSaved.length];let list='';if(f==='works'||f==='drafts')list=c.s[f].length?`<div class="work-grid${c.selectedWorkIds?' work-selection-grid':''}">${[...c.s[f]].reverse().map(w=>f==='works'&&c.selectedWorkIds?workPick(w,c.selectedWorkIds):mini(w,f,f==='works'&&c.s.publications?.find(p=>p.workId===w.id&&p.state==='published'))).join('')}</div>`:empty(f==='drafts'?'还没有草稿':'还没有作品',f==='drafts'?'进行中的创作会出现在这里。':'从「共创」选择一件器物开始。');if(f==='submissions')list=c.s.submissions.length?c.s.submissions.slice().reverse().map(x=>row(x.snapshot.title,x.status+' · '+date(x.createdAt),'submission',`data-id="${x.id}"`)).join(''):empty('还没有演示投稿','先保存作品，再按自己的意愿参与。');if(f==='favorites')list=c.s.favorites.length?c.s.favorites.map(id=>{const i=M.getItem(id);return `<button class="catalog-row" data-action="choose" data-id="${i.id}">${A.object({itemId:i.id},true)}<span><strong>${i.name}</strong><small>${M.category(i.category).name} · 原创示意</small></span>${icon('arrow',18)}</button>`;}).join(''):empty('还没有收藏','在首页或物件详情点击收藏，方便下次找回。');if(f==='favorites'&&pubSaved.length){if(!c.s.favorites.length)list='';list+='<div class="section-heading"><h2>收藏的广场作品</h2></div>'+window.Views.savedGallery(c);}return `<section class="page-content mine-screen"><div class="my-tabs" role="group" aria-label="作品分组">${[['works','作品'],['drafts','草稿'],['submissions','投稿'],['favorites','收藏']].map(([id,label],i)=>btn(`${label} <small>${counts[i]}</small>`,'filter','',`data-id="${id}" aria-pressed="${f===id}"`)).join('')}</div>${list}<div class="ai-settings-row"${c.selectedWorkIds?' hidden':''}>${btn('AI 连接设置','ai-connection','text full')}</div><details class="archive-disclosure"${c.selectedWorkIds?' hidden':''}><summary>作品存储说明</summary><p>作品默认私有，保存在当前浏览器。清除网站数据会删除记录。</p></details></section>`;}
+function mine(c){const pubSaved=(c.s.galleryCollections||[]).filter(id=>M.findPublication(c.s,id));const f=c.s.ui.filter||'works',counts=[c.s.works.length,c.s.drafts.length,c.s.submissions.length,c.s.favorites.length+pubSaved.length];let list='';if(f==='works'||f==='drafts')list=c.s[f].length?`<div class="work-grid${c.selectedWorkIds?' work-selection-grid':''}">${[...c.s[f]].reverse().map(w=>f==='works'&&c.selectedWorkIds?workPick(w,c.selectedWorkIds):mini(w,f,f==='works'&&c.s.publications?.find(p=>p.workId===w.id&&p.state==='published'))).join('')}</div>`:empty(f==='drafts'?'还没有草稿':'还没有作品',f==='drafts'?'进行中的创作会出现在这里。':'从「共创」选择一件器物开始。');if(f==='submissions')list=c.s.submissions.length?c.s.submissions.slice().reverse().map(x=>row(x.snapshot.title,x.status+' · '+date(x.createdAt),'submission',`data-id="${x.id}"`)).join(''):empty('还没有演示投稿','先保存作品，再按自己的意愿参与。');if(f==='favorites')list=c.s.favorites.length?c.s.favorites.map(id=>{const i=M.getItem(id);return `<button class="catalog-row" data-action="choose" data-id="${i.id}">${A.object({itemId:i.id},true)}<span><strong>${i.name}</strong><small>${M.category(i.category).name} · 原创示意</small></span>${icon('arrow',18)}</button>`;}).join(''):empty('还没有收藏','在首页或物件详情点击收藏，方便下次找回。');if(f==='favorites'&&pubSaved.length){if(!c.s.favorites.length)list='';list+='<div class="section-heading"><h2>收藏的广场作品</h2></div>'+window.Views.savedGallery(c);}return `<section class="page-content mine-screen"><div class="my-tabs" role="group" aria-label="作品分组">${[['works','作品'],['drafts','草稿'],['submissions','投稿'],['favorites','收藏']].map(([id,label],i)=>btn(`${label} <small>${counts[i]}</small>`,'filter','',`data-id="${id}" aria-pressed="${f===id}"`)).join('')}</div>${list}<div class="ai-settings-row"${c.selectedWorkIds?' hidden':''}>${btn('作品迁移','archive-transfer','text full')}${btn('AI 连接设置','ai-connection','text full')}</div><details class="archive-disclosure"${c.selectedWorkIds?' hidden':''}><summary>作品存储说明</summary><p>作品默认私有，保存在当前浏览器。清除网站数据会删除记录。</p></details></section>`;}
 function catalog(mode){return M.categories.map(cat=>`<div class="catalog-section"><h3>${cat.name}<small>${cat.en}</small></h3>${M.items.filter(i=>i.category===cat.id).map(i=>`<button class="catalog-row" data-action="${mode==='swap'?'swap-select':'choose'}" data-id="${i.id}">${A.object({itemId:i.id},true)}<span><strong>${i.name}</strong><small>自绘示意 · ${cat.name}</small></span>${icon('arrow',18)}</button>`).join('')}</div>`).join('');}
 function searchResults(q){const found=M.search(q);return !q.trim()?'<p class="search-empty">描述一种图案、颜色或物件，开始查找。</p>':found.length?found.map(i=>`<button class="catalog-row" data-action="choose" data-id="${i.id}">${A.object({itemId:i.id},true)}<span><strong>${i.name}</strong><small>${i.subtitle}</small></span>${icon('arrow',18)}</button>`).join(''):`<div class="search-empty"><h3>暂时没找到匹配物件</h3><p>试试“牡丹”“喜鹊”“邮票”或“糖纸”。</p>${btn('浏览全部物件','browse','secondary')}</div>`;}
 window.Views={esc,btn,ib,icon,tag,date,row,empty,art,nav,header,detail,editor,tools,result,points,mine,catalog,searchResults};
@@ -15580,6 +15580,44 @@ inkPosition=position; inkRow=profileRow; sheetCoord=vec2(uv.x,profileArc); skyLi
 
 </script>
 <script>
+/* User-selected portable archive. No connection credentials or browser settings are exported. */
+(function(root,factory){if(typeof module==='object'&&module.exports)module.exports=factory(require('./foundation.js'));else root.ArchiveTransfer=factory(root.Studio);})(globalThis,M=>{
+ const lists=['drafts','works','submissions','publications','ledger','growth','sources','creators','favorites','galleryLikes','galleryCollections'];
+ const limit=120*1024*1024;
+ const visit=(value,fn)=>{if(Array.isArray(value))return value.map(v=>visit(v,fn));if(value&&typeof value==='object'){const out={};for(const [k,v]of Object.entries(value)){if(['__proto__','constructor','prototype'].includes(k))throw Error('作品包包含无效字段。');out[k]=visit(v,fn);}return out;}return typeof value==='string'?fn(value):value;};
+ async function pack(state,getAsset){
+  const data={};for(const name of lists)data[name]=M.copy(state[name]||[]);
+  const strings=new Set();visit(data,s=>{strings.add(s);return s;});const assets=[];let bytes=0;
+  for(const id of strings){const blob=await getAsset(id);if(!blob)continue;
+   if(!/^image\/(png|jpeg|webp)$/.test(blob.type))throw Error('有素材格式暂不支持迁移，请先导出作品图片。');
+   bytes+=blob.size;if(bytes>80*1024*1024)throw Error('素材总量超过 80 MB，请先整理作品后再导出。');
+   const array=new Uint8Array(await blob.arrayBuffer());let raw='';for(let i=0;i<array.length;i+=32768)raw+=String.fromCharCode(...array.subarray(i,i+32768));
+   assets.push({id,type:blob.type,data:btoa(raw)});
+  }
+  return JSON.stringify({format:'reborn-transfer-v1',id:M.uid('transfer'),createdAt:new Date().toISOString(),data,assets});
+ }
+ function prepare(text,current){
+  if(text.length>limit)throw Error('作品包过大，暂不支持导入。');
+  let input;try{input=JSON.parse(text);}catch{throw Error('无法读取作品包，请选择导出的 JSON 文件。');}
+  if(input?.format!=='reborn-transfer-v1'||!/^transfer-[a-z0-9-]+$/i.test(input.id)||!Array.isArray(input.assets)||input.assets.length>2000)throw Error('这不是有效的物之再生作品包。');
+  for(const name of lists)if(!Array.isArray(input.data?.[name]))throw Error('作品包记录不完整。');
+  const mapping=new Map(),assets=[],namespace=M.uid('import');let bytes=0;
+  for(const a of input.assets){
+   if(typeof a.id!=='string'||a.id.length>250||mapping.has(a.id)||!/^image\/(png|jpeg|webp)$/.test(a.type)||typeof a.data!=='string'||!a.data||!/^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(a.data))throw Error('作品包素材无效。');
+   const raw=atob(a.data);bytes+=raw.length;if(bytes>80*1024*1024)throw Error('作品包素材超过 80 MB。');
+   const id=namespace+':'+mapping.size;mapping.set(a.id,id);assets.push({id,blob:new Blob([Uint8Array.from(raw,c=>c.charCodeAt(0))],{type:a.type})});
+  }
+  const incoming=visit(input.data,s=>mapping.get(s)||s),next=M.copy(current),added={};
+  for(const name of lists){const existing=new Set((next[name]||[]).map(x=>typeof x==='string'?x:x.id));added[name]=0;next[name]??=[];
+   for(const row of incoming[name]){const id=typeof row==='string'?row:row?.id;if(typeof id!=='string')throw Error('作品包包含缺少编号的记录。');if(!existing.has(id)){next[name].push(row);existing.add(id);added[name]++;}}
+  }
+  return {state:M.validate(next),assets,added};
+ }
+ return {pack,prepare,limit};
+});
+
+</script>
+<script>
 /* Application coordinator: routes, atomic actions, editor gestures and recovery. */
 (() => {
 'use strict';
@@ -15713,6 +15751,29 @@ function confirmWorkSelection(){
 function confirmDelete(kind,id){const record=state[kind]?.find(x=>x.id===id);if(!record)return;const title=record.title||record.snapshot?.title||'未命名草稿';open('确认删除'+({drafts:'草稿',works:'作品',submissions:'演示投稿记录'}[kind]),`<p>将从此浏览器删除“${V.esc(title)}”。此操作无法撤销。</p><p>其他草稿、作品与成长记录会保留。${kind==='works'&&state.submissions.some(x=>x.workId===id)?'已留存的演示投稿快照也会保留。':''}</p>${V.btn('确认删除','confirm-delete','danger full',`data-kind="${kind}" data-id="${id}"`)}${V.btn('保留，返回','close','secondary full')}`,'delete');}
 document.addEventListener('change',e=>{if(page==='gallery'&&e.target.matches('.gallery-form'))handle('gallery-category',{dataset:{id:e.target.value}});});
 async function handle(action,el){if(busy&&action!=='close')return;const id=el?.dataset.id;
+if(action==='archive-transfer'){
+ open('把作品带到另一台设备',`<p>电脑本地预览和手机网页分别保存作品。导出作品包后，把文件发到手机，再在手机这里导入。</p><p>包含作品、草稿、图片素材和本机广场记录。同编号记录保留本机版本，不覆盖已有作品。不包含 AI 密钥或访问码。</p>${V.btn('导出这台设备的作品包','archive-export','primary full')}<label class="field">导入另一台设备的作品包<input id="archive-transfer-file" type="file" accept="application/json,.json"></label><p id="archive-transfer-status" role="status"></p>`,'archive-transfer');
+ $('#archive-transfer-file').onchange=async e=>{
+  const file=e.target.files[0];if(!file)return;const note=$('#archive-transfer-status');note.textContent='正在读取作品包…';
+  try{if(file.size>window.ArchiveTransfer.limit)throw Error('作品包超过 120 MB，请先整理后重试。');
+   const text=await file.text(),plan=window.ArchiveTransfer.prepare(text,state);
+   open('确认导入作品',`<p>将新增 ${plan.added.works} 件作品、${plan.added.drafts} 份草稿和 ${plan.added.publications} 条广场记录。已有记录保留。</p><button class="btn primary full" id="archive-transfer-confirm">导入到这台设备</button>`,'archive-transfer-confirm');
+   $('#archive-transfer-confirm').onclick=async()=>{const button=$('#archive-transfer-confirm');button.disabled=true;try{
+    const latest=window.ArchiveTransfer.prepare(text,state);
+    const result=await atomic(s=>{Object.assign(s,latest.state);return true;},latest.assets);
+    if(!result){button.disabled=false;return;}await S.preload(state,true);close();render();toast('作品与本机广场记录已导入');
+    }catch(err){dialogError(err.message);button.disabled=false;}
+   };
+  }catch(err){if(note.isConnected)note.textContent=err.message;else dialogError(err.message);}
+ };
+ return;
+}
+if(action==='archive-export'){
+ const button=el;button.disabled=true;const note=$('#archive-transfer-status');note.textContent='正在打包作品和素材…';
+ try{if(!await save())throw Error('当前作品尚未保存，请先重试保存。');const content=await window.ArchiveTransfer.pack(state,S.getAsset);const url=URL.createObjectURL(new Blob([content],{type:'application/json'})),a=document.createElement('a');a.href=url;a.download='物之再生-作品包-'+new Date().toISOString().slice(0,10)+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),10000);note.textContent='已导出。把作品包发到另一台设备，在“我的 → 作品迁移”导入。';}
+ catch(err){note.textContent=err.message;}finally{button.disabled=false;}
+ return;
+}
 if(action==='ai-connection'){
  const returnToSearch=modal==='search';
  window.SearchAssistant?.cancel();

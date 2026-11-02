@@ -131,6 +131,29 @@ function confirmWorkSelection(){
 function confirmDelete(kind,id){const record=state[kind]?.find(x=>x.id===id);if(!record)return;const title=record.title||record.snapshot?.title||'未命名草稿';open('确认删除'+({drafts:'草稿',works:'作品',submissions:'演示投稿记录'}[kind]),`<p>将从此浏览器删除“${V.esc(title)}”。此操作无法撤销。</p><p>其他草稿、作品与成长记录会保留。${kind==='works'&&state.submissions.some(x=>x.workId===id)?'已留存的演示投稿快照也会保留。':''}</p>${V.btn('确认删除','confirm-delete','danger full',`data-kind="${kind}" data-id="${id}"`)}${V.btn('保留，返回','close','secondary full')}`,'delete');}
 document.addEventListener('change',e=>{if(page==='gallery'&&e.target.matches('.gallery-form'))handle('gallery-category',{dataset:{id:e.target.value}});});
 async function handle(action,el){if(busy&&action!=='close')return;const id=el?.dataset.id;
+if(action==='archive-transfer'){
+ open('把作品带到另一台设备',`<p>电脑本地预览和手机网页分别保存作品。导出作品包后，把文件发到手机，再在手机这里导入。</p><p>包含作品、草稿、图片素材和本机广场记录。同编号记录保留本机版本，不覆盖已有作品。不包含 AI 密钥或访问码。</p>${V.btn('导出这台设备的作品包','archive-export','primary full')}<label class="field">导入另一台设备的作品包<input id="archive-transfer-file" type="file" accept="application/json,.json"></label><p id="archive-transfer-status" role="status"></p>`,'archive-transfer');
+ $('#archive-transfer-file').onchange=async e=>{
+  const file=e.target.files[0];if(!file)return;const note=$('#archive-transfer-status');note.textContent='正在读取作品包…';
+  try{if(file.size>window.ArchiveTransfer.limit)throw Error('作品包超过 120 MB，请先整理后重试。');
+   const text=await file.text(),plan=window.ArchiveTransfer.prepare(text,state);
+   open('确认导入作品',`<p>将新增 ${plan.added.works} 件作品、${plan.added.drafts} 份草稿和 ${plan.added.publications} 条广场记录。已有记录保留。</p><button class="btn primary full" id="archive-transfer-confirm">导入到这台设备</button>`,'archive-transfer-confirm');
+   $('#archive-transfer-confirm').onclick=async()=>{const button=$('#archive-transfer-confirm');button.disabled=true;try{
+    const latest=window.ArchiveTransfer.prepare(text,state);
+    const result=await atomic(s=>{Object.assign(s,latest.state);return true;},latest.assets);
+    if(!result){button.disabled=false;return;}await S.preload(state,true);close();render();toast('作品与本机广场记录已导入');
+    }catch(err){dialogError(err.message);button.disabled=false;}
+   };
+  }catch(err){if(note.isConnected)note.textContent=err.message;else dialogError(err.message);}
+ };
+ return;
+}
+if(action==='archive-export'){
+ const button=el;button.disabled=true;const note=$('#archive-transfer-status');note.textContent='正在打包作品和素材…';
+ try{if(!await save())throw Error('当前作品尚未保存，请先重试保存。');const content=await window.ArchiveTransfer.pack(state,S.getAsset);const url=URL.createObjectURL(new Blob([content],{type:'application/json'})),a=document.createElement('a');a.href=url;a.download='物之再生-作品包-'+new Date().toISOString().slice(0,10)+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),10000);note.textContent='已导出。把作品包发到另一台设备，在“我的 → 作品迁移”导入。';}
+ catch(err){note.textContent=err.message;}finally{button.disabled=false;}
+ return;
+}
 if(action==='ai-connection'){
  const returnToSearch=modal==='search';
  window.SearchAssistant?.cancel();
