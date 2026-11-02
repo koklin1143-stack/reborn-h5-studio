@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="zh-CN"><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#ffffff"><meta name="reborn-release" content="2026-11-02-public-works">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#ffffff"><meta name="reborn-release" content="2026-11-02-gallery-filter">
 <meta name="description" content="物之再生 · 手机端工业文化共创。作品保存在本地，投稿与积分均为演示。"><title>物之再生 · 共创工作室</title>
 <style>
 :root{--ease:cubic-bezier(.2,.7,.2,1);font-synthesis:none}
@@ -1434,6 +1434,9 @@
  .photo-picker .crop-result{grid-column:1/-1;grid-row:2}
  .photo-picker .proof-hint{grid-column:1/-1;grid-row:3}
 }
+
+.gallery-active-filter{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:4px 12px;margin-top:12px;background:#e8e8e8;border-radius:6px;font:var(--exhibit-register);color:var(--ui-text)}
+.gallery-active-filter .btn{min-height:44px;font:inherit;padding:0 4px;text-decoration:underline;text-underline-offset:3px}
 
 /* Public examples are shared by every device, outside personal work counts. */
 .mine-examples{margin-top:var(--s5);border-top:1px solid var(--line);padding-top:var(--s3)}
@@ -6868,6 +6871,7 @@ void main() {
   return `<section class="gallery-content">
    <div class="gallery-filter-bar"><div class="gallery-sorts" role="group" aria-label="作品排序">${sorts.map(([id,t])=>btn(t,'gallery-sort','text',`data-id="${id}" aria-pressed="${f.sort===id}"`)).join('')}</div>
    <select aria-label="按器型筛选" class="gallery-form">${[...forms].map(([k,t])=>`<option value="${esc(k)}" ${f.category===k?'selected':''}>${esc(t)}</option>`).join('')}</select></div>
+   ${f.category!=='all'?`<div class="gallery-active-filter" role="status"><span>仅看：${esc(forms.get(f.category))} · ${rows.length} 件</span>${btn('查看全部器型','gallery-clear-category','text')}</div>`:''}
    <div class="catalogue-rubric"><h2>${f.sort==='theme'?esc(M.theme.title):f.sort==='latest'?'新近发布':'社区精选'}</h2><span>${rows.length} 件作品 · 互动模拟</span></div>
    ${rows.length?cards(c,rows,f.sort==='featured'&&f.category==='all'):`<div class="archive-empty"><h2>还没有这类作品</h2><p>换个器型看看。</p>${btn('查看全部作品','gallery-reset','secondary')}</div>`}</section>`;
  }
@@ -15825,11 +15829,12 @@ case 'cup-open':if(draft()?.category!=='enamel')return toast('此类别的三维
 case 'regeneration':return open('再生档案',V.regeneration(state,el.dataset.kind,id),'regeneration');
 case 'check-record-assets':await S.preload(state,true);render();return open('再生档案',V.regeneration(state,el.dataset.kind,id),'regeneration');
 case 'duplicate-record':case 'repair-record':{const res=await atomic(s=>window.Management.duplicate(s,el.dataset.kind,id,action==='repair-record'));if(res){state.ui.filter='drafts';navigate('mine');toast('独立副本已保存，原记录保留');}return;}
-case 'open-gallery':return navigate('gallery');
+case 'open-gallery':state.ui.gallery={sort:'featured',category:'all',scroll:0};changed(0);return navigate('gallery');
 case 'foundation-services':return open('功能接入状态',Object.keys({ai:1,images:1,models:1}).map(kind=>{const info=window.Services.status(kind);return V.statePanel({state:'unavailable',title:({ai:'AI 生成',images:'馆藏影像',models:'器型 3D'})[kind],description:info.message});}).join(''));
 case 'co-view':return navigate(id==='gallery'?'gallery':'discover');
 case 'gallery-sort':case 'gallery-category':state.ui.gallery[action==='gallery-sort'?'sort':'category']=id;state.ui.gallery.scroll=0;changed(0);render();$('#main').scrollTop=0;return;
 case 'gallery-reset':state.ui.gallery={sort:'latest',category:'all',scroll:0};changed(0);render();$('#main').scrollTop=0;return;
+case 'gallery-clear-category':state.ui.gallery.category='all';state.ui.gallery.scroll=0;changed(0);render();$('#main').scrollTop=0;return;
 case 'gallery-detail':return window.GalleryFolio.unfold(el,()=>{
  folioLeaf='';state.ui.galleryParent=['mine','result'].includes(page)?page:'gallery';
  if(page==='result')state.ui.gallery={sort:'latest',category:'all',scroll:0};

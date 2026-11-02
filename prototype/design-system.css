@@ -768,6 +768,9 @@
  .photo-picker .proof-hint{grid-column:1/-1;grid-row:3}
 }
 
+.gallery-active-filter{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:4px 12px;margin-top:12px;background:#e8e8e8;border-radius:6px;font:var(--exhibit-register);color:var(--ui-text)}
+.gallery-active-filter .btn{min-height:44px;font:inherit;padding:0 4px;text-decoration:underline;text-underline-offset:3px}
+
 /* Public examples are shared by every device, outside personal work counts. */
 .mine-examples{margin-top:var(--s5);border-top:1px solid var(--line);padding-top:var(--s3)}
 .mine-examples .section-heading{margin:0;gap:12px}

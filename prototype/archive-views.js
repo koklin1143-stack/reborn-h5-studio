@@ -24,6 +24,7 @@
   return `<section class="gallery-content">
    <div class="gallery-filter-bar"><div class="gallery-sorts" role="group" aria-label="作品排序">${sorts.map(([id,t])=>btn(t,'gallery-sort','text',`data-id="${id}" aria-pressed="${f.sort===id}"`)).join('')}</div>
    <select aria-label="按器型筛选" class="gallery-form">${[...forms].map(([k,t])=>`<option value="${esc(k)}" ${f.category===k?'selected':''}>${esc(t)}</option>`).join('')}</select></div>
+   ${f.category!=='all'?`<div class="gallery-active-filter" role="status"><span>仅看：${esc(forms.get(f.category))} · ${rows.length} 件</span>${btn('查看全部器型','gallery-clear-category','text')}</div>`:''}
    <div class="catalogue-rubric"><h2>${f.sort==='theme'?esc(M.theme.title):f.sort==='latest'?'新近发布':'社区精选'}</h2><span>${rows.length} 件作品 · 互动模拟</span></div>
    ${rows.length?cards(c,rows,f.sort==='featured'&&f.category==='all'):`<div class="archive-empty"><h2>还没有这类作品</h2><p>换个器型看看。</p>${btn('查看全部作品','gallery-reset','secondary')}</div>`}</section>`;
  }

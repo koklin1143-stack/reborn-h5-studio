@@ -187,11 +187,12 @@ case 'cup-open':if(draft()?.category!=='enamel')return toast('此类别的三维
 case 'regeneration':return open('再生档案',V.regeneration(state,el.dataset.kind,id),'regeneration');
 case 'check-record-assets':await S.preload(state,true);render();return open('再生档案',V.regeneration(state,el.dataset.kind,id),'regeneration');
 case 'duplicate-record':case 'repair-record':{const res=await atomic(s=>window.Management.duplicate(s,el.dataset.kind,id,action==='repair-record'));if(res){state.ui.filter='drafts';navigate('mine');toast('独立副本已保存，原记录保留');}return;}
-case 'open-gallery':return navigate('gallery');
+case 'open-gallery':state.ui.gallery={sort:'featured',category:'all',scroll:0};changed(0);return navigate('gallery');
 case 'foundation-services':return open('功能接入状态',Object.keys({ai:1,images:1,models:1}).map(kind=>{const info=window.Services.status(kind);return V.statePanel({state:'unavailable',title:({ai:'AI 生成',images:'馆藏影像',models:'器型 3D'})[kind],description:info.message});}).join(''));
 case 'co-view':return navigate(id==='gallery'?'gallery':'discover');
 case 'gallery-sort':case 'gallery-category':state.ui.gallery[action==='gallery-sort'?'sort':'category']=id;state.ui.gallery.scroll=0;changed(0);render();$('#main').scrollTop=0;return;
 case 'gallery-reset':state.ui.gallery={sort:'latest',category:'all',scroll:0};changed(0);render();$('#main').scrollTop=0;return;
+case 'gallery-clear-category':state.ui.gallery.category='all';state.ui.gallery.scroll=0;changed(0);render();$('#main').scrollTop=0;return;
 case 'gallery-detail':return window.GalleryFolio.unfold(el,()=>{
  folioLeaf='';state.ui.galleryParent=['mine','result'].includes(page)?page:'gallery';
  if(page==='result')state.ui.gallery={sort:'latest',category:'all',scroll:0};
