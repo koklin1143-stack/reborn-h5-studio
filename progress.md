@@ -4,7 +4,7 @@
 - Clothing removed from category, object and fresh gallery filter choices. Legacy completed works retain their original model and preview; legacy editable drafts preserve the pattern and old placement in a notebook draft.
 - 163 tests pass, including legacy clothing save/load/resume compatibility. Lint and whitespace checks pass.
 - Local and offline mobile workflows pass at 320/375/390/430px: measured equal dialog/card bounds across categories, all 11 choices visible without horizontal overflow, print/recolour/save/resume/reload. Inspected enamel, textile and daily screenshots.
-- Publishing release 2026-11-05-carriers-v7; live verification pending.
+- Published b409cba / 2026-11-05-carriers-v7. Live mobile QA passed the same four-width measurements and save/resume workflow. GitHub Git pushes initially failed while updating refs; the commit was received, verified against the parent, and published through the official Git refs API with force disabled.
 
 ## Carrier v6 verification
 
