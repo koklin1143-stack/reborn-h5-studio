@@ -1,6 +1,6 @@
 # Progress
 
-2026-11-05: Approved concept implemented next. Repository starts at 1799fca with only unrelated untracked preview/work files. Implemented grouped choices, fabric meshes/materials and planar printing; independent face/carrier state, SVG fallback, saved-work labels and portrait framing. 154 tests pass; browser QA verifies nine WebGL forms, all fabric regions, five static exports, refresh/save/resume, pointer rotation and 320/375/390/430 layouts. GitHub release pending.
+2026-11-05: Approved concept implemented next. Repository starts at 1799fca with only unrelated untracked preview/work files. Implemented grouped choices, fabric meshes/materials and planar printing; independent face/carrier state, SVG fallback, saved-work labels and portrait framing. 154 tests pass; browser QA verifies nine WebGL forms, all fabric regions, five static exports, refresh/save/resume, pointer rotation and 320/375/390/430 layouts. Published implementation b7419b2 to GitHub Pages. Live mobile-browser check confirms release 2026-11-05-everyday-carriers, nine carrier descriptors, rendered duvet border and visible 320px coverage/footer controls.
 
 
 ---

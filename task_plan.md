@@ -6,7 +6,7 @@ Approved: preserve four enamel forms; add cushion, pillow, duvet cover, backpack
 - [x] Extend descriptors and grouped controls without changing source category.
 - [x] Model textile forms and apply texture directly to fabric surfaces, including static fallback.
 - [x] Verify nine forms, placement/undo/persistence, export and responsive layout.
-- [ ] Build, publish and verify live when network permissions permit.
+- [x] Build, publish and verify live when network permissions permit.
 
 Private browser records and secrets stay outside published assets.
 
