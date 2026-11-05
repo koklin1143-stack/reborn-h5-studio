@@ -6,15 +6,15 @@ export function bindTextileInk(vessel){
  let region;
  const bindings=surfaces.map(mesh=>{
   if(!mesh.geometry.attributes.printUv)mesh.geometry.setAttribute('printUv',mesh.geometry.attributes.uv);
-  const [w,h]=mesh.userData.fabricSize,min=Math.min(w,h),own={fabricActive:{value:0},fabricHighlight:{value:0},fabricAspect:{value:new T.Vector2(w/min,h/min)},fabricMode:{value:0},fabricTransform:{value:new T.Vector4(0,0,0,1)},fabricCoverage:{value:new T.Vector2(.5,.5)},fabricCount:{value:3}};
+  const [w,h]=mesh.userData.fabricSize,min=Math.min(w,h),own={fabricActive:{value:0},fabricLocalBox:{value:new T.Vector4(.5,.5,1,1)},fabricHighlight:{value:0},fabricAspect:{value:new T.Vector2(w/min,h/min)},fabricMode:{value:0},fabricTransform:{value:new T.Vector4(0,0,0,1)},fabricCoverage:{value:new T.Vector2(.5,.5)},fabricCount:{value:3}};
   mesh.material.customProgramCacheKey=()=>'fabric-print-v1';
   mesh.material.onBeforeCompile=shader=>{
    Object.assign(shader.uniforms,uniforms,own);
    shader.vertexShader='attribute vec2 printUv; varying vec2 fabricUV;\n'+shader.vertexShader;
    shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\nfabricUV=printUv;');
-   shader.fragmentShader='varying vec2 fabricUV; uniform sampler2D fabricInk; uniform float fabricReady,fabricActive,fabricMode,fabricCount,fabricHighlight; uniform vec4 fabricTransform; uniform vec2 fabricCoverage,fabricAspect;\n'+shader.fragmentShader;
+   shader.fragmentShader='varying vec2 fabricUV; uniform sampler2D fabricInk; uniform float fabricReady,fabricActive,fabricMode,fabricCount,fabricHighlight; uniform vec4 fabricTransform,fabricLocalBox; uniform vec2 fabricCoverage,fabricAspect;\n'+shader.fragmentShader;
    shader.fragmentShader=shader.fragmentShader.replace('#include <color_fragment>',`#include <color_fragment>
-    vec2 surface=fabricUV-.5-fabricTransform.xy;
+    vec2 paintUV=(fabricUV-fabricLocalBox.xy)/fabricLocalBox.zw+.5;vec2 surface=paintUV-.5-fabricTransform.xy;
     float mask=step(abs(surface.x),fabricCoverage.x)*step(abs(surface.y),fabricCoverage.y);
     float co=cos(fabricTransform.z),si=sin(fabricTransform.z);
     vec2 at=mat2(co,si,-si,co)*(surface*fabricAspect);
@@ -30,6 +30,6 @@ export function bindTextileInk(vessel){
   };
   return {mesh,own};
  });
- function setPlacement(p){region=V.region(type,p.zone);const faces=V.facePlacements(type,p);for(const {mesh,own}of bindings){const placed=faces[mesh.userData.fabricFace];own.fabricActive.value=placed?1:0;if(!placed)continue;const r=V.region(type,placed.zone);own.fabricMode.value=r.mode==='fabricBorder'?2:V.isFill(r)?1:0;own.fabricTransform.value.set(placed.x/120,-placed.y/120,placed.rotation*Math.PI/180,placed.scale/100);own.fabricCoverage.value.set(V.isFill(r)?V.coveragePercent(placed.coverWidth)/200:.5,V.isFill(r)?V.coveragePercent(placed.coverHeight)/200:.5);own.fabricCount.value=V.fillCount(r,placed.scale);}}
- return {setPlacement,setHighlight(value){for(const {mesh,own}of bindings)own.fabricHighlight.value=mesh.userData.fabricFace===region?.face?value:0;},setTexture(map){uniforms.fabricInk.value=map;uniforms.fabricReady.value=map?1:0;},syncFinish(){for(const {mesh}of bindings){mesh.material.color.copy(glaze.color);mesh.material.specularIntensity=glaze.specularIntensity;}if(vessel.trim!==glaze)vessel.trim.color.copy(glaze.color).multiplyScalar(.88);for(const {material,factor}of vessel.tints||[])material.color.copy(glaze.color).multiplyScalar(factor);},hitUV(hit){return hit?.object.userData.fabricFace===region?.face&&(hit.uv1||hit.uv)?{x:(hit.uv1||hit.uv).x,y:(hit.uv1||hit.uv).y}:null;},dragX:(a,b)=>(b.x-a.x)*120,dragY:(a,b)=>(a.y-b.y)*120,dispose(){}};
+ function setPlacement(p){region=V.region(type,p.zone);const faces=V.facePlacements(type,p);for(const {mesh,own}of bindings){const placed=faces[mesh.userData.fabricFace];own.fabricActive.value=placed?1:0;if(!placed)continue;const r=V.region(type,placed.zone),box=V.isFill(r)?[.5,.5,1,1]:(mesh.userData.localPrintBox||[.5,.5,1,1]);own.fabricLocalBox.value.fromArray(box);const [w,h]=mesh.userData.fabricSize,min=Math.min(w*box[2],h*box[3]);own.fabricAspect.value.set(w*box[2]/min,h*box[3]/min);own.fabricMode.value=r.mode==='fabricBorder'?2:V.isFill(r)?1:0;own.fabricTransform.value.set(placed.x/120,-placed.y/120,placed.rotation*Math.PI/180,placed.scale/100);own.fabricCoverage.value.set(V.isFill(r)?V.coveragePercent(placed.coverWidth)/200:.5,V.isFill(r)?V.coveragePercent(placed.coverHeight)/200:.5);own.fabricCount.value=V.fillCount(r,placed.scale);}}
+ return {setPlacement,setHighlight(value){for(const {mesh,own}of bindings)own.fabricHighlight.value=mesh.userData.fabricFace===region?.face?value:0;},setTexture(map){uniforms.fabricInk.value=map;uniforms.fabricReady.value=map?1:0;},syncFinish(){for(const {mesh}of bindings){mesh.material.color.copy(glaze.color);mesh.material.specularIntensity=glaze.specularIntensity;}if(vessel.trim!==glaze)vessel.trim.color.copy(glaze.color).multiplyScalar(.88);for(const {material,factor}of vessel.tints||[])material.color.copy(glaze.color).multiplyScalar(factor);},hitUV(hit){if(hit?.object.userData.fabricFace!==region?.face||!(hit.uv1||hit.uv))return null;const uv=hit.uv1||hit.uv,box=bindings.find(b=>b.mesh===hit.object)?.own.fabricLocalBox.value;return box?{x:(uv.x-box.x)/box.z+.5,y:(uv.y-box.y)/box.w+.5}:null;},dragX:(a,b)=>(b.x-a.x)*120,dragY:(a,b)=>(a.y-b.y)*120,dispose(){}};
 }

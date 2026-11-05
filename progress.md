@@ -1,3 +1,14 @@
+## 2026-11-05 · Self-built bags v4
+
+- Followed user request to replace external bag models with original connected geometry.
+- Inspected front, quarter, both sides, back and top screenshots. Adjusted backpack shoulder depth and tote gusset folding after review.
+- Checked sewn handle endpoints/thickness and that the local main-panel print box clears the backpack pocket.
+- Print-position changes preserve settings but do not leave duplicate prints on main panel/pocket; back print remains independent.
+- Lint and 157 tests pass. Browser checks pass 320/375/390/430px layouts, all views, full/local prints, saving and resumed editing, rotation, static export and offline rendering with external network blocked.
+- Pending live Pages verification for carriers-v4.
+
+---
+
 ## 2026-11-05 · External bags and object selector v3
 
 - Added attributed backpack/tote GLBs and rendered all nine catalogue thumbnails.

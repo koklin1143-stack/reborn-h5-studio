@@ -109,10 +109,13 @@
   if(!regions[d.canvas]?.[zone])throw Error('该器型没有这个印花位置');
   const {zones={},faces={},...current}=d.vesselPlacement;
   const placed={...placement(d.canvas),...zones[zone],zone};
-  return {vesselPlacement:{...placed,zones:{...zones,[current.zone]:current},...(textile(d.canvas)?{faces:{...faces,[region(d.canvas,current.zone).face]:current.zone}}:{})},cupCamera:regionCamera(d.canvas,placed)};
+  const currentFace=region(d.canvas,current.zone).face,nextFace=region(d.canvas,zone).face,nextFaces={...faces,[currentFace]:current.zone};
+  // Selecting the backpack's print position moves the motif; it must not copy it.
+  if(d.canvas==='backpack'){const active=['front','pocket'].includes(nextFace)?nextFace:currentFace;if(['front','pocket'].includes(active))delete nextFaces[active==='front'?'pocket':'front'];}
+  return {vesselPlacement:{...placed,zones:{...zones,[current.zone]:current},...(textile(d.canvas)?{faces:nextFaces}:{})},cupCamera:regionCamera(d.canvas,placed)};
  }
- // Each fabric face keeps its latest layout; front/back/pocket print together.
- function facePlacements(type,p){const result={};for(const [face,zone]of Object.entries(p.faces||{})){if(p.zones?.[zone]&&region(type,zone).face===face)result[face]=p.zones[zone];}result[region(type,p.zone).face]=p;return result;}
+ // Opposite fabric faces retain their layout. Backpack front/pocket are alternatives.
+ function facePlacements(type,p){const result={};for(const [face,zone]of Object.entries(p.faces||{})){if(p.zones?.[zone]&&region(type,zone).face===face)result[face]=p.zones[zone];}result[region(type,p.zone).face]=p;if(type==='backpack'&&result.front&&result.pocket)delete result[region(type,p.zone).face==='pocket'?'front':'pocket'];return result;}
  const placement=type=>({zone:textile(type)?'front':type==='cup'?'body':type==='basin'?'outer':'center',x:0,y:0,scale:100,rotation:0});
  function remember(d){d.vesselStates={...(d.vesselStates||{}),[d.canvas]:{placement:copy(d.vesselPlacement||placement(d.canvas)),camera:copy(d.cupCamera||get(d.canvas).camera),material:copy(d.cupMaterial||material(d.canvas))}};}
  function switchPatch(d,type){if(!data[type])throw Error('器型尚未接入');const states=copy(d.vesselStates||{});states[d.canvas]={placement:copy(d.vesselPlacement||placement(d.canvas)),camera:copy(d.cupCamera||get(d.canvas).camera),material:copy(d.cupMaterial||material(d.canvas))};const target=states[type]||{placement:placement(type),camera:regionCamera(type,placement(type)),material:material(type)};return {canvas:type,vesselStates:states,vesselPlacement:copy(target.placement),cupCamera:copy(target.camera),cupMaterial:copy(target.material)};}

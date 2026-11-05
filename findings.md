@@ -1,3 +1,13 @@
+## Self-built bags · 2026-11-05, superseding imported models
+
+The user's side-view screenshots exposed the rotated imported tote handles' attachment problem. The imported backpack's restricted upper print UVs also looked unnatural, and merely switching positions produced duplicated artwork on the main panel and pocket. User explicitly requested self-built models.
+
+source/bag-geometry.mjs now builds both models directly. Tote front/back, folded mouth, gussets, bottom and lining share their boundary functions. Continuous solid handles include their sewn ends; endpoints are checked against the cloth. Backpack has a low front pocket and a larger continuous main panel, with a local print box safely above the pocket zipper. Full print follows the entire main panel. Front/pocket location selection is exclusive while retaining previous parameters and the independent back print.
+
+Imported GLBs, downloader/adaptation code and associated thumbnails/credits were removed or replaced. Source bytes no longer require a separate model request; standalone output reduced from ~13.5 MB to ~7.85 MB. Static fallback remains a labelled simplified illustration, updated with the lower pocket and main print placement.
+
+---
+
 ## Authored bag models and hierarchy · 2026-11-05
 
 The second feedback rejected both crude bag geometry and icon-heavy selection cards. Two candidate CC0 models were visually insufficient; chosen originals are Backpack by typhomnt and Batik Beach Tote Bag by eeelabvisual. Both original Sketchfab API records confirm CC BY 4.0 and download availability. Source URLs, changes and credits are in prototype/media/models/ATTRIBUTION.md and the in-app model-source dialog.

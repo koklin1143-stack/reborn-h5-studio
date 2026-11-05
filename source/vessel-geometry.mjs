@@ -2,6 +2,7 @@ import * as T from 'three';
 import V from '../prototype/vessels.js';
 import {createCup} from './cup-geometry.mjs';
 import {createTextile} from './textile-geometry.mjs';
+import {createBag} from './bag-geometry.mjs';
 export function diskPrint(type){const config=V.get(type),segments=96,rings=24,p=[],uv=[],indices=[];
  for(let j=0;j<=rings;j++){const r=j/rings*config.printRadius,y=V.height(type,r)+.004;for(let i=0;i<=segments;i++){const a=i/segments*Math.PI*2,x=r*Math.cos(a),z=r*Math.sin(a);p.push(x,y,z);uv.push(.5+x/(2*config.printRadius),.5-z/(2*config.printRadius));if(j<rings&&i<segments){const k=j*(segments+1)+i;indices.push(k,k+1,k+segments+1,k+1,k+segments+2,k+segments+1);}}}
  const geometry=new T.BufferGeometry();geometry.setAttribute('position',new T.Float32BufferAttribute(p,3));geometry.setAttribute('uv',new T.Float32BufferAttribute(uv,2));geometry.setIndex(indices);geometry.computeVertexNormals();return geometry;
@@ -29,6 +30,7 @@ function spunBody(type,c){
  const g=new T.LatheGeometry(points,128);g.userData.designRows=designRows;return g;
 }
 export function createVessel(type='cup'){
+ if(['backpack','tote'].includes(type))return createBag(type);
  if(V.textile(type))return createTextile(type);
  if(type==='cup')return {...createCup(),type,floor:-1.035};
  if(!V.data[type])throw Error('模型尚未接入');const c=V.get(type),group=new T.Group();group.name='procedural-enamel-'+type+'-v1';

@@ -1,3 +1,15 @@
+# Self-built bags after side-view review · 2026-11-05
+
+User rejected the imported tote handle connection and backpack print positions, and explicitly requested original modelling. This supersedes the imported-bag plan below.
+
+- [x] Build continuous tote body/gussets/lining and solid handles with sewn attachment ends.
+- [x] Build a rounded backpack with low front pocket, shoulder straps, carry loop and zippers.
+- [x] Define a safe local print area above the backpack pocket; location changes move the print without duplicating it.
+- [x] Verify front, left/right, back and top views, mobile UI, save/resume, static and offline output.
+- [ ] Publish and verify carriers-v4.
+
+---
+
 # Authored bags and catalogue hierarchy · 2026-11-05
 
 - [x] Review licensed external bag assets and confirm original authors / CC BY 4.0.

@@ -1,0 +1,11 @@
+const fs=require('node:fs'),assert=require('node:assert/strict');const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
+(async()=>{const b=await chromium.launch({channel:'msedge'});try{
+ const p=await b.newPage({viewport:{width:640,height:640}}),errors=[];p.on('pageerror',e=>errors.push(e.message));p.on('console',m=>{if(m.type()==='error')errors.push(m.text());});await p.route('**/favicon.ico',r=>r.fulfill({status:204}));
+ await p.goto((process.env.QA_URL||'http://127.0.0.1:8879/index.html')+'#mine');await p.locator('.mine-example').first().waitFor();const dir='work/qa/carriers-v4';fs.mkdirSync(dir,{recursive:true});
+ for(const type of ['backpack','tote'])for(const [name,yaw,pitch,zone]of [['front',0,.15,'front'],['three-quarter',.5,.18,'front'],['right',Math.PI/2,.15,'front'],['back',Math.PI,.15,'back'],['left',Math.PI*1.5,.15,'front'],['top',.4,.95,'front'],['fill',.3,.18,'frontFill'],...(type==='backpack'?[['pocket',.3,.18,'pocket']]:[])]){
+  const result=await p.evaluate(async({type,yaw,pitch,zone})=>{const s=await LocalStore.load(),d=Studio.addDraft(s,'enamel-peony');Studio.switchVessel(d,type);Studio.edit(d,Vessels.zonePatch(d,zone));d.cupCamera={yaw,pitch,distance:type==='backpack'?5.8:6.2};const viewer=Cup3D.createViewer(),host=document.createElement('div');host.style.cssText='position:fixed;inset:0;width:640px;height:640px';document.body.append(host);try{
+   await new Promise((resolve,reject)=>viewer.mount(host,d,()=>{},(state,message)=>{if(state==='ready')resolve();if(['fallback','error'].includes(state))reject(Error(message));},{force:true}));const data=Array.from(new Uint8Array(await(await viewer.capture(d)).arrayBuffer()));return {data,diag:viewer.diagnostics(),faces:Object.keys(Vessels.facePlacements(type,d.vesselPlacement))};
+  }finally{viewer.dispose();host.remove();}},{type,yaw,pitch,zone});assert.equal(result.diag.meshName,'studio-sewn-'+type+'-v4');if(type==='backpack')assert.ok(!(result.faces.includes('front')&&result.faces.includes('pocket')));fs.writeFileSync(dir+'/'+type+'-'+name+'.png',Buffer.from(result.data));
+ }
+ assert.deepEqual(errors,[]);console.log('PASS self-built bags from front, both sides, back, top, full print and pocket; no duplicate front prints or shader errors.');
+ }finally{await b.close();}})().catch(e=>{console.error(e);process.exitCode=1;});

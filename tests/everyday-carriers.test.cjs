@@ -12,14 +12,14 @@ test('all nine carriers keep separate settings through undo and a saved work rou
  const w=M.complete(s,d.id,'生活里的花纹');const loaded=M.validate(JSON.parse(JSON.stringify(s)));assert.equal(loaded.works[0].canvas,'tote');assert.equal(loaded.works[0].vesselId,'vessel:bags:tote');
  const resumed=M.resumeWork(loaded,w.id);M.switchVessel(resumed,'pillow');M.undo(resumed);assert.equal(resumed.canvas,'tote');M.redo(resumed);assert.equal(resumed.canvas,'pillow');assert.equal(resumed.cupMaterial.finish,'matte');assert.equal(loaded.works[0].canvas,'tote');
 });
-test('front, back and pocket preserve simultaneous printing and their own local/full settings',()=>{
+test('backpack position changes do not duplicate prints and preserve previous placement settings',()=>{
  const d=M.fresh();M.switchVessel(d,'backpack');
  M.edit(d,{vesselPlacement:{...d.vesselPlacement,x:13}});M.edit(d,V.zonePatch(d,'pocket'));M.edit(d,{vesselPlacement:{...d.vesselPlacement,rotation:45,scale:65}});
  M.edit(d,V.coverPatch(d,'full'));assert.equal(d.vesselPlacement.zone,'pocketFill');M.edit(d,{vesselPlacement:{...d.vesselPlacement,coverWidth:75}});
  M.edit(d,V.zonePatch(d,'back'));M.edit(d,{vesselPlacement:{...d.vesselPlacement,y:21}});
- let faces=V.facePlacements(d.canvas,d.vesselPlacement);assert.equal(faces.front.x,13);assert.equal(faces.pocket.zone,'pocketFill');assert.equal(faces.pocket.coverWidth,75);assert.equal(faces.back.y,21);
+ let faces=V.facePlacements(d.canvas,d.vesselPlacement);assert.equal(faces.front,undefined);assert.equal(d.vesselPlacement.zones.front.x,13);assert.equal(faces.pocket.zone,'pocketFill');assert.equal(faces.pocket.coverWidth,75);assert.equal(faces.back.y,21);
  M.edit(d,V.zonePatch(d,'pocket'));assert.equal(d.vesselPlacement.rotation,45);assert.equal(d.vesselPlacement.scale,65);faces=V.facePlacements(d.canvas,d.vesselPlacement);assert.equal(faces.pocket.zone,'pocket');assert.equal(faces.back.y,21);
- M.switchVessel(d,'cup');M.switchVessel(d,'backpack');assert.equal(V.facePlacements(d.canvas,d.vesselPlacement).front.x,13);
+ M.switchVessel(d,'cup');M.switchVessel(d,'backpack');assert.equal(V.facePlacements(d.canvas,d.vesselPlacement).front,undefined);M.edit(d,V.zonePatch(d,'front'));assert.equal(d.vesselPlacement.x,13);assert.equal(V.facePlacements(d.canvas,d.vesselPlacement).pocket,undefined);
  M.switchVessel(d,'duvet');M.edit(d,V.zonePatch(d,'border'));assert.equal(V.isFill(V.region(d.canvas,d.vesselPlacement.zone)),true);M.edit(d,V.coverPatch(d,'local'));assert.equal(d.vesselPlacement.zone,'front');
 });
 test('textile models have volume, finite UV surfaces and an independently printable pocket',async()=>{
@@ -45,6 +45,6 @@ test('fabric shader keeps distinct layouts on multiple panels and ignores ray hi
  const {createVessel}=await import('../source/vessel-geometry.mjs'),{bindTextileInk}=await import('../source/textile-ink.mjs');
  const m=createVessel('backpack'),ink=bindTextileInk(m),d=M.fresh();M.switchVessel(d,'backpack');M.edit(d,{vesselPlacement:{...d.vesselPlacement,x:12}});M.edit(d,V.zonePatch(d,'pocketFill'));M.edit(d,{vesselPlacement:{...d.vesselPlacement,scale:140}});ink.setPlacement(d.vesselPlacement);
  const uniforms=m.surfaces.map(mesh=>{const shader={uniforms:{},vertexShader:'#include <begin_vertex>',fragmentShader:'#include <color_fragment>'};mesh.material.onBeforeCompile(shader);return shader.uniforms;});
- assert.equal(uniforms[0].fabricActive.value,1);assert.equal(uniforms[1].fabricActive.value,0);assert.equal(uniforms[2].fabricActive.value,1);assert.equal(uniforms[0].fabricMode.value,0);assert.equal(uniforms[2].fabricMode.value,1);assert.equal(uniforms[0].fabricTransform.value.x,.1);
- assert.equal(ink.hitUV({object:m.surfaces[0],uv:{x:.5,y:.5}}),null);assert.deepEqual(ink.hitUV({object:m.surfaces[2],uv:{x:.2,y:.3}}),{x:.2,y:.3});
+ assert.equal(uniforms[0].fabricActive.value,0);assert.equal(uniforms[1].fabricActive.value,0);assert.equal(uniforms[2].fabricActive.value,1);assert.equal(uniforms[0].fabricMode.value,0);assert.equal(uniforms[2].fabricMode.value,1);
+ assert.equal(ink.hitUV({object:m.surfaces[0],uv:{x:.5,y:.5}}),null);assert.deepEqual(ink.hitUV({object:m.surfaces[2],uv:{x:.2,y:.3}}),{x:.2,y:.3});ink.setPlacement({...d.vesselPlacement,zone:'pocket'});assert.deepEqual(ink.hitUV({object:m.surfaces[2],uv:{x:.5,y:.43}}),{x:.5,y:.5});
 });

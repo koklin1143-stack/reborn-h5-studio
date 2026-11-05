@@ -42,19 +42,16 @@ html=html.replace(/<script defer src="([^"]+)"><\/script>/g,(_,file)=>{
 // Inline scripts must execute after the document is present; preserve source order.
 const scripts=[];html=html.replace(/<script>[\s\S]*?<\/script>/g,s=>{scripts.push(s);return '';});
 html=html.replace('</body>',()=>scripts.join('\n')+'\n</body>');
-const carrierImages={},carrierModels={};
+const carrierImages={};
 for(const id of Object.keys(require('../prototype/vessels.js').data)){
  const file=path.join(source,'media/carriers',id+'.webp');
  if(fs.existsSync(file))carrierImages[id]=fs.readFileSync(file).toString('base64');
 }
-for(const id of ['backpack','tote'])carrierModels[id]=fs.readFileSync(path.join(source,'media/models',id+'.glb')).toString('base64');
 const offline=html.replace('const bundledPhotos=null;',()=> 'const bundledPhotos='+JSON.stringify(assets)+';')
- .replace('window.CarrierImageData=null;',()=> 'window.CarrierImageData='+JSON.stringify(carrierImages)+';')
- .replace('window.CarrierModelData=null;',()=> 'window.CarrierModelData='+JSON.stringify(carrierModels)+';');
+ .replace('window.CarrierImageData=null;',()=> 'window.CarrierImageData='+JSON.stringify(carrierImages)+';');
 fs.writeFileSync(path.join(root,'物之再生-H5-单文件.html'),offline);
 const online=html.replace("const photoFolder='media/enamel/';","const photoFolder='prototype/media/enamel/';")
- .replace("window.CarrierAssetFolder='media/carriers/';","window.CarrierAssetFolder='prototype/media/carriers/';")
- .replace("window.CarrierModelFolder='media/models/';","window.CarrierModelFolder='prototype/media/models/';");
+ .replace("window.CarrierAssetFolder='media/carriers/';","window.CarrierAssetFolder='prototype/media/carriers/';");
 fs.writeFileSync(path.join(root,'index.html'),online);
 console.log('Built online HTML ('+Buffer.byteLength(online)+' bytes) and standalone HTML ('+Buffer.byteLength(offline)+' bytes)');
 fs.writeFileSync(path.join(root,'.nojekyll'),'');
