@@ -5,7 +5,8 @@
 - Backpack gusset corners now share endpoints; thin stamped zipper pull replaces torus.
 - Mobile browser checks passed 320/375/390/430 layouts, five categories and 12 thumbnails, rotation, material colour, local/full print, actual saved previews and resumed editing.
 - Offline file passed with HTTP blocked: all three new types recoloured, saved, resumed and reloaded.
-- No physical-phone test claimed. Publishing carriers-v5 next.
+- Published 2907461; live GitHub Pages release carriers-v5 verified. Online browser passed all 12 thumbnails, five categories at 320/390px, and new-object printing/colour/save/resume/reload flows.
+- No physical-phone test claimed.
 
 ## Carrier v5 implementation
 

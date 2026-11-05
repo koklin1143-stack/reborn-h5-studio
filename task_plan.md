@@ -4,7 +4,7 @@
 - [x] Refine backpack cloth and realistic zipper hardware.
 - [x] Add three distinct objects, suitable print zones and materials.
 - [x] Update selector, thumbnails, static fallback; verify mobile, saved/reopened and offline.
-- [ ] Run regression, publish and verify live.
+- [x] Run regression, publish and verify live (2907461; carriers-v5 checked on GitHub Pages).
 
 ---
 
