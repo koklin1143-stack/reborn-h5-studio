@@ -9,11 +9,11 @@
  const families={enamel:'搪瓷器皿',textile:'家居布艺',bags:'包袋'};
  for(const c of Object.values(data))c.family='enamel';
  Object.assign(data,{
-  cushion:{name:'抱枕',short:'抱枕',family:'textile',size:[2.25,2.25,.62],camera:{yaw:.20,pitch:.16,distance:5.7}},
-  pillow:{name:'枕头',short:'枕头',family:'textile',size:[3,1.8,.52],camera:{yaw:.12,pitch:.25,distance:6}},
-  duvet:{name:'被套',short:'被套',family:'textile',size:[2.7,3.25,.12],camera:{yaw:.12,pitch:.16,distance:7.3}},
-  backpack:{name:'书包',short:'书包',family:'bags',size:[1.85,2.5,.78],camera:{yaw:.32,pitch:.14,distance:6.3}},
-  tote:{name:'帆布袋',short:'帆布袋',family:'bags',size:[2.15,2.25,.30],camera:{yaw:.22,pitch:.12,distance:6.6}}
+  cushion:{name:'抱枕',short:'抱枕',family:'textile',size:[2.25,2.25,.96],camera:{yaw:.50,pitch:.16,distance:5.4}},
+  pillow:{name:'枕头',short:'枕头',family:'textile',size:[3,1.9,.84],camera:{yaw:.40,pitch:.20,distance:5.7}},
+  duvet:{name:'被套',short:'被套',family:'textile',size:[2.7,3.25,.18],camera:{yaw:.26,pitch:.30,distance:6.3}},
+  backpack:{name:'书包',short:'书包',family:'bags',size:[1.85,2.5,.88],camera:{yaw:.48,pitch:.18,distance:5.8}},
+  tote:{name:'帆布袋',short:'帆布袋',family:'bags',size:[2.15,2.25,.60],camera:{yaw:.32,pitch:.22,distance:6.2}}
  });
  const textile=type=>!!data[type]&&data[type].family!=='enamel';
  const materialLabel=type=>textile(type)?'布料颜色':'釉色';
@@ -54,7 +54,7 @@
   const faces=type==='backpack'?['front','pocket','back']:['front','back'];
   for(const face of faces){
    const label=face==='front'?(type==='backpack'?'主包正面':'正面'):face==='pocket'?'前袋':'背面';
-   regions[type][face]={label,mode:'fabric',face,repeat:3,yaw:face==='back'?Math.PI+.15:data[type].camera.yaw};
+   regions[type][face]={label,mode:'fabric',face,repeat:3,pitch:face==='back'&&['pillow','duvet'].includes(type)?-.32:data[type].camera.pitch,yaw:face==='back'?Math.PI+.15:data[type].camera.yaw};
    regions[type][face+'Fill']={...regions[type][face],label:label+'满铺',mode:'fabricFill'};
   }
   if(type==='duvet')regions[type].border={label:'正面边缘',mode:'fabricBorder',face:'front',repeat:6};

@@ -22,13 +22,24 @@ test('front, back and pocket preserve simultaneous printing and their own local/
  M.switchVessel(d,'cup');M.switchVessel(d,'backpack');assert.equal(V.facePlacements(d.canvas,d.vesselPlacement).front.x,13);
  M.switchVessel(d,'duvet');M.edit(d,V.zonePatch(d,'border'));assert.equal(V.isFill(V.region(d.canvas,d.vesselPlacement.zone)),true);M.edit(d,V.coverPatch(d,'local'));assert.equal(d.vesselPlacement.zone,'front');
 });
-test('textile panels form finite bulged surfaces with UVs and independently printable pocket',async()=>{
+test('textile models have volume, finite UV surfaces and an independently printable pocket',async()=>{
  const {createVessel}=await import('../source/vessel-geometry.mjs'),T=await import('three');
  for(const type of soft){
   const m=createVessel(type),box=new T.Box3().setFromObject(m.group);assert.ok(box.max.z-box.min.z>.1);assert.ok(box.max.y-box.min.y>1.7);assert.equal(m.surfaces.length,type==='backpack'?3:2);
   for(const mesh of m.surfaces){const p=mesh.geometry.attributes.position,uv=mesh.geometry.attributes.uv,n=mesh.geometry.attributes.normal;assert.equal(p.count,uv.count);assert.ok(mesh.material.roughness>.9);assert.equal(mesh.material.clearcoat,0);for(let i=0;i<p.count;i++){assert.ok(Number.isFinite(p.getZ(i))&&Number.isFinite(n.getZ(i)));assert.ok(uv.getX(i)>=0&&uv.getX(i)<=1&&uv.getY(i)>=0&&uv.getY(i)<=1);}}
   const front=m.surfaces[0].geometry.attributes.position;assert.ok(front.getZ(Math.floor(front.count/2))>front.getZ(0)+.03);
  }
+});
+
+test('open tote mouth reaches its bottom and folded bedding keeps a continuous printable surface',async()=>{
+ const {createVessel}=await import('../source/vessel-geometry.mjs'),T=await import('three');
+ const tote=createVessel('tote');tote.group.updateMatrixWorld(true);
+ const ray=new T.Raycaster(new T.Vector3(0,2.4,0),new T.Vector3(0,-1,0));
+ const hits=ray.intersectObjects(tote.group.children,true);assert.ok(hits.length);assert.ok(hits[0].point.y<-.9,'bag mouth must be open, with a closed bottom');
+ const duvet=createVessel('duvet'),front=duvet.surfaces[0].geometry,uv=front.attributes.uv,p=front.attributes.position;
+ const middle=[];for(let i=0;i<p.count;i++)if(Math.abs(uv.getX(i)-.5)<.001)middle.push([uv.getY(i),p.getY(i),p.getZ(i)]);
+ assert.ok(middle.some((v,i)=>i&&v[0]>middle[i-1][0]&&v[1]<middle[i-1][1]-.015),'cloth turns over at the top instead of staying a flat rectangle');
+ const pillow=createVessel('pillow'),box=new T.Box3().setFromObject(pillow.group);assert.ok(box.max.z-box.min.z>1,'laid pillow retains depth');
 });
 test('fabric shader keeps distinct layouts on multiple panels and ignores ray hits on other regions',async()=>{
  const {createVessel}=await import('../source/vessel-geometry.mjs'),{bindTextileInk}=await import('../source/textile-ink.mjs');

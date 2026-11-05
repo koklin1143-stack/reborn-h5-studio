@@ -1,3 +1,13 @@
+## Carrier review · 2026-11-05
+
+The initial five objects reused a puffed rectangle. The revised models use distinct sewn construction: inflated cushion/pillow with tucked perimeter, folded/draped duvet UV sheet, arched backpack body with gussets/zip/padded straps, and an open tote with lining/boxed bottom/solid handles. Primary product references inspected: IKEA FJÄDRAR cushion, MUJI canvas 2-way tote. These remain procedural design previews, not measured product scans.
+
+The two permanent category/shape rows competed with the preview. Replaced with a 58px current-object row and a grouped nine-item modal catalogue; return focus is restored after selection or dismissal.
+
+White fabric was overexposed under enamel lighting. Separate textile exposure/environment and softer floor shadow reveal volume. Thin cloth self-shadowing caused visible diagonal acne; printable cloth surfaces now use their geometric normal shading, while the model still casts a floor shadow. Static fallback silhouettes also follow the new categories.
+
+---
+
 # Carrier extension findings
 
 - source/cup3d.js is source; prototype/cup3d.js is bundled. Rebuild via build:cup.

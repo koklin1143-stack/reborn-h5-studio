@@ -1,3 +1,13 @@
+# Carrier realism and mobile selector · 2026-11-05
+
+- [x] Inspect initial five models and crowded two-row picker; review real product construction.
+- [x] Replace shared panels with stuffed pillows, folded duvet, gusseted backpack and open tote.
+- [x] Collapse picker to current object + grouped selection sheet.
+- [x] Verify geometry, mobile UI, print faces, colour, export and saved-work round trip.
+- [ ] Publish verified build and inspect live release.
+
+---
+
 # Everyday application carriers · 2026-11-05
 
 Approved: preserve four enamel forms; add cushion, pillow, duvet cover, backpack, tote. Group picker, per-carrier placement/material memory, front/back/pocket zones, local/full/coverage, save/export/gallery compatibility.

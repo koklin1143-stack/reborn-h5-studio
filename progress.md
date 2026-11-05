@@ -1,3 +1,11 @@
+## Carrier realism + compact picker · 2026-11-05
+
+Implemented and checked locally. 155 automated tests pass; syntax/assets/CSS checks pass. Isolated Edge WebGL QA exercised all nine objects, every fabric print zone, local/full layouts, capture, and no shader/browser errors. Workflow QA covered 320x568, 375x667, 390x844 and 430x932, picker keyboard dismissal, saved/reloaded work, resumed editing, pointer rotation and static export. Screenshots: work/qa/carriers-v2 (local, not published). No physical iPhone was available.
+
+Release: 2026-11-05-carriers-v2. Publication/live verification pending.
+
+---
+
 # Progress
 
 2026-11-05: Approved concept implemented next. Repository starts at 1799fca with only unrelated untracked preview/work files. Implemented grouped choices, fabric meshes/materials and planar printing; independent face/carrier state, SVG fallback, saved-work labels and portrait framing. 154 tests pass; browser QA verifies nine WebGL forms, all fabric regions, five static exports, refresh/save/resume, pointer rotation and 320/375/390/430 layouts. Published implementation b7419b2 to GitHub Pages. Live mobile-browser check confirms release 2026-11-05-everyday-carriers, nine carrier descriptors, rendered duvet border and visible 320px coverage/footer controls.

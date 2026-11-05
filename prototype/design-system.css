@@ -788,14 +788,36 @@
 /* A single mobile connection form for search, voice and creation. */
 #ai-connect-form{display:grid;gap:16px}#ai-connect-form>p{margin:0;line-height:1.65}#ai-connect-form .check-row{margin:0;min-height:48px;align-items:center}#ai-connect-form .check-row small{display:block;color:var(--muted,#666);font-size:12px;line-height:1.6}#ai-connect-form input[type=checkbox]{width:20px;height:20px;flex-shrink:0}#ai-connect-form .field input{min-height:48px;font-size:16px}.ai-address summary{padding:10px 0;cursor:pointer}.ai-address .field{margin-top:8px}.ai-settings-row{margin:20px 0 8px}#search-connect{margin:12px 0}
 
-/* Two levels keep the nine application carriers within the mobile viewport. */
-.carrier-picker{flex-shrink:0}.carrier-families{display:flex;gap:16px;margin:0 var(--gutter);border-bottom:1px solid var(--line)}.carrier-families .btn{flex:1;min-width:0;min-height:44px;padding:6px 0;font:500 13px/1.4 var(--ui-font);white-space:nowrap;border-radius:0;background:none;color:var(--ui-secondary)}.carrier-families .btn[aria-pressed=true]{color:var(--ui-text);box-shadow:inset 0 -2px currentColor}.app .carrier-picker .vessel-picker{display:flex;margin-block:6px}.carrier-picker .vessel-picker .btn{flex:1;min-width:0;min-height:44px}.cup-screen .carrier-families{margin-inline:0}@media(max-height:650px){.carrier-families .btn{min-height:36px}.app .carrier-picker .vessel-picker{margin-block:2px}}.wb-easy:has(.inline-spectrum) .carrier-picker{display:none}
+/* Keep the object in view; the grouped catalogue opens only when changing it. */
+.carrier-picker{flex-shrink:0;margin:4px var(--gutter) 8px}
+.carrier-current{display:flex;align-items:center;gap:10px;width:100%;min-height:58px;padding:6px 12px;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--ui-text);text-align:left;font:14px/1.4 var(--ui-font);cursor:pointer}
+.carrier-current>svg{width:36px;height:36px;flex-shrink:0;color:#62625c}
+.carrier-current-name{display:flex;align-items:baseline;gap:10px;flex:1;min-width:0}
+.carrier-current-name strong{font-size:16px;font-weight:600;white-space:nowrap}
+.carrier-current-name small{font-size:12px;color:var(--ui-secondary);white-space:nowrap}
+.carrier-change{display:flex;align-items:center;gap:10px;white-space:nowrap;font-size:13px}
+.carrier-change>span{font-size:18px}
+.cup-screen .carrier-picker{margin-inline:0}
+.carrier-choices{display:grid;gap:22px;padding-bottom:8px}
+.app dialog:has(.carrier-choices){background:#fff;backdrop-filter:none}
+.app dialog:has(.carrier-choices) .dialog-head{background:#fff}
+.carrier-choices h3{margin:0 0 10px;font:500 13px/1.5 var(--ui-font);color:var(--ui-secondary)}
+.carrier-choice-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.carrier-choice-grid button{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-height:86px;padding:8px 4px;border:1px solid #e5e5e2;border-radius:10px;background:#f8f8f6;color:var(--ui-text);font:14px/1.5 var(--ui-font);cursor:pointer}
+.carrier-choice-grid svg{width:38px;height:38px}
+.carrier-choice-grid button[aria-pressed=true]{background:#eeefeb;border-color:#42483f}
+.carrier-chosen{position:absolute;right:7px;top:4px;font-size:12px;visibility:hidden}
+[aria-pressed=true]>.carrier-chosen{visibility:visible}
+.carrier-current:focus-visible,.carrier-choice-grid button:focus-visible{outline:2px solid #42483f;outline-offset:3px}
+.wb-easy:has(.inline-spectrum) .carrier-picker{display:none}
+@media(max-width:360px){.carrier-current{padding-inline:8px;gap:6px}.carrier-current-name{gap:6px}.carrier-current-name small{font-size:11px}.carrier-current>svg{width:30px}.carrier-change{font-size:12px;gap:6px}}
+@media(max-height:650px){.carrier-choices{gap:14px}.carrier-choice-grid button{min-height:76px}.carrier-choice-grid svg{width:30px;height:30px}}
 /* Short phone viewports keep the object and completion action in view. */
 @media(max-height:650px){
  .app .wb-easy:has(.carrier-picker){min-height:0}
  .app .wb-easy:has(.carrier-picker) .editor-object-stage{min-height:0}
  .app .wb-easy:has(.carrier-picker) .editor-tools:has(.wb-style-rail){display:none}
- .app .wb-cover-open .carrier-families{display:none}
+ .app .wb-cover-open .carrier-picker{display:none}
 }
 .app .wb-easy .editor-meta>div:last-child{flex-shrink:0}
 .app .wb-easy .editor-meta [data-action=versions]{min-width:44px;white-space:nowrap}
