@@ -328,6 +328,24 @@
 .app .print-zone,.app .glaze-shortcut,.app .fill-density{font-size:var(--label-size)}
 .app .print-zone select,.app .fill-density select{min-height:var(--touch)}
 .print-zone-fixed strong{display:inline-flex;align-items:center;min-height:44px;font-size:inherit}
+.print-zone>button{display:inline-flex;align-items:center;gap:12px;min-height:44px;padding:0 8px;border:0;background:transparent;color:inherit;font:inherit;cursor:pointer}
+.print-zone>button strong{font-weight:600}
+.app dialog:has(.position-chooser){max-width:460px;background:#fff;backdrop-filter:none}
+.app dialog:has(.position-chooser) .dialog-head{border-bottom:0;padding-bottom:4px}
+.app .position-help{margin:0 0 18px;color:var(--ui-secondary);font-size:13px}
+.position-column-head{display:flex;justify-content:space-between;padding:0 14px 10px 0;color:var(--ui-caption);font-size:12px}
+.position-choice{display:flex;flex-wrap:wrap;align-items:center;border-top:1px solid var(--line)}
+.position-name{display:flex;align-items:center;justify-content:space-between;flex:1;min-height:58px;padding:0 12px 0 0;border:0;background:transparent;color:var(--ui-text);text-align:left;font:400 17px var(--ui-font);cursor:pointer}
+.position-name span{font:400 12px var(--ui-font);color:var(--ui-caption)}
+.position-choice.is-current .position-name{font-weight:600}
+.app .position-toggle{display:flex;align-items:center;justify-content:center;width:48px;min-height:58px;margin:0;cursor:pointer}
+.app .position-chooser input{width:20px;height:20px;min-height:0;margin:0;accent-color:var(--graphite);cursor:pointer}
+.app .position-radio{display:flex;align-items:center;gap:16px;min-height:58px;width:100%;margin:0;font-size:16px;cursor:pointer}
+.position-none{border-top:1px solid var(--line);color:var(--ui-secondary)}
+.position-variants{display:flex;gap:8px;width:100%;padding:0 0 12px}
+.position-variants button{min-height:44px;padding:0 14px;background:var(--ui-bg);border:1px solid transparent;border-radius:6px;color:var(--ui-secondary);cursor:pointer}
+.position-variants button[aria-pressed=true]{border-color:var(--line);color:var(--ui-text)}
+.position-chooser>.btn{margin-top:20px}
 .app .wb-fullscreen,.app .spectrum-actions .btn,.app .quick-ink-links .btn{font-size:var(--label-size)}
 .app .cup-screen{padding-inline:var(--gutter)}
 .app .cup-host{margin-inline:calc(-1 * var(--gutter))}
@@ -531,15 +549,7 @@
 .coverage-bar>span{font-size:12px;color:var(--ui-secondary);margin-right:auto;white-space:nowrap}
 .coverage-fixed{padding:4px 10px;color:var(--ui-text);font-size:13px;font-weight:500;white-space:nowrap}
 .coverage-empty{min-height:44px}.coverage-empty small{font-size:12px;color:var(--ui-caption)}
-.print-placement-actions{display:flex;align-items:center;gap:8px;min-height:44px}
-.print-placement-actions>span{margin-right:auto;color:var(--ui-caption);font-size:11px;white-space:nowrap}
-.app .print-placement-actions .btn{min-height:44px;min-width:44px;padding:4px 6px;font-size:12px;white-space:nowrap}
-.app .print-placement-actions [data-action=cup-print-add]{color:var(--ui-text);font-weight:600;text-decoration:underline;text-underline-offset:4px}
-.editor-object-stage>.print-placement-actions{position:absolute;top:44px;left:8px;right:8px;z-index:2}
-.editor-object-stage:has(.print-placement-actions) .editor-cup-host{top:88px}
-.cup-screen>.print-placement-actions{padding:0 8px;flex:none}
-.app .wb-cover-open .print-placement-actions,.app .wb-easy:has(.inline-spectrum) .print-placement-actions{display:none}
-.app .wb-cover-open .editor-cup-host{top:0}
+
 .app .coverage-bar .btn{flex:0 1 auto;min-width:0;min-height:44px;padding:4px 10px;border:0;border-radius:6px;background:transparent;color:var(--ui-secondary);font-size:13px;white-space:nowrap}
 .app .coverage-bar .btn[aria-pressed=true]{background:var(--ui-bg);box-shadow:inset 0 0 0 1px var(--line);color:var(--graphite);font-weight:600}
 .coverage-fields{display:grid;gap:0}.coverage-fields details summary{min-height:44px;align-content:center;font-size:13px;cursor:pointer}

@@ -26,7 +26,7 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('n
   for(const w of widths){
    await page.setViewportSize({width:w,height:w===320?568:812});
    assert.deepEqual(await Promise.all(['.app-page-title','.catalogue-lead .file-caption strong','.file-spec','.gallery-sorts button[aria-pressed=true]'].map(typeOf)),reference.get(w),'Shared type at '+w);
-   await page.waitForFunction(()=>document.querySelectorAll('.tile-art img.fitted-thumbnail').length===11);
+   await page.waitForFunction(()=>document.querySelectorAll('.tile-art img.fitted-thumbnail').length===GalleryEditions.length-1);
    const tiles=await page.locator('.tile-art img').evaluateAll(images=>images.map(img=>{
     const box=img.closest('.file-picture').getBoundingClientRect(),r=img.getBoundingClientRect();
     const canvas=document.createElement('canvas');canvas.width=img.naturalWidth;canvas.height=img.naturalHeight;

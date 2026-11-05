@@ -1,6 +1,22 @@
 const test=require('node:test'),assert=require('node:assert/strict');
 const M=require('../prototype/foundation.js'),V=require('../prototype/vessels.js');
 
+test('independent position checkboxes retain active face, camera and previous adjustments',()=>{
+ const s=M.blank(),d=M.addDraft(s);M.switchVessel(d,'backpack');M.edit(d,V.coverPatch(d,'full'));
+ M.edit(d,{vesselPlacement:{...d.vesselPlacement,x:17,coverHeight:63}});const camera=M.copy(d.cupCamera);
+ M.edit(d,V.positionPrintPatch(d,'back',true));M.edit(d,V.positionPrintPatch(d,'pocket',true));
+ assert.equal(d.vesselPlacement.zone,'frontFill');assert.equal(d.vesselPlacement.x,17);assert.deepEqual(d.cupCamera,camera);assert.deepEqual(Object.keys(V.facePlacements('backpack',d.vesselPlacement)).sort(),['back','front','pocket']);
+ M.edit(d,V.positionPrintPatch(d,'front',false));M.edit(d,V.positionPrintPatch(d,'back',false));M.edit(d,V.positionPrintPatch(d,'pocket',false));assert.deepEqual(V.facePlacements('backpack',d.vesselPlacement),{});
+ M.edit(d,V.positionPrintPatch(d,'front',true));assert.equal(d.vesselPlacement.zone,'frontFill');assert.equal(d.vesselPlacement.coverHeight,63);assert.equal(d.vesselPlacement.x,17);
+ M.undo(d);assert.equal(V.hasPrint(d.vesselPlacement),false);M.redo(d);const restored=M.validate(M.copy(s)).drafts[0];assert.equal(restored.vesselPlacement.coverHeight,63);assert.deepEqual(Object.keys(V.facePlacements('backpack',restored.vesselPlacement)),['front']);
+});
+
+test('duvet edge and centre share one physical face; enamel single selection can restart after none',()=>{
+ const d=M.fresh();M.switchVessel(d,'duvet');M.edit(d,V.positionPatch(d,'border'));M.edit(d,V.positionPrintPatch(d,'border',false));M.edit(d,V.positionPrintPatch(d,'border',true));
+ assert.deepEqual(Object.keys(V.facePlacements('duvet',d.vesselPlacement)),['front']);assert.equal(d.vesselPlacement.zone,'border');
+ M.switchVessel(d,'cup');M.edit(d,V.printPatch(d,false));M.edit(d,V.positionPrintPatch(d,'back',true));assert.equal(d.vesselPlacement.zone,'back');assert.equal(V.hasPrint(d.vesselPlacement),true);
+});
+
 test('coverage changes stay inside the chosen physical area on every available carrier',()=>{
  for(const type of Object.keys(V.data).filter(V.available))for(const [id,area]of Object.entries(V.positions[type])){
   const d=M.fresh();M.switchVessel(d,type);M.edit(d,V.positionPatch(d,id));if(!V.hasPrint(d.vesselPlacement))M.edit(d,V.printPatch(d,true));

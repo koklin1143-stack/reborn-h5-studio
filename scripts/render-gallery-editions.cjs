@@ -9,13 +9,13 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
   await page.waitForFunction(()=>window.Cup3D&&window.GalleryEditions&&document.querySelector('.enamel-home'));
   await page.addStyleTag({content:'html,body{background:transparent!important}.app{visibility:hidden}#edition-stage{position:fixed;inset:0;width:840px;height:840px;}#edition-stage canvas{display:block;width:100%;height:100%}'});
   const requested=process.argv.slice(2);
-  const keys=await page.evaluate(()=>GalleryEditions.filter(p=>!p.sourceWorkId).map(p=>p.coverKey));
+  const keys=await page.evaluate(()=>GalleryEditions.map(p=>p.coverKey));
   for(const key of keys){
    if(requested.length&&!requested.includes(key))continue;
    await page.evaluate(async key=>{
-    const p=GalleryEditions.find(p=>p.coverKey===key),d=Studio.normalizeRecord(Studio.copy(p.snapshot)),part=d.provenance.parts[0];
-    const res=await fetch(EnamelArt.photoUrl(part.fileKey));if(!res.ok)throw Error(part.fileKey);
-    await LocalStore.saveImage(await res.blob(),part.assetId);
+    const p=GalleryEditions.find(p=>p.coverKey===key),d=Studio.normalizeRecord(Studio.copy(p.snapshot));
+    const res=await fetch(EnamelArt.photoUrl(p.patternKey));if(!res.ok)throw Error(p.patternKey);
+    await LocalStore.saveImage(await res.blob(),d.imageId);
     const host=document.querySelector('#edition-stage')||document.body.appendChild(document.createElement('div'));host.id='edition-stage';
     await new Promise((ok,fail)=>Cup3D.mount(host,d,()=>{},(s,m)=>{if(s==='ready')ok();if(s==='fallback'||s==='error')fail(Error(m));}));
     await new Promise(ok=>requestAnimationFrame(()=>requestAnimationFrame(ok)));

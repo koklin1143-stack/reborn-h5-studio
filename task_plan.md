@@ -1,3 +1,15 @@
+# Integrated print-position chooser + expanded gallery · 2026-11-06
+
+- [x] Research single/multiple selection semantics; inspect placement and gallery architecture.
+- [x] Move print on/off into the position chooser and remove the separate status/action row.
+- [x] Refresh every curated cover; add fourteen designs for all seven newer carriers, with editable snapshots (26 total).
+- [x] Verify keyboard, history/persistence, all gallery filters/remixes and offline operation; 174 regression tests pass.
+- [ ] Finish final small-screen visual checks, publish and verify GitHub Pages.
+
+Research tooling note: UI/UX skill scripts are a text symlink rather than a directory; use the documented guidelines and official menu/selection references if the resolved target is absent.
+
+---
+
 # Explicit per-face placement and editable previews · 2026-11-06
 
 - [x] Analyse automatic face copying, retained hidden prints and editing while facing another side.

@@ -104,6 +104,14 @@
   delete patch.vesselPlacement.coverWidth;delete patch.vesselPlacement.coverHeight;
   patch.cupCamera=regionCamera(d.canvas,patch.vesselPlacement);return patch;
  }
+ // Toggle a physical face without moving the active editor or discarding its saved layout.
+ function positionPrintPatch(d,id,enabled){
+  const active=position(d.canvas,d.vesselPlacement).id;
+  const next={...d,...positionPatch(d,id)};
+  next.vesselPlacement={...next.vesselPlacement,enabled};
+  if(surface(d.canvas)&&id!==active)Object.assign(next,positionPatch(next,active));
+  return {vesselPlacement:next.vesselPlacement,cupCamera:surface(d.canvas)?copy(d.cupCamera||regionCamera(d.canvas,d.vesselPlacement)):next.cupCamera};
+ }
  const coveragePercent=value=>Number.isFinite(value)?Math.max(5,Math.min(100,value)):100;
  function fillWindow(r,p){
   const w=coveragePercent(p.coverWidth)/200,h=coveragePercent(p.coverHeight)/200;
@@ -163,5 +171,5 @@
  function remember(d){d.vesselStates={...(d.vesselStates||{}),[d.canvas]:{placement:copy(d.vesselPlacement||placement(d.canvas)),camera:copy(d.cupCamera||get(d.canvas).camera),material:copy(d.cupMaterial||material(d.canvas))}};}
  function switchPatch(d,type){if(!available(type))throw Error('该物品已不再提供');const states=copy(d.vesselStates||{});states[d.canvas]={placement:copy(d.vesselPlacement||placement(d.canvas)),camera:copy(d.cupCamera||get(d.canvas).camera),material:copy(d.cupMaterial||material(d.canvas))};const target=states[type]||{placement:placement(type),camera:regionCamera(type,placement(type)),material:material(type)};return {canvas:type,vesselStates:states,vesselPlacement:copy(target.placement),cupCamera:copy(target.camera),cupMaterial:copy(target.material)};}
  function height(type,r){const points=get(type).inner;for(let i=1;i<points.length;i++){if(r<=points[i][0]){const [x,y]=points[i-1],[xx,yy]=points[i];return y+(yy-y)*(r-x)/(xx-x);}}return points.at(-1)[1];}
- return {data,get,available,families,surface,textile,materialShort,materialLabel,material,facePlacements,regions,region,positions,position,positionPatch,hasPrint,printPatch,isFill,primaryFill,coveragePercent,fillWindow,coverPatch,fillCount,fillScale,fillBasis,fillAspect,regionCamera,zonePatch,glazeHex,placement,remember,switchPatch,height};
+ return {data,get,available,families,surface,textile,materialShort,materialLabel,material,facePlacements,regions,region,positions,position,positionPatch,positionPrintPatch,hasPrint,printPatch,isFill,primaryFill,coveragePercent,fillWindow,coverPatch,fillCount,fillScale,fillBasis,fillAspect,regionCamera,zonePatch,glazeHex,placement,remember,switchPatch,height};
 });
