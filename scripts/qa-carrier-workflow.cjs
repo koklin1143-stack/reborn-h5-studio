@@ -3,7 +3,7 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
 (async()=>{const b=await chromium.launch({channel:'msedge'});try{
  const p=await b.newPage({viewport:{width:390,height:844},isMobile:true,hasTouch:true}),errors=[];
  await p.route('**/favicon.ico',r=>r.fulfill({status:204}));p.on('pageerror',e=>errors.push(e.message));p.on('console',m=>{if(m.type()==='error')errors.push(m.text()+' '+m.location().url);});
- const base=process.env.QA_URL||'http://127.0.0.1:8879/index.html',dir='work/qa/gallery-v10';fs.mkdirSync(dir,{recursive:true});
+ const base=process.env.QA_URL||'http://127.0.0.1:8879/index.html',dir='work/qa/context-v11';fs.mkdirSync(dir,{recursive:true});
  await p.goto(base+'#mine');await p.locator('.mine-example').first().waitFor();await p.evaluate(async()=>{const s=await LocalStore.load(),d=Studio.addDraft(s,'enamel-peony');d.inputStage=true;d.editorFormat='pattern-v1';d.editorSurface='object';Studio.switchVessel(d,'backpack');await LocalStore.commit(s);});await p.goto(base+'#editor');await p.reload();
  const positions=require('./qa-position-control.cjs')(p);
  const ready=()=>p.locator('#editor-object-status[data-state=ready]').waitFor({state:'attached'});await ready();

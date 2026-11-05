@@ -1,3 +1,12 @@
+# In-context object and print-region controls · 2026-11-06
+
+- [x] Analyse discoverability and modal/model disconnect; research direct manipulation and model annotations.
+- [x] Unify the object switch target; replace print sheet with inline regions/current-print control.
+- [x] Add visible region feedback and model-tap selection without conflicting with orbit/drag gestures.
+- [ ] Verify small screens, all carriers, history/save and live publication.
+
+---
+
 # Integrated print-position chooser + expanded gallery · 2026-11-06
 
 - [x] Research single/multiple selection semantics; inspect placement and gallery architecture.

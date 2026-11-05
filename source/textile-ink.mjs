@@ -25,7 +25,10 @@ export function bindTextileInk(vessel){
     // Subtle woven threads; fade above pixel frequency to avoid mobile moire.
     vec2 threadUV=fabricUV*fabricAspect*170.;vec2 fade=1.-smoothstep(vec2(.15),vec2(.7),fwidth(threadUV));
     float weave=dot(sin(threadUV*6.28318),fade)*${V.textile(type)?'.006':'0.'};diffuseColor.rgb*=${V.textile(type)?'.99':'1.'}+weave;
-    float edgeAt=max(abs(fabricUV.x-.5),abs(fabricUV.y-.5));float edge=smoothstep(.477,.485,edgeAt)*step(edgeAt,.5);diffuseColor.rgb=mix(diffuseColor.rgb,vec3(.12,.28,.31),edge*fabricHighlight*.7);
+    float edgeAt=max(abs(fabricUV.x-.5),abs(fabricUV.y-.5));
+    float halo=smoothstep(.465,.474,edgeAt)*step(edgeAt,.5),edge=smoothstep(.481,.488,edgeAt)*step(edgeAt,.5);
+    diffuseColor.rgb=mix(diffuseColor.rgb,vec3(.85,.94,.92),halo*fabricHighlight*.85);
+    diffuseColor.rgb=mix(diffuseColor.rgb,vec3(.08,.25,.27),edge*fabricHighlight*.95);
    `);
   };
   return {mesh,own};

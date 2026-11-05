@@ -1,3 +1,11 @@
+## Visible region editing v11
+
+- Replaced separate heading/change link with one bounded thumbnail/name/change button; retained the object catalogue and its keyboard behavior.
+- Removed the blurred print-position sheet. Physical-region buttons remain beside the preview; the current-region print switch and coverage controls share a row. Existing independent face layouts and disabled states remain intact.
+- Selecting a part aligns its camera and briefly outlines it. Visible model surfaces can be selected with a short tap in rotate mode; orbit drags, placement drags, multi-touch and cancellation never select another part. Enamel hits respect the physical body, inner/outer regions and occluding trim. Highlighting is removed from exported images.
+- Built online and standalone artifacts, passed lint and 176 regression tests. Local browser QA passed 26 editable gallery remixes, all 11 carrier position lifecycles, 320/390/430 layouts, real model taps, rotation/placement/pinch/cancel, keyboard, undo/reload and fullscreen.
+- Release: `2026-11-06-context-v11`. Offline and live publication verification in progress.
+
 ## Integrated position chooser + gallery v10
 
 - Read NN/G checkbox guidelines and Material UI menu selection documentation. Applied the existing UI/UX skill's hierarchy, 44px targets and focus rules; its script alias resolves to a missing directory, so no generated design-system output was used.

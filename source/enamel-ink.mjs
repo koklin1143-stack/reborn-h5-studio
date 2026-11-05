@@ -64,7 +64,7 @@ export function bindEnamelInk(vessel){
  const grain=enamelGrain();
  const uniforms={
   enamelGrain:{value:grain},lining:{value:new T.Color('#f4f0e4')},
-  enamelInk:{value:null},inkReady:{value:0},printEnabled:{value:1},zoneMode:{value:0},printRows:{value:new T.Vector2()},
+  enamelInk:{value:null},inkReady:{value:0},printEnabled:{value:1},regionHighlight:{value:0},zoneMode:{value:0},printRows:{value:new T.Vector2()},
   fillMetrics:{value:new T.Vector3()},fillWinding:{value:new T.Vector2()},fillWindow:{value:new T.Vector4()},
   limits:{value:new T.Vector4()},inkTransform:{value:new T.Vector4()},wallAspect:{value:1}
  };
@@ -110,17 +110,33 @@ export function bindEnamelInk(vessel){
   if(region.mode==='wall'&&!region.around&&Math.abs(phase)>region.span/2)return null;
   return {angle,y:v};
  }
+ // Pick only the visible body's printable region; handles and lips occlude it.
+ function positionAt(hit){
+  if(hit?.object!==body)return null;
+  const row=Math.min(...['a','b','c'].map(k=>design[hit.face[k]%rows]));
+  const {x,y,z}=body.worldToLocal(hit.point.clone()),radius=Math.hypot(x,z),angle=Math.atan2(x,z);
+  const matches=Object.entries(V.positions[type]).filter(([,p])=>{
+   const r=V.region(type,p.local);if(row<r.rows[0]||row>=r.rows[1])return false;
+   if(r.mode==='disk'||r.mode==='back')return radius<=r.high;
+   if(r.mode==='ring')return radius>=r.low&&radius<=r.high;
+   if(r.mode==='belt')return y>=.68&&y<=r.high;
+   if(r.mode==='wall')return y>=r.low&&y<=r.high&&(r.around||Math.abs(signedAngle(angle-(r.yaw||0)))<=r.span/2);
+   return false;
+  });
+  return matches.find(([,p])=>['ring','belt'].includes(V.region(type,p.local).mode))?.[0]||matches[0]?.[0]||null;
+ }
  material.customProgramCacheKey=()=>'spun-enamel-v4-'+type;
  material.onBeforeCompile=shader=>{
   Object.assign(shader.uniforms,uniforms);
   shader.vertexShader='attribute float profileRow,profileArc,apertureLight; varying float skyLight; varying vec2 sheetCoord; varying float inkRow; varying vec3 inkPosition;\n'+shader.vertexShader;
   shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\ninkPosition=position; inkRow=profileRow; sheetCoord=vec2(uv.x,profileArc); skyLight=apertureLight;');
-  shader.fragmentShader='uniform sampler2D enamelInk,enamelGrain; uniform vec3 lining,fillMetrics; uniform vec2 fillWinding; varying float skyLight; varying vec2 sheetCoord; uniform float inkReady,printEnabled; uniform int zoneMode; uniform vec2 printRows; uniform vec4 limits,inkTransform,fillWindow; uniform float wallAspect; varying float inkRow; varying vec3 inkPosition;\n'+shader.fragmentShader;
+  shader.fragmentShader='uniform sampler2D enamelInk,enamelGrain; uniform vec3 lining,fillMetrics; uniform vec2 fillWinding; varying float skyLight; varying vec2 sheetCoord; uniform float inkReady,printEnabled,regionHighlight; uniform int zoneMode; uniform vec2 printRows; uniform vec4 limits,inkTransform,fillWindow; uniform float wallAspect; varying float inkRow; varying vec3 inkPosition;\n'+shader.fragmentShader;
   shader.fragmentShader=shader.fragmentShader.replace('#include <color_fragment>',`
    #include <color_fragment>
    float radius=length(inkPosition.xz);
    float angle=atan(inkPosition.x,inkPosition.z)-limits.z;
    float zoneMask=step(printRows.x,inkRow)*step(inkRow,printRows.y);
+   float regionEdge=1.0-smoothstep(0.0,.12,min(inkRow-printRows.x,printRows.y-inkRow));
    vec2 uv;
    float inside=1.0;
    if(zoneMode>=5){
@@ -139,11 +155,14 @@ export function bindEnamelInk(vessel){
    if(zoneMode<=1){
     uv=vec2(inkPosition.x,(zoneMode==1?1.0:-1.0)*inkPosition.z)/(2.0*limits.y)+0.5;
     zoneMask*=step(radius,limits.y);
+    regionEdge=max(regionEdge,1.0-smoothstep(0.0,.02,limits.y-radius));
    }else{
     float v=((zoneMode==4?radius:inkPosition.y)-limits.x)/(limits.y-limits.x);
     uv=vec2(zoneMode==2?0.5+atan(sin(angle),cos(angle))/limits.w:fract(0.5+angle*limits.w/6.2831853),v);
     zoneMask*=step(0.0,v)*step(v,1.0);
     if(zoneMode==2)zoneMask*=step(0.0,uv.x)*step(uv.x,1.0);
+    regionEdge=max(regionEdge,1.0-smoothstep(0.0,.025,min(v,1.0-v)));
+    if(zoneMode==2)regionEdge=max(regionEdge,1.0-smoothstep(0.0,.02,min(uv.x,1.0-uv.x)));
    }
    uv-=0.5+inkTransform.xy;
    if(zoneMode>=3)uv.x=fract(uv.x+0.5)-0.5;
@@ -160,6 +179,7 @@ export function bindEnamelInk(vessel){
    vec3 pigmentBase=pigment.rgb*mix(vec3(1.0),diffuseColor.rgb,0.055);
    diffuseColor.rgb=mix(diffuseColor.rgb,pigmentBase,pigment.a*zoneMask*inside*inkReady*printEnabled*0.98);
    diffuseColor.rgb*=1.0+0.011*(enamelRG.g-0.5);
+   diffuseColor.rgb=mix(diffuseColor.rgb,vec3(.10,.30,.32),zoneMask*regionHighlight*(.10+.65*regionEdge));
 
   `);
   shader.fragmentShader=shader.fragmentShader.replace('#include <aomap_fragment>',`
@@ -189,7 +209,7 @@ export function bindEnamelInk(vessel){
   if(region.around||region.mode==='wrap')return delta*120/tau;
   return (region.mode==='wall'?delta/region.span:delta*region.count/tau)*512/3;
  }
- return {setPlacement,hitUV,dragX,dragY:(a,b)=>(a.y-b.y)*(V.isFill(region)?120:512/3),setTexture(map){uniforms.enamelInk.value=map;uniforms.inkReady.value=map?1:0;},
+ return {setPlacement,hitUV,positionAt,setHighlight(value){uniforms.regionHighlight.value=value;},dragX,dragY:(a,b)=>(a.y-b.y)*(V.isFill(region)?120:512/3),setTexture(map){uniforms.enamelInk.value=map;uniforms.inkReady.value=map?1:0;},
   dispose(){grain.dispose();},
   syncFinish(){material.color.copy(glaze.color);material.roughness=glaze.roughness;material.clearcoat=glaze.clearcoat;material.ior=glaze.ior;material.specularIntensity=glaze.specularIntensity;material.clearcoatRoughness=glaze.clearcoatRoughness;}};
 }

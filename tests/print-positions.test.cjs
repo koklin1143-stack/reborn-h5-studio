@@ -1,7 +1,7 @@
 const test=require('node:test'),assert=require('node:assert/strict');
 const M=require('../prototype/foundation.js'),V=require('../prototype/vessels.js');
 
-test('independent position checkboxes retain active face, camera and previous adjustments',()=>{
+test('independent position toggles retain active face, camera and previous adjustments',()=>{
  const s=M.blank(),d=M.addDraft(s);M.switchVessel(d,'backpack');M.edit(d,V.coverPatch(d,'full'));
  M.edit(d,{vesselPlacement:{...d.vesselPlacement,x:17,coverHeight:63}});const camera=M.copy(d.cupCamera);
  M.edit(d,V.positionPrintPatch(d,'back',true));M.edit(d,V.positionPrintPatch(d,'pocket',true));
@@ -9,6 +9,26 @@ test('independent position checkboxes retain active face, camera and previous ad
  M.edit(d,V.positionPrintPatch(d,'front',false));M.edit(d,V.positionPrintPatch(d,'back',false));M.edit(d,V.positionPrintPatch(d,'pocket',false));assert.deepEqual(V.facePlacements('backpack',d.vesselPlacement),{});
  M.edit(d,V.positionPrintPatch(d,'front',true));assert.equal(d.vesselPlacement.zone,'frontFill');assert.equal(d.vesselPlacement.coverHeight,63);assert.equal(d.vesselPlacement.x,17);
  M.undo(d);assert.equal(V.hasPrint(d.vesselPlacement),false);M.redo(d);const restored=M.validate(M.copy(s)).drafts[0];assert.equal(restored.vesselPlacement.coverHeight,63);assert.deepEqual(Object.keys(V.facePlacements('backpack',restored.vesselPlacement)),['front']);
+});
+
+test('enamel hit selection uses actual visible regions even when the print is disabled',async()=>{
+ const {Vector3}=await import('three'),{createVessel}=await import('../source/vessel-geometry.mjs'),{bindEnamelInk}=await import('../source/enamel-ink.mjs');
+ for(const [type,cases]of [
+  ['cup',[[5,0,0,.98,'body'],[5,0,0,-.98,'back'],[5,0,.75,.98,'band']]],
+  ['plate',[[11,0,.1,.5,'center'],[11,0,.1,1.2,'rim'],[5,0,-.1,.5,'back']]],
+  ['basin',[[10,0,0,.5,'center'],[10,0,0,1.5,'rim'],[5,0,0,1.4,'outer']]]
+ ]){
+  const item=createVessel(type),ink=bindEnamelInk(item);ink.setPlacement({...V.placement(type),enabled:false});
+  const rows=item.body.geometry.userData.designRows||item.body.geometry.parameters.points.map((_,i)=>i);
+  for(const [row,x,y,z,expected]of cases){const i=rows.indexOf(row);assert.ok(i>=0);const hit={object:item.body,face:{a:i,b:i,c:i},point:new Vector3(x,y,z)};assert.equal(ink.positionAt(hit),expected,type+'/'+expected);assert.equal(ink.hitUV(hit),null);assert.equal(ink.positionAt({...hit,object:{}}),null,'occluding trim cannot select the body');}
+  ink.dispose();
+ }
+});
+
+test('enamel selection feedback is independent of printing and can be cleared for captures',async()=>{
+ const {createVessel}=await import('../source/vessel-geometry.mjs'),{bindEnamelInk}=await import('../source/enamel-ink.mjs');
+ const item=createVessel('basin'),ink=bindEnamelInk(item),shader={uniforms:{},vertexShader:'#include <begin_vertex>',fragmentShader:'#include <color_fragment>'};item.body.material.onBeforeCompile(shader);
+ ink.setPlacement({...V.placement('basin'),enabled:false});ink.setHighlight(1);assert.equal(shader.uniforms.regionHighlight.value,1);assert.equal(shader.uniforms.printEnabled.value,0);ink.setHighlight(0);assert.equal(shader.uniforms.regionHighlight.value,0);ink.dispose();
 });
 
 test('duvet edge and centre share one physical face; enamel single selection can restart after none',()=>{

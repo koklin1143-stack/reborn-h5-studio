@@ -1,10 +1,10 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),{pathToFileURL}=require('node:url');
 const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
 (async()=>{const mode=process.env.QA_MODE||'local',browser=await chromium.launch({channel:'msedge',...(mode==='live'?{proxy:{server:'http://127.0.0.1:7897'}}:{})});try{
- const p=await browser.newPage({viewport:{width:390,height:844},isMobile:true,hasTouch:true}),errors=[],dir='work/qa/gallery-v10';fs.mkdirSync(dir,{recursive:true});p.on('pageerror',e=>errors.push(e.message));
- const base=mode==='offline'?pathToFileURL(path.resolve('物之再生-H5-单文件.html')).href:mode==='live'?'https://koklin1143-stack.github.io/reborn-h5-studio/?v=20261106-gallery-v10':process.env.QA_URL||'http://127.0.0.1:8879/index.html';
+ const p=await browser.newPage({viewport:{width:390,height:844},isMobile:true,hasTouch:true}),errors=[],dir='work/qa/context-v11';fs.mkdirSync(dir,{recursive:true});p.on('pageerror',e=>errors.push(e.message));
+ const base=mode==='offline'?pathToFileURL(path.resolve('物之再生-H5-单文件.html')).href:mode==='live'?'https://koklin1143-stack.github.io/reborn-h5-studio/?v=20261106-context-v11':process.env.QA_URL||'http://127.0.0.1:8879/index.html';
  if(mode==='offline')await p.route(/^https?:/,r=>r.abort());else await p.route('**/favicon.ico',r=>r.fulfill({status:204}));
- await p.goto(base+'#mine');assert.equal(await p.locator('meta[name=reborn-release]').getAttribute('content'),'2026-11-06-gallery-v10');await p.locator('.mine-example').first().waitFor();
+ await p.goto(base+'#mine');assert.equal(await p.locator('meta[name=reborn-release]').getAttribute('content'),'2026-11-06-context-v11');await p.locator('.mine-example').first().waitFor();
  await p.evaluate(async()=>{const s=await LocalStore.load(),d=Studio.addDraft(s,'enamel-peony');d.inputStage=true;d.editorFormat='pattern-v1';d.editorSurface='object';Studio.switchVessel(d,'backpack');await LocalStore.commit(s);});await p.goto(base+'#editor');await p.reload();
  const positions=require('./qa-position-control.cjs')(p);
  const ready=()=>p.locator('#editor-object-status[data-state=ready]').waitFor({state:'attached'});await ready();assert.equal(await p.evaluate(()=>Cup3D.diagnostics().meshName),'studio-sewn-backpack-v6');

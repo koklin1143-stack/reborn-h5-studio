@@ -1,8 +1,8 @@
-/* Shared UI driver: names select the editor, checkboxes control independent printing. */
+/* Inline names select the visible part; the switch controls only that part. */
 module.exports=page=>{
- const open=async()=>{if(!await page.locator('#dialog').evaluate(e=>e.open))await page.locator('[data-action=cup-positions]').last().click();};
+ const open=async()=>page.locator('.print-zone').waitFor();
  const close=async()=>{if(await page.locator('#dialog').evaluate(e=>e.open))await page.keyboard.press('Escape');};
- const choose=async id=>{await open();const button=page.locator(`[data-action=cup-position-edit][data-id=${id}]`);if(await button.count())await button.click();else {await page.locator(`[data-position-print=${id}]`).check();await close();}};
- const ensurePrint=async()=>{if(!await page.evaluate(()=>Cup3D.diagnostics().printEnabled)){await open();const id=await page.locator('[data-print-position]').getAttribute('data-print-position');await page.locator(`[data-position-print=${id}]`).check();await close();}};
+ const choose=async id=>{await open();await page.locator(`[data-action=cup-position-edit][data-id=${id}]`).click();};
+ const ensurePrint=async()=>{if(!await page.evaluate(()=>Cup3D.diagnostics().printEnabled))await page.locator('[data-position-print]').check();};
  return {open,close,choose,ensurePrint};
 };

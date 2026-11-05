@@ -327,25 +327,22 @@
 .app .wb-easy .tool-panel,.app .wb-easy .tool-panel:has(.inline-spectrum){padding-inline:var(--gutter)}
 .app .print-zone,.app .glaze-shortcut,.app .fill-density{font-size:var(--label-size)}
 .app .print-zone select,.app .fill-density select{min-height:var(--touch)}
-.print-zone-fixed strong{display:inline-flex;align-items:center;min-height:44px;font-size:inherit}
-.print-zone>button{display:inline-flex;align-items:center;gap:12px;min-height:44px;padding:0 8px;border:0;background:transparent;color:inherit;font:inherit;cursor:pointer}
-.print-zone>button strong{font-weight:600}
-.app dialog:has(.position-chooser){max-width:460px;background:#fff;backdrop-filter:none}
-.app dialog:has(.position-chooser) .dialog-head{border-bottom:0;padding-bottom:4px}
-.app .position-help{margin:0 0 18px;color:var(--ui-secondary);font-size:13px}
-.position-column-head{display:flex;justify-content:space-between;padding:0 14px 10px 0;color:var(--ui-caption);font-size:12px}
-.position-choice{display:flex;flex-wrap:wrap;align-items:center;border-top:1px solid var(--line)}
-.position-name{display:flex;align-items:center;justify-content:space-between;flex:1;min-height:58px;padding:0 12px 0 0;border:0;background:transparent;color:var(--ui-text);text-align:left;font:400 17px var(--ui-font);cursor:pointer}
-.position-name span{font:400 12px var(--ui-font);color:var(--ui-caption)}
-.position-choice.is-current .position-name{font-weight:600}
-.app .position-toggle{display:flex;align-items:center;justify-content:center;width:48px;min-height:58px;margin:0;cursor:pointer}
-.app .position-chooser input{width:20px;height:20px;min-height:0;margin:0;accent-color:var(--graphite);cursor:pointer}
-.app .position-radio{display:flex;align-items:center;gap:16px;min-height:58px;width:100%;margin:0;font-size:16px;cursor:pointer}
-.position-none{border-top:1px solid var(--line);color:var(--ui-secondary)}
-.position-variants{display:flex;gap:8px;width:100%;padding:0 0 12px}
-.position-variants button{min-height:44px;padding:0 14px;background:var(--ui-bg);border:1px solid transparent;border-radius:6px;color:var(--ui-secondary);cursor:pointer}
-.position-variants button[aria-pressed=true]{border-color:var(--line);color:var(--ui-text)}
-.position-chooser>.btn{margin-top:20px}
+/* Region selection stays beside the visible model. Printing is separate. */
+.app .object-zone-tools{position:static;display:flex;align-items:center;gap:8px;flex-shrink:0;margin:2px var(--gutter) 0;min-width:0}
+.app .print-zone{display:flex;flex:1;gap:2px;min-width:0}
+.app .print-zone>button{position:relative;flex:1;min-width:44px;min-height:44px;padding:0 5px;border:0;border-radius:0;background:none;color:var(--ui-secondary);font:400 12px var(--ui-font);white-space:nowrap;cursor:pointer}
+.app .print-zone>button[aria-pressed=true]{color:var(--ui-text);font-weight:600}
+.app .print-zone>button[aria-pressed=true]:after{content:'';position:absolute;left:20%;right:20%;bottom:4px;height:2px;background:currentColor}
+.app .object-zone-tools .glaze-shortcut{min-width:52px;justify-content:center;font-size:11px;padding:0 4px;border-left:1px solid var(--line)}
+.app .object-zone-tools .glaze-shortcut i{width:18px;height:18px}
+.app .cup-screen .object-zone-tools{margin-inline:0}
+.app .current-print{display:flex;align-items:center;gap:5px;min-height:44px;margin:0 auto 0 0;font-size:12px;cursor:pointer;white-space:nowrap}
+.app .current-print input{appearance:none;position:relative;box-sizing:border-box;width:28px;height:17px;min-height:0;margin:0;border:1px solid #aaa;background:#ddd;border-radius:10px;cursor:pointer}
+.app .current-print input:before{content:'';position:absolute;left:2px;top:2px;width:11px;height:11px;border-radius:50%;background:#fff;box-shadow:0 1px 2px #0003}
+.app .current-print input:checked{background:#282d28;border-color:#282d28}
+.app .current-print input:checked:before{transform:translateX(11px)}
+.app .current-print input:focus-visible{outline:2px solid #42483f;outline-offset:4px}
+.app .coverage-bar .btn:disabled{opacity:.35}
 .app .wb-fullscreen,.app .spectrum-actions .btn,.app .quick-ink-links .btn{font-size:var(--label-size)}
 .app .cup-screen{padding-inline:var(--gutter)}
 .app .cup-host{margin-inline:calc(-1 * var(--gutter))}
@@ -810,17 +807,18 @@
 /* A single mobile connection form for search, voice and creation. */
 #ai-connect-form{display:grid;gap:16px}#ai-connect-form>p{margin:0;line-height:1.65}#ai-connect-form .check-row{margin:0;min-height:48px;align-items:center}#ai-connect-form .check-row small{display:block;color:var(--muted,#666);font-size:12px;line-height:1.6}#ai-connect-form input[type=checkbox]{width:20px;height:20px;flex-shrink:0}#ai-connect-form .field input{min-height:48px;font-size:16px}.ai-address summary{padding:10px 0;cursor:pointer}.ai-address .field{margin-top:8px}.ai-settings-row{margin:20px 0 8px}#search-connect{margin:12px 0}
 
-/* Object identity is the preview heading; print controls are a quieter second level. */
-.carrier-picker{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-shrink:0;margin:6px var(--gutter) 0;padding:0 0 12px;border-bottom:1px solid var(--ui-line)}
-.carrier-current-name{min-width:0;display:grid;gap:2px}
-.carrier-current-name small{font:400 11px/1.5 var(--ui-font);color:var(--ui-caption)}
-.carrier-current-name h2{margin:0;font:400 24px/1.3 var(--name-font)}
-.carrier-current-name strong{font:inherit}
-.carrier-change{display:flex;align-items:center;justify-content:flex-end;gap:8px;min-height:44px;padding:0 0 0 12px;border:0;background:none;color:var(--ui-secondary);font:400 12px/1.4 var(--ui-font);cursor:pointer;white-space:nowrap}
-.cup-screen .carrier-picker{margin-inline:0}
-.app .wb-easy .carrier-picker+.coverage-bar{margin-top:4px}
-.app .wb-easy .carrier-picker+.coverage-bar .btn{font-size:12px;border-color:transparent;border-radius:5px}
-.app .wb-easy .carrier-picker+.coverage-bar .btn[aria-pressed=true]{background:#eeefeb;box-shadow:none}
+/* One bounded switch target makes object identity visibly actionable. */
+.carrier-picker{display:flex;align-items:center;gap:10px;flex-shrink:0;margin:4px var(--gutter) 0;padding:6px 12px 6px 6px;border:1px solid #deded8;border-radius:9px;background:#fafaf8;color:var(--ui-text);text-align:left;cursor:pointer}
+.carrier-picker>img{width:44px;height:44px;object-fit:contain;background:#f1f0ec;border-radius:4px}
+.carrier-current-name{min-width:0;display:grid;gap:1px}
+.carrier-current-name small{font:400 10px/1.5 var(--ui-font);color:var(--ui-caption)}
+.carrier-current-name strong{font:400 20px/1.3 var(--name-font)}
+.carrier-change{display:flex;align-items:center;gap:6px;margin-left:auto;padding-left:12px;color:var(--ui-text);font:400 12px/1.4 var(--ui-font);white-space:nowrap}
+.cup-screen .carrier-picker{margin-inline:0;width:100%}
+.carrier-picker:focus-visible{outline:2px solid #42483f;outline-offset:3px}
+.app .wb-easy .coverage-bar{margin-top:0;gap:4px}
+.app .wb-easy .coverage-bar .btn{font-size:12px;min-width:0;padding-inline:9px;border-color:transparent;border-radius:5px}
+.app .wb-easy .coverage-bar .btn[aria-pressed=true]{background:#eeefeb;box-shadow:none}
 .app dialog:has(.carrier-choices){background:#fff;backdrop-filter:none}
 .app dialog:has(.carrier-choices) .dialog-head{padding-block:16px 8px;background:#fff;border-bottom:0}
 .app dialog:has(.carrier-choices) .dialog-head h2{font:400 23px/1.3 var(--name-font)}
@@ -841,7 +839,7 @@
 .app .dialog-body .carrier-catalogue-note{margin:24px 0 0;font:400 11px/1.5 var(--ui-font);color:var(--ui-caption)}
 .carrier-change:focus-visible,.carrier-choice-grid button:focus-visible,.carrier-categories button:focus-visible{outline:2px solid #42483f;outline-offset:4px}
 .wb-easy:has(.inline-spectrum) .carrier-picker{display:none}
-@media(max-height:650px){.carrier-picker{padding-bottom:6px;margin-top:2px}.carrier-current-name h2{font-size:21px}.carrier-choice-art{max-height:140px}.carrier-categories{margin-bottom:14px}.carrier-choice-grid{gap:14px}.app .dialog-body .carrier-catalogue-note{margin-top:16px}}
+@media(max-height:650px){.carrier-picker{padding-bottom:6px;margin-top:2px}.carrier-current-name strong{font-size:18px}.carrier-choice-art{max-height:140px}.carrier-categories{margin-bottom:14px}.carrier-choice-grid{gap:14px}.app .dialog-body .carrier-catalogue-note{margin-top:16px}}
 /* Short phone viewports keep the object and completion action in view. */
 @media(max-height:650px){
  .app .wb-easy:has(.carrier-picker){min-height:0}
