@@ -4,7 +4,8 @@
 - Removed the blurred print-position sheet. Physical-region buttons remain beside the preview; the current-region print switch and coverage controls share a row. Existing independent face layouts and disabled states remain intact.
 - Selecting a part aligns its camera and briefly outlines it. Visible model surfaces can be selected with a short tap in rotate mode; orbit drags, placement drags, multi-touch and cancellation never select another part. Enamel hits respect the physical body, inner/outer regions and occluding trim. Highlighting is removed from exported images.
 - Built online and standalone artifacts, passed lint and 176 regression tests. Local browser QA passed 26 editable gallery remixes, all 11 carrier position lifecycles, 320/390/430 layouts, real model taps, rotation/placement/pinch/cancel, keyboard, undo/reload and fullscreen.
-- Release: `2026-11-06-context-v11`. Offline and live publication verification in progress.
+- Standalone/offline browser QA also passed the same 26 remixes, 11 carriers, gestures, keyboard and persistence checks with HTTP(S) requests blocked.
+- Release: `2026-11-06-context-v11`, application commit `e563880`. GitHub Pages run `42086172188` built successfully but its deploy job timed out after ten minutes (`Timeout reached, aborting!`). A failed-job retry was accepted (HTTP 201) but remained queued. Publication is not yet verified; a documentation push starts a fresh build with the same validated application artifacts.
 
 ## Integrated position chooser + gallery v10
 
