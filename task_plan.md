@@ -4,7 +4,7 @@
 - [x] Replace shared panels with stuffed pillows, folded duvet, gusseted backpack and open tote.
 - [x] Collapse picker to current object + grouped selection sheet.
 - [x] Verify geometry, mobile UI, print faces, colour, export and saved-work round trip.
-- [ ] Publish verified build and inspect live release.
+- [x] Publish verified build and inspect live release (0a0492c; GitHub Pages checked at 390px and 320px).
 
 ---
 

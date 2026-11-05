@@ -2,7 +2,7 @@
 
 Implemented and checked locally. 155 automated tests pass; syntax/assets/CSS checks pass. Isolated Edge WebGL QA exercised all nine objects, every fabric print zone, local/full layouts, capture, and no shader/browser errors. Workflow QA covered 320x568, 375x667, 390x844 and 430x932, picker keyboard dismissal, saved/reloaded work, resumed editing, pointer rotation and static export. Screenshots: work/qa/carriers-v2 (local, not published). No physical iPhone was available.
 
-Release: 2026-11-05-carriers-v2. Publication/live verification pending.
+Release: 2026-11-05-carriers-v2. Published implementation commit 0a0492c. Live GitHub Pages reports this release; real WebGL duvet border print, nine-item selection sheet and 320px coverage controls verified.
 
 ---
 
