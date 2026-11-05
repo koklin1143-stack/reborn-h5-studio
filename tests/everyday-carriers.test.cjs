@@ -20,7 +20,7 @@ test('backpack position changes do not duplicate prints and preserve previous pl
  let faces=V.facePlacements(d.canvas,d.vesselPlacement);assert.equal(faces.front,undefined);assert.equal(d.vesselPlacement.zones.front.x,13);assert.equal(faces.pocket.zone,'pocketFill');assert.equal(faces.pocket.coverWidth,75);assert.equal(faces.back.y,21);
  M.edit(d,V.zonePatch(d,'pocket'));assert.equal(d.vesselPlacement.rotation,45);assert.equal(d.vesselPlacement.scale,65);faces=V.facePlacements(d.canvas,d.vesselPlacement);assert.equal(faces.pocket.zone,'pocket');assert.equal(faces.back.y,21);
  M.switchVessel(d,'cup');M.switchVessel(d,'backpack');assert.equal(V.facePlacements(d.canvas,d.vesselPlacement).front,undefined);M.edit(d,V.zonePatch(d,'front'));assert.equal(d.vesselPlacement.x,13);assert.equal(V.facePlacements(d.canvas,d.vesselPlacement).pocket,undefined);
- M.switchVessel(d,'duvet');M.edit(d,V.zonePatch(d,'border'));assert.equal(V.isFill(V.region(d.canvas,d.vesselPlacement.zone)),true);M.edit(d,V.coverPatch(d,'local'));assert.equal(d.vesselPlacement.zone,'front');
+ M.switchVessel(d,'duvet');M.edit(d,V.zonePatch(d,'border'));assert.equal(V.isFill(V.region(d.canvas,d.vesselPlacement.zone)),true);M.edit(d,V.coverPatch(d,'local'));assert.equal(d.vesselPlacement.zone,'border');
 });
 test('textile models have volume, finite UV surfaces and an independently printable pocket',async()=>{
  const {createVessel}=await import('../source/vessel-geometry.mjs'),T=await import('three');

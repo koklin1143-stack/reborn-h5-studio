@@ -1,3 +1,11 @@
+## Print position / coverage v8
+
+- Dropdown now contains physical areas only: front/back, main panel/pocket/back, cover/back cover, inside/outside/rim. Phone case shows its single exterior print face without a dropdown.
+- Coverage label is scoped to the selected area. Filling bowl/basin interiors stays inside. Edge bands and the plate reverse do not silently switch surfaces when adjusted.
+- Preserved cup front/back and whole-circumference access. Old renderer zone IDs and saved layouts remain readable; newly selected faces keep coverage and restore previously edited settings.
+- 167 regression tests pass. Mobile browser QA covers all 11 carriers, every position, local/full, stable labels, face changes, undo/redo, 320/390/430 layouts, fullscreen and save/resume/reload. Visually reviewed cushion front/back and basin interior. Offline QA passed with HTTP blocked.
+- Publishing 2026-11-06-print-positions-v8; live verification pending.
+
 ## Carrier v7 selector consistency
 
 - All four categories use equal card widths and reserved caption heights in a single row; enamel no longer creates a tall two-row sheet.

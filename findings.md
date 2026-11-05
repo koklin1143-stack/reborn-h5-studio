@@ -1,3 +1,7 @@
+## Print-position ambiguity
+
+The dropdown currently exposes internal renderer zones (front and frontFill, back and backFill), mixing physical position with the separate coverage toolbar. Its selected label also changes to a coverage description while dragging. `primaryFill` sends any bowl/basin zone to outerFill, so filling an interior jumps to the exterior. Introduce an explicit physical-position catalogue over existing zones; preserve the stored renderer IDs and per-zone states. Position changes carry the coverage mode to supported faces. Unsupported full-print regions (rim bands, plate reverse) remain on that region when adjusted; single-face phone cases need no dropdown. Cup keeps front, back, whole circumference and mouth band as distinct physical positions so no existing placement is removed; the full circumference is explicitly labelled 杯身整圈 / 环绕铺纹.
+
 ## Selector sizing and retired clothing
 
 Enamel used a two-row, two-column grid, while the textile category used a much shorter three-column row. All categories now use four equal columns with reserved caption rows, keeping the sheet height stable and all four enamel choices visible. Clothing is removed from catalogue/category filters and cannot be newly selected. The descriptor/renderer stays solely to read old saved works. Legacy clothing drafts reopen on notebook while keeping their motif and stored clothing placement; completed work images and records are unchanged.

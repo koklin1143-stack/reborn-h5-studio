@@ -68,7 +68,23 @@
  }
  const region=(type,zone)=>regions[type]?.[zone]||Object.values(regions[type]||regions.cup)[0];
  const isFill=r=>['wrap','faceFill','fabricFill','fabricBorder'].includes(r.mode);
- const primaryFill=(type,p)=>surface(type)?(region(type,p?.zone).face||'front')+'Fill':type==='plate'?'innerFill':'outerFill';
+ // UI positions describe physical areas; legacy zone IDs continue to own rendering and saved layouts.
+ const positions={
+  cup:{body:{label:'杯身正面',local:'body'},back:{label:'杯身背面',local:'back'},whole:{label:'杯身整圈',local:'outerFill',arrangement:'环绕铺纹'},band:{label:'杯口环带',local:'band',arrangement:'环绕排布'}},
+  plate:{center:{label:'盘面',local:'center',full:'innerFill',fullLabel:'铺满盘面'},rim:{label:'盘沿',local:'rim',arrangement:'沿边排布'},back:{label:'盘背',local:'back'}},
+  bowl:{center:{label:'碗内',local:'center',full:'innerFill',fullLabel:'铺满内侧'},outer:{label:'碗身外壁',local:'outer',full:'outerFill',fullLabel:'铺满外壁'},rim:{label:'碗口边缘',local:'rim',arrangement:'沿边排布'}},
+  basin:{center:{label:'盆内',local:'center',full:'innerFill',fullLabel:'铺满内侧'},outer:{label:'盆身外壁',local:'outer',full:'outerFill',fullLabel:'铺满外壁'},rim:{label:'盆口边缘',local:'rim',arrangement:'沿边排布'}}
+ };
+ for(const type of Object.keys(data).filter(surface))positions[type]=Object.fromEntries(Object.entries(regions[type]).filter(([,r])=>r.mode==='fabric'||r.mode==='fabricBorder').map(([key,r])=>[key,{label:r.label,local:key,...(r.mode==='fabric'?{full:key+'Fill',fullLabel:key==='pocket'?'铺满前袋':'铺满此面'}:{arrangement:'沿边排布'})}]));
+ function position(type,p){const entries=Object.entries(positions[type]||positions.cup),[id,item]=entries.find(([,a])=>[a.local,a.full,...(a.aliases||[])].includes(p?.zone))||entries[0];return {id,...item};}
+ const primaryFill=(type,p)=>{const a=position(type,p);return a.full||a.local;};
+ function positionPatch(d,id){
+  const target=positions[d.canvas]?.[id];if(!target)throw Error('该器型没有这个印花位置');
+  const p=d.vesselPlacement,filled=isFill(region(d.canvas,p.zone)),zone=filled&&target.full?target.full:target.local,patch=zonePatch(d,zone);
+  // Keep the chosen coverage when moving to a new face; previously edited faces keep their own settings.
+  if(filled&&target.full&&!p.zones?.[zone])for(const key of ['coverWidth','coverHeight','scale','rotation'])if(p[key]!=null)patch.vesselPlacement[key]=p[key];
+  return patch;
+ }
  const coveragePercent=value=>Number.isFinite(value)?Math.max(5,Math.min(100,value)):100;
  function fillWindow(r,p){
   const w=coveragePercent(p.coverWidth)/200,h=coveragePercent(p.coverHeight)/200;
@@ -77,9 +93,9 @@
   return [wall?x:bounded(x,w),(wall ? .5 : 0)+bounded(y,h),w,h];
  }
  function coverPatch(d,mode){
-  const p=d.vesselPlacement,r=region(d.canvas,p.zone),fill=isFill(r);
-  const localZone=surface(d.canvas)?r.face:['wall','disk','back'].includes(r.mode)?p.zone:['faceFill','ring'].includes(r.mode)?'center':d.canvas==='cup'?'body':'outer';
-  const zone=mode==='local'?localZone:mode==='custom'&&fill?p.zone:primaryFill(d.canvas,p);
+  const p=d.vesselPlacement,r=region(d.canvas,p.zone),fill=isFill(r),area=position(d.canvas,p);
+  const localZone=[area.local,...(area.aliases||[])].includes(p.zone)?p.zone:area.local;
+  const zone=mode==='local'||!area.full?localZone:mode==='custom'&&fill?p.zone:area.full;
   const patch=zone===p.zone?{vesselPlacement:{...p}}:zonePatch(d,zone);
   const next=patch.vesselPlacement;
   if(mode==='full'){next.coverWidth=100;next.coverHeight=100;}
@@ -127,5 +143,5 @@
  function remember(d){d.vesselStates={...(d.vesselStates||{}),[d.canvas]:{placement:copy(d.vesselPlacement||placement(d.canvas)),camera:copy(d.cupCamera||get(d.canvas).camera),material:copy(d.cupMaterial||material(d.canvas))}};}
  function switchPatch(d,type){if(!available(type))throw Error('该物品已不再提供');const states=copy(d.vesselStates||{});states[d.canvas]={placement:copy(d.vesselPlacement||placement(d.canvas)),camera:copy(d.cupCamera||get(d.canvas).camera),material:copy(d.cupMaterial||material(d.canvas))};const target=states[type]||{placement:placement(type),camera:regionCamera(type,placement(type)),material:material(type)};return {canvas:type,vesselStates:states,vesselPlacement:copy(target.placement),cupCamera:copy(target.camera),cupMaterial:copy(target.material)};}
  function height(type,r){const points=get(type).inner;for(let i=1;i<points.length;i++){if(r<=points[i][0]){const [x,y]=points[i-1],[xx,yy]=points[i];return y+(yy-y)*(r-x)/(xx-x);}}return points.at(-1)[1];}
- return {data,get,available,families,surface,textile,materialShort,materialLabel,material,facePlacements,regions,region,isFill,primaryFill,coveragePercent,fillWindow,coverPatch,fillCount,fillScale,fillBasis,fillAspect,regionCamera,zonePatch,glazeHex,placement,remember,switchPatch,height};
+ return {data,get,available,families,surface,textile,materialShort,materialLabel,material,facePlacements,regions,region,positions,position,positionPatch,isFill,primaryFill,coveragePercent,fillWindow,coverPatch,fillCount,fillScale,fillBasis,fillAspect,regionCamera,zonePatch,glazeHex,placement,remember,switchPatch,height};
 });

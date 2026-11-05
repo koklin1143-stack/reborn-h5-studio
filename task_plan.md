@@ -1,3 +1,12 @@
+# Separate print position from coverage · 2026-11-06
+
+- [x] Inspect mixed face/coverage dropdown and unexpected inner-to-outer full-print transitions.
+- [x] Present physical positions once, scope coverage to the selected position and retain saved placements.
+- [x] Verify all eleven carriers, face switching, undo/save/reload and mobile/fullscreen layouts (167 regression tests; local/offline QA).
+- [ ] Publish and verify the updated phone link.
+
+---
+
 # Uniform carrier selector and clothing removal · 2026-11-05
 
 - [x] Inspect size mismatch (two-column enamel vs three-column textile) and existing clothing records.

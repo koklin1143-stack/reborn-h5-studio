@@ -8,7 +8,9 @@
   return r.label;
  }
  function zoneControl(d){
-  const options=Object.entries(window.Vessels.regions[d.canvas]).map(([key,r])=>`<option value="${key}" ${d.vesselPlacement.zone===key?'selected':''}>${d.vesselPlacement.zone===key?printLabel(r,d.vesselPlacement):r.label}</option>`);
+  const area=v.position(d.canvas,d.vesselPlacement),items=Object.entries(v.positions[d.canvas]);
+  if(items.length===1)return `<div class="print-zone print-zone-fixed"><span>印花位置</span><strong data-print-position="${area.id}">${area.label}</strong></div>`;
+  const options=items.map(([key,r])=>`<option value="${key}" ${area.id===key?'selected':''}>${r.label}</option>`);
   return `<label class="print-zone"><span>印花位置</span><select data-print-zone aria-label="印花位置">${options.join('')}</select></label>`;
  }
  function densityControl(d,hidden=false){
@@ -34,9 +36,9 @@
   document.querySelector('.carrier-categories [aria-pressed=true]')?.focus({preventScroll:true});
  }
  function coverageBar(d,editing=false){
-  const p=d.vesselPlacement,r=v.region(d.canvas,p.zone),fill=v.isFill(r),local=['wall','disk','back','fabric'].includes(r.mode),whole=p.zone===v.primaryFill(d.canvas,p)&&v.coveragePercent(p.coverWidth)===100&&v.coveragePercent(p.coverHeight)===100;
+  const p=d.vesselPlacement,r=v.region(d.canvas,p.zone),area=v.position(d.canvas,p),fill=v.isFill(r),whole=fill&&v.coveragePercent(p.coverWidth)===100&&v.coveragePercent(p.coverHeight)===100;
   const btn=(label,id,active)=>V.btn(label,'cup-coverage','text',`data-id="${id}" aria-pressed="${active}"`);
-  return `<div class="coverage-bar" role="group" aria-label="印花范围"><span>印花范围</span>${btn('局部印花','local',local)}${btn(v.surface(d.canvas)?'铺满选区':d.canvas==='plate'?'铺满盘面':'铺满外壁','full',whole&&!editing)}${btn('调范围','custom',fill&&(editing||!whole))}</div>`;
+  return `<div class="coverage-bar" role="group" aria-label="印花范围"><span>印花范围</span>${area.full?btn('局部印花','local',!fill)+btn(area.fullLabel,'full',whole&&!editing):`<strong class="coverage-fixed">${area.arrangement||'局部印花'}</strong>`}${btn('调范围','custom',area.full?fill&&(editing||!whole):editing)}</div>`;
  }
  function coverageControls(d){
   const p=d.vesselPlacement,r=v.region(d.canvas,p.zone),wall=r.mode==='wrap';
@@ -88,7 +90,6 @@
   else window.Cup3D.update(next);
   if(commit){
    const bar=document.querySelector('.coverage-bar');if(bar)bar.outerHTML=coverageBar(next,true);
-   const zone=document.querySelector('[data-print-zone] option:checked');if(zone)zone.textContent=printLabel(r,placement);
    const undo=document.querySelector('[data-action=undo]');if(undo)undo.disabled=!d.past.length;
    const redo=document.querySelector('[data-action=redo]');if(redo)redo.disabled=!d.future.length;
   }
@@ -203,8 +204,8 @@
   else api.render();return;
  }
  if(e.target.matches('[data-print-zone]')){
-  const d=api.draft();if(!d||d.vesselPlacement.zone===e.target.value)return;
-  M.edit(d,window.Vessels.zonePatch(d,e.target.value));api.changed();api.render();return;
+  const d=api.draft();if(!d||v.position(d.canvas,d.vesselPlacement).id===e.target.value)return;
+  M.edit(d,v.positionPatch(d,e.target.value));api.changed();api.render();return;
  }
  if(api.page()!=='cup')return;const d=api.draft(),el=e.target;if(el.dataset.cupField){M.edit(d,{vesselPlacement:{...d.vesselPlacement,[el.dataset.cupField]:Number(el.value)}});}else if(el.id==='cup-motif'){if(el.value==='current')return;M.replace(d,el.value);}else if(el.id==='cup-ink')M.edit(d,{patternInk:el.value});else if(el.id==='cup-material')M.edit(d,{cupMaterial:{...v.material(d.canvas),color:el.value}});else return;if(el.id==='cup-material')redrawGlaze();const density=document.querySelector('[data-fill-count]');if(density)density.value=window.Vessels.fillCount(window.Vessels.region(d.canvas,d.vesselPlacement.zone),d.vesselPlacement.scale);api.changed();refresh();});
  window.CupView={vesselPicker,modelOrigin,init:ctx=>api=ctx,mount,handle,staticCup,zoneControl,densityControl,coverageBar,coverageControls,syncCoverage};
