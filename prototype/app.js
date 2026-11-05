@@ -304,7 +304,7 @@ case 'version-delete-confirm':{const res=await atomic(s=>window.PatternEditor.re
 case 'texture-export':{try{const result=await window.PatternTexture.export(M.copy(draft()));const url=URL.createObjectURL(result.blob),a=document.createElement('a');a.href=url;a.download='物之再生-纹样贴图-1024.png';a.click();setTimeout(()=>URL.revokeObjectURL(url),10000);toast('已导出透明PNG纹样；不是工厂生产文件');}catch(e){open('贴图暂未导出',V.statePanel({state:'error',title:'请恢复素材后重试',description:e.message}));}return;}
 case 'tool':tool=id;return render();
 case 'color':return update({color:id});
-case 'editor-glaze':return update({cupMaterial:{color:id,finish:'gloss'}});
+case 'editor-glaze':return update({cupMaterial:{...window.Vessels.material(draft().canvas),color:id}});
 case 'canvas':return update({canvas:id});
 case 'replace':{
  const d=draft();

@@ -6,9 +6,10 @@ import {clampCamera,PRINT_REGION} from './cup-geometry.mjs';
 import {createVessel} from './vessel-geometry.mjs';
 import V from '../prototype/vessels.js';
 import {bindEnamelInk} from './enamel-ink.mjs';
+import {bindTextileInk} from './textile-ink.mjs';
 function createViewer(){
 let live=null;
-function dispose(){if(!live)return;const l=live;live=null;l.token++;clearTimeout(l.timer);cancelAnimationFrame(l.frame);l.observer?.disconnect();l.events.abort();l.texture?.dispose();l.ink?.dispose();l.environment?.dispose();const gs=new Set(),ms=new Set();l.scene?.traverse(o=>{o.shadow?.map?.dispose();if(o.geometry)gs.add(o.geometry);if(o.material)ms.add(o.material);});for(const g of gs)g.dispose();for(const m of ms){if(m.map&&m.map!==l.texture)m.map.dispose();m.dispose();}l.renderer?.dispose();l.renderer?.forceContextLoss();l.renderer?.domElement.remove();}
+function dispose(){if(!live)return;const l=live;live=null;l.token++;clearTimeout(l.timer);clearTimeout(l.highlightTimer);cancelAnimationFrame(l.frame);l.observer?.disconnect();l.events.abort();l.texture?.dispose();l.ink?.dispose();l.environment?.dispose();const gs=new Set(),ms=new Set();l.scene?.traverse(o=>{o.shadow?.map?.dispose();if(o.geometry)gs.add(o.geometry);if(o.material)ms.add(o.material);});for(const g of gs)g.dispose();for(const m of ms){if(m.map&&m.map!==l.texture)m.map.dispose();m.dispose();}l.renderer?.dispose();l.renderer?.forceContextLoss();l.renderer?.domElement.remove();}
 function framePreview(l){
  const aspect=l.camera.aspect,pitch=l.cameraState.pitch;
  let tangent=Math.tan(19*Math.PI/180)/Math.min(1,aspect/1.1);
@@ -21,7 +22,7 @@ function framePreview(l){
  const fov=2*Math.atan(tangent)*180/Math.PI;
  if(l.camera.fov!==fov){l.camera.fov=fov;l.camera.updateProjectionMatrix();}
 }
-function requestDraw(l){if(l!==live||l.failed||l.frame)return;l.frame=requestAnimationFrame(()=>{l.frame=0;if(l!==live||document.hidden||!l.host.isConnected)return;const c=l.cameraState,rad=c.distance*Math.cos(c.pitch);framePreview(l);l.camera.position.set(rad*Math.sin(c.yaw),c.distance*Math.sin(c.pitch),rad*Math.cos(c.yaw));l.camera.lookAt(l.vesselType==='cup'?.27:0,0,0);l.renderer.render(l.scene,l.camera);l.draws++;});}
+function requestDraw(l){if(l!==live||l.failed||l.frame)return;l.frame=requestAnimationFrame(()=>{l.frame=0;if(l!==live||document.hidden||!l.host.isConnected)return;const c=l.cameraState,rad=c.distance*Math.cos(c.pitch);framePreview(l);const targetY=l.vesselType==='tote'?.42:0;l.camera.position.set(rad*Math.sin(c.yaw),targetY+c.distance*Math.sin(c.pitch),rad*Math.cos(c.yaw));l.camera.lookAt(l.vesselType==='cup'?.27:0,targetY,0);l.renderer.render(l.scene,l.camera);l.draws++;});}
 function updateCamera(l,patch,save=true){l.cameraState=clampCamera({...l.cameraState,...patch});requestDraw(l);if(save)l.onCamera({...l.cameraState});}
 function fallback(l,message){if(l!==live)return;l.failed=true;l.token++;clearTimeout(l.timer);l.host.dataset.mode='static';l.onStatus('fallback',message);l.renderer?.domElement.remove();cancelAnimationFrame(l.frame);l.frame=0;}
 function update(d){
@@ -29,13 +30,16 @@ function update(d){
  if(l.vesselType!==d.canvas){mount(l.host,d,l.onCamera,l.onStatus,l.options);return;}
  if(l.failed)return;
  const p=d.vesselPlacement||V.placement(d.canvas),camera=d.cupCamera||V.regionCamera(d.canvas,p);
+ const zoneChanged=l.zone&&l.zone!==p.zone;
  if(l.zone!==p.zone){l.zone=p.zone;l.cameraState=clampCamera(camera);}
  l.draft=d;l.ink.setPlacement(p);
+ if(zoneChanged&&l.ink.setHighlight){clearTimeout(l.highlightTimer);l.ink.setHighlight(1);l.highlightTimer=setTimeout(()=>{l.ink.setHighlight(0);requestDraw(l);},700);}
  l.cup.glaze.color.set(V.glazeHex(d.cupMaterial?.color));
  const matte=d.cupMaterial?.finish==='matte';
  l.cup.glaze.roughness=matte?.57:.30+(V.get(d.canvas).roughness||.23)*.15;
  l.cup.glaze.ior=1.48;l.cup.glaze.specularIntensity=.78;
  l.cup.glaze.clearcoat=matte?.16:.50;l.cup.glaze.clearcoatRoughness=matte?.36:.17;
+ if(V.textile(d.canvas)){l.cup.glaze.roughness=.94;l.cup.glaze.clearcoat=0;l.cup.glaze.specularIntensity=.25;}
  l.ink.syncFinish();
  requestDraw(l);
  const key=JSON.stringify([d.imageId,d.pattern,...Object.keys(window.PatternEditor.defaults).map(k=>d[k])]);
@@ -80,7 +84,7 @@ function makeStudioEnvironment(renderer){
 
 }
 function mount(host,draft,onCamera,onStatus,{force=false,interaction=()=> 'rotate',onPlacement=()=>{}}={}){dispose();const l={host,draft,vesselType:draft.canvas,options:{force,interaction,onPlacement},onCamera,onStatus,cameraState:clampCamera(draft.cupCamera||V.get(draft.canvas).camera),token:0,frame:0,draws:0,textureRevision:0,events:new AbortController()};live=l;host.dataset.mode='loading';onStatus('loading','正在建立'+V.get(l.vesselType).name+'三维预览…');if(!force&&(draft.cupPreviewMode==='static'||(navigator.deviceMemory&&navigator.deviceMemory<=2))){fallback(l,'静态预览 · 节能模式，不可旋转');return;}
-try{l.renderer=new T.WebGLRenderer({alpha:true,antialias:true,powerPreference:'low-power'});l.renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.5));l.renderer.outputColorSpace=T.SRGBColorSpace;l.renderer.toneMapping=T.NeutralToneMapping;l.renderer.toneMappingExposure=1.16;l.renderer.domElement.setAttribute('aria-label',V.get(draft.canvas).name+'真实三维模型，可拖动旋转');host.prepend(l.renderer.domElement);l.scene=new T.Scene();l.camera=new T.PerspectiveCamera(38,1,.1,30);l.cup=createVessel(draft.canvas);l.ink=bindEnamelInk(l.cup);l.scene.add(l.cup.group);const bounds=new T.Box3().setFromObject(l.cup.group),size=bounds.getSize(new T.Vector3());l.bounds={width:size.x,height:size.y,depth:size.z};host.dataset.vesselType=l.vesselType;l.environment=makeStudioEnvironment(l.renderer);l.scene.environment=l.environment.texture;l.scene.environmentRotation.y=0;l.scene.environmentIntensity=.86;l.scene.add(new T.HemisphereLight(0xfffbf4,0xb2aaa0,.64));const key=new T.DirectionalLight(0xfffaf4,2.35);key.position.set(-3.8,5.6,3.1);key.castShadow=true;key.shadow.mapSize.set(1024,1024);key.shadow.camera.left=-3;key.shadow.camera.right=3;key.shadow.camera.top=3;key.shadow.camera.bottom=-3;key.shadow.camera.near=.5;key.shadow.camera.far=12;key.shadow.bias=-.0002;key.shadow.normalBias=.025;key.shadow.radius=10;l.scene.add(key);l.renderer.shadowMap.enabled=true;l.renderer.shadowMap.type=T.PCFShadowMap;l.renderer.shadowMap.autoUpdate=false;l.renderer.shadowMap.needsUpdate=true;l.cup.group.traverse(o=>{if(o.isMesh){o.castShadow=o!==l.cup.print;o.receiveShadow=o!==l.cup.handle&&o.name!=='enamel-handle-joint';}});const fill=new T.DirectionalLight(0xfffcf5,.46);fill.position.set(3.6,2.3,1.9);l.scene.add(fill);
+try{l.renderer=new T.WebGLRenderer({alpha:true,antialias:true,powerPreference:'low-power'});l.renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.5));l.renderer.outputColorSpace=T.SRGBColorSpace;l.renderer.toneMapping=T.NeutralToneMapping;l.renderer.toneMappingExposure=1.16;l.renderer.domElement.setAttribute('aria-label',V.get(draft.canvas).name+'真实三维模型，可拖动旋转');host.prepend(l.renderer.domElement);l.scene=new T.Scene();l.camera=new T.PerspectiveCamera(38,1,.1,30);l.cup=createVessel(draft.canvas);l.ink=V.textile(draft.canvas)?bindTextileInk(l.cup):bindEnamelInk(l.cup);l.scene.add(l.cup.group);const bounds=new T.Box3().setFromObject(l.cup.group),size=bounds.getSize(new T.Vector3());l.bounds={width:size.x,height:size.y,depth:size.z};host.dataset.vesselType=l.vesselType;l.environment=makeStudioEnvironment(l.renderer);l.scene.environment=l.environment.texture;l.scene.environmentRotation.y=0;l.scene.environmentIntensity=.86;l.scene.add(new T.HemisphereLight(0xfffbf4,0xb2aaa0,.64));const key=new T.DirectionalLight(0xfffaf4,2.35);key.position.set(-3.8,5.6,3.1);key.castShadow=true;key.shadow.mapSize.set(1024,1024);key.shadow.camera.left=-3;key.shadow.camera.right=3;key.shadow.camera.top=3;key.shadow.camera.bottom=-3;key.shadow.camera.near=.5;key.shadow.camera.far=12;key.shadow.bias=-.0002;key.shadow.normalBias=.025;key.shadow.radius=10;l.scene.add(key);l.renderer.shadowMap.enabled=true;l.renderer.shadowMap.type=T.PCFShadowMap;l.renderer.shadowMap.autoUpdate=false;l.renderer.shadowMap.needsUpdate=true;l.cup.group.traverse(o=>{if(o.isMesh){o.castShadow=o!==l.cup.print;o.receiveShadow=o!==l.cup.handle&&o.name!=='enamel-handle-joint';}});const fill=new T.DirectionalLight(0xfffcf5,.46);fill.position.set(3.6,2.3,1.9);l.scene.add(fill);
 // Contact follows the actual foot instead of a second, hard-edged silhouette.
 const shadowCanvas=document.createElement('canvas');shadowCanvas.width=shadowCanvas.height=128;
 const ctx=shadowCanvas.getContext('2d'),g=ctx.createRadialGradient(64,64,0,64,64,64);
@@ -105,14 +109,14 @@ function diagnostics(){const l=live;if(!l)return null;return {mode:l.failed?'sta
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&live){cancelAnimationFrame(live.frame);live.frame=0;}else if(live?.renderer&&!live.failed)requestDraw(live);});window.addEventListener('pagehide',dispose);
 async function capture(d,{transparent=false}={}){
  const l=live;if(!l||l.failed||l.vesselType!==d.canvas)throw Error('三维预览尚未就绪');
- update(d);const token=l.token;
+ update(d);l.ink.setHighlight?.(0);const token=l.token;
  await new Promise((resolve,reject)=>{const began=performance.now();const check=()=>{if(l!==live||l.failed)return reject(Error('三维预览已关闭'));if(l.error)return reject(l.error);if(l.readyToken===token)return resolve();if(performance.now()-began>10000)return reject(Error('预览生成超时，请重试'));setTimeout(check,25);};check();});
  const oldSize=l.renderer.getSize(new T.Vector2()),oldAspect=l.camera.aspect,oldFov=l.camera.fov;
  const output=document.createElement('canvas');output.width=output.height=640;
  try{
   l.renderer.setSize(640,640,false);l.camera.aspect=1;l.camera.fov=38;l.camera.updateProjectionMatrix();
   const camera=l.cameraState,rad=camera.distance*Math.cos(camera.pitch);
-  l.camera.position.set(rad*Math.sin(camera.yaw),camera.distance*Math.sin(camera.pitch),rad*Math.cos(camera.yaw));l.camera.lookAt(l.vesselType==='cup'?.27:0,0,0);
+  const targetY=l.vesselType==='tote'?.42:0;l.camera.position.set(rad*Math.sin(camera.yaw),targetY+camera.distance*Math.sin(camera.pitch),rad*Math.cos(camera.yaw));l.camera.lookAt(l.vesselType==='cup'?.27:0,targetY,0);
   if(transparent){
    l.floor.forEach(mesh=>mesh.visible=false);
    // Keep the full silhouette even when the editor was zoomed into a detail.

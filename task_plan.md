@@ -1,3 +1,18 @@
+# Everyday application carriers · 2026-11-05
+
+Approved: preserve four enamel forms; add cushion, pillow, duvet cover, backpack, tote. Group picker, per-carrier placement/material memory, front/back/pocket zones, local/full/coverage, save/export/gallery compatibility.
+
+- [x] Inspect existing renderer and persistence contracts.
+- [x] Extend descriptors and grouped controls without changing source category.
+- [x] Model textile forms and apply texture directly to fabric surfaces, including static fallback.
+- [x] Verify nine forms, placement/undo/persistence, export and responsive layout.
+- [ ] Build, publish and verify live when network permissions permit.
+
+Private browser records and secrets stay outside published assets.
+
+
+---
+
 # 第 01 轮：检查项目与搭建底座
 范围：复用现有 prototype；不执行第 02 轮，不新增复杂 3D、AI 或公网发布。
 - [x] 读取用户第 01 轮与素材规范，检查根目录/父目录 AGENTS（不存在）及现有实现。

@@ -34,7 +34,7 @@
   const part=colorTarget(d);
   const glaze=part==='glaze',duo=!glaze&&!part&&d.patternInk==='duotone';
   const roles=duo?['inkDark','inkLight'].map((id,i)=>V.btn(i?'浅色':'深色','wb-ink-role','text',`data-id="${id}" aria-pressed="${inkRole===id}"`)).join(''):'';
-  return colorTargets(d)+window.InkPicker.spectrumField()+`<div class="spectrum-actions">${roles}${V.btn(glaze?'恢复白釉':'原色','wb-restore-color','text')}${V.btn('色板与数值','wb-ink-picker','text')}${glaze?'':V.btn('效果','wb-tool','text','data-id="effects-detail"')}</div>`;
+  return colorTargets(d)+window.InkPicker.spectrumField()+`<div class="spectrum-actions">${roles}${V.btn(glaze?(window.Vessels.textile(d.canvas)?'恢复原布色':'恢复白釉'):'原色','wb-restore-color','text')}${V.btn('色板与数值','wb-ink-picker','text')}${glaze?'':V.btn('效果','wb-tool','text','data-id="effects-detail"')}</div>`;
  }
  function extraColors(d){
   const parts=d.imageId||d.spotPaint?[]:window.Art.inkParts[d.pattern]||[];
@@ -67,7 +67,7 @@
  if(c.tool==='crop')return `<div class="wb-crop-inline"><div id="wb-inline-sample" data-sampler aria-label="拖动或双指缩放取样范围">${P.samplePreview(d)}</div><div><strong>拖动选框，看器物变化</strong><p>双指调整取样范围</p><div class="wb-crop-sizes">${[[100,'完整'],[65,'局部'],[35,'细节']].map(([n,label])=>V.btn(label,'wb-sample-size','secondary',`data-id="${n}" aria-pressed="${d.sampleWidth===n}"`)).join('')}</div>${V.btn('精确取样参数','wb-sample','text')}</div></div>`;
  if(c.tool==='flow')return flowSettings(d);
  if(c.tool==='effects')return colorPanel(d);
- if(c.tool==='effects-detail')return extraColors(d)+`<div class="wb-panel-links">${V.btn(window.EditorObject.enabled(d)?'换器物釉色':'换画布底色','wb-tool','text','data-id="material"')}${d.patternInk==='duotone'?V.btn('编辑双色','wb-ink-picker','text'):''}</div><div class="range-grid">${range(d,'brightness',100,'亮度',30,180,'%')}${range(d,'contrast',100,'对比度',30,200,'%')}${range(d,'saturation',100,'饱和度',0,200,'%')}${range(d,'hue',0,'色相',-180,180,'°')}${range(d,'patternOpacity',100,'不透明度',0,100,'%')}${range(d,'borderWidth',0,'单元边框',0,8,'')}</div>${color('边框颜色','borderColor',d.borderColor)}${V.btn('重置颜色与效果','wb-reset-effects','text full')}`;
+ if(c.tool==='effects-detail')return extraColors(d)+`<div class="wb-panel-links">${V.btn(window.EditorObject.enabled(d)?'换'+window.Vessels.materialLabel(d.canvas):'换画布底色','wb-tool','text','data-id="material"')}${d.patternInk==='duotone'?V.btn('编辑双色','wb-ink-picker','text'):''}</div><div class="range-grid">${range(d,'brightness',100,'亮度',30,180,'%')}${range(d,'contrast',100,'对比度',30,200,'%')}${range(d,'saturation',100,'饱和度',0,200,'%')}${range(d,'hue',0,'色相',-180,180,'°')}${range(d,'patternOpacity',100,'不透明度',0,100,'%')}${range(d,'borderWidth',0,'单元边框',0,8,'')}</div>${color('边框颜色','borderColor',d.borderColor)}${V.btn('重置颜色与效果','wb-reset-effects','text full')}`;
  if(c.tool==='compose')return oldTools(c)+`<div class="pattern-flips">${V.btn('水平翻转','pattern-flip','secondary',`data-id="flipX" aria-pressed="${!!d.flipX}"`)}${V.btn('垂直翻转','pattern-flip','secondary',`data-id="flipY" aria-pressed="${!!d.flipY}"`)}</div><div class="wb-align">${V.btn('居中','wb-center','secondary')}${V.btn('左转90°','wb-turn','secondary','data-id="-90"')}${V.btn('右转90°','wb-turn','secondary','data-id="90"')}</div><div class="range-grid">${range(d,'cropWidth',100,'可见宽度',20,100,'%')}${range(d,'cropHeight',100,'可见高度',20,100,'%')}</div>`;
  if(c.tool==='motif')return oldTools(c)+V.btn('裁取这份素材的局部','wb-sample','secondary full');
  return oldTools(c);
@@ -91,8 +91,7 @@
   return `<div class="canvas-stage pattern-stage"><div id="work-preview">${P.svg(d,{surface:true})}</div><div class="wb-source-map" aria-label="取样位置">${P.samplePreview(d)}</div><span class="canvas-note">${hint}</span></div>`;
  }
  function objectStage(d){
-  const vessels=Object.entries(window.Vessels.data).map(([id,v])=>V.btn(v.short,'wb-vessel','secondary',`data-id="${id}" aria-pressed="${d.canvas===id}"`));
-  return `<div class="vessel-picker wb-vessels ui-segment" role="group" aria-label="切换器型">${vessels.join('')}</div>${window.CupView.coverageBar(d,panel==='coverage')}${window.EditorObject.stage(d)}`;
+  return `${window.CupView.vesselPicker(d,'wb-vessel')}${window.CupView.coverageBar(d,panel==='coverage')}${window.EditorObject.stage(d)}`;
  }
  function tray(c){
   if(!panel)return styleRail(c.d);

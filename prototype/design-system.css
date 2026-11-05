@@ -787,3 +787,24 @@
 
 /* A single mobile connection form for search, voice and creation. */
 #ai-connect-form{display:grid;gap:16px}#ai-connect-form>p{margin:0;line-height:1.65}#ai-connect-form .check-row{margin:0;min-height:48px;align-items:center}#ai-connect-form .check-row small{display:block;color:var(--muted,#666);font-size:12px;line-height:1.6}#ai-connect-form input[type=checkbox]{width:20px;height:20px;flex-shrink:0}#ai-connect-form .field input{min-height:48px;font-size:16px}.ai-address summary{padding:10px 0;cursor:pointer}.ai-address .field{margin-top:8px}.ai-settings-row{margin:20px 0 8px}#search-connect{margin:12px 0}
+
+/* Two levels keep the nine application carriers within the mobile viewport. */
+.carrier-picker{flex-shrink:0}.carrier-families{display:flex;gap:16px;margin:0 var(--gutter);border-bottom:1px solid var(--line)}.carrier-families .btn{flex:1;min-width:0;min-height:44px;padding:6px 0;font:500 13px/1.4 var(--ui-font);white-space:nowrap;border-radius:0;background:none;color:var(--ui-secondary)}.carrier-families .btn[aria-pressed=true]{color:var(--ui-text);box-shadow:inset 0 -2px currentColor}.app .carrier-picker .vessel-picker{display:flex;margin-block:6px}.carrier-picker .vessel-picker .btn{flex:1;min-width:0;min-height:44px}.cup-screen .carrier-families{margin-inline:0}@media(max-height:650px){.carrier-families .btn{min-height:36px}.app .carrier-picker .vessel-picker{margin-block:2px}}.wb-easy:has(.inline-spectrum) .carrier-picker{display:none}
+/* Short phone viewports keep the object and completion action in view. */
+@media(max-height:650px){
+ .app .wb-easy:has(.carrier-picker){min-height:0}
+ .app .wb-easy:has(.carrier-picker) .editor-object-stage{min-height:0}
+ .app .wb-easy:has(.carrier-picker) .editor-tools:has(.wb-style-rail){display:none}
+ .app .wb-cover-open .carrier-families{display:none}
+}
+.app .wb-easy .editor-meta>div:last-child{flex-shrink:0}
+.app .wb-easy .editor-meta [data-action=versions]{min-width:44px;white-space:nowrap}
+@media(max-width:360px){
+ .app .wb-easy .wb-fullscreen{right:4px;padding-inline:4px;font-size:12px}
+ .app .wb-easy .object-zone-tools{left:4px;gap:2px}
+ .app .wb-easy .print-zone select{max-width:84px}
+ .app .wb-easy .glaze-shortcut{padding-inline:3px;font-size:12px}
+}
+/* Portrait carriers must stay inside the saved-result frame. */
+.app .result-art{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr);overflow:hidden;padding:12px}
+.app .result-art>.saved-vessel-preview{min-width:0;min-height:0;max-width:100%;max-height:100%;object-fit:contain}

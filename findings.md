@@ -1,3 +1,15 @@
+# Carrier extension findings
+
+- source/cup3d.js is source; prototype/cup3d.js is bundled. Rebuild via build:cup.
+- Vessels descriptors and Foundation normalize drive persistence. category describes source; application family must be separate.
+- Enamel ink assumes lathe geometry, so textile meshes need their own UV ink binding.
+- All viewport and capture code shares createVessel. Provide textile branches there and static fallback in CupView.
+- Fabric front/back/pocket need simultaneous retained layouts; the active editing face must not erase other faces.
+- Short screens required collapsing the style rail during object editing; portrait saved images required explicit zero-minimum grid tracks to avoid overflow.
+- Browser QA uses a fresh isolated Edge context and local :8881. No real-device Safari was available.
+
+---
+
 # 工程检查
 - 工程根目录 outputs/物之再生-H5，Git main；保留前几轮未提交改动，不回滚。
 - 原生 IIFE 脚本；无框架、无运行时 CDN。esbuild/three 为已有开发依赖；本轮不升级。

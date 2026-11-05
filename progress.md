@@ -1,3 +1,10 @@
+# Progress
+
+2026-11-05: Approved concept implemented next. Repository starts at 1799fca with only unrelated untracked preview/work files. Implemented grouped choices, fabric meshes/materials and planar printing; independent face/carrier state, SVG fallback, saved-work labels and portrait framing. 154 tests pass; browser QA verifies nine WebGL forms, all fabric regions, five static exports, refresh/save/resume, pointer rotation and 320/375/390/430 layouts. GitHub release pending.
+
+
+---
+
 # 第 01 轮进度
 2026-10-30
 - 检查原生 H5、已有页面、依赖与启动脚本；已读本轮附件及素材规范。没有适用 AGENTS。

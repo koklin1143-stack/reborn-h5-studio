@@ -141,7 +141,7 @@
  const zoneName=(r,p)=>v.isFill(r)&&(v.coveragePercent(p.coverWidth)<100||v.coveragePercent(p.coverHeight)<100)?(r.mode==='wrap'?'外壁环带':'内侧局部'):r.label;
  function palette(w){
   const glaze=w.appliedVessel?.material?.color||w.cupMaterial?.color,inks=[];
-  if(v.data[w.canvas]&&glaze)inks.push(['器身釉色',v.glazeHex(glaze)]);
+  if(v.data[w.canvas]&&glaze)inks.push([v.materialLabel(w.canvas),v.glazeHex(glaze)]);
   if(w.patternInk==='duotone')inks.push(['深色印墨',w.inkDark],['浅色印墨',w.inkLight]);
   else if(w.patternInk==='custom')inks.push(['纹样印色',w.inkColor]);
   else if(({blue:1,red:1,graphite:1})[w.patternInk])inks.push(['纹样印色',window.PatternTexture.basePigment(w,'#ffffff')]);
