@@ -6,7 +6,7 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
  await page.goto((process.env.QA_URL||'http://127.0.0.1:8881/index.html')+'#mine');
  await page.waitForFunction(()=>window.WorkResult&&window.LocalStore);
  fs.mkdirSync('prototype/media/carriers',{recursive:true});
- for(const id of Object.keys(require('../prototype/vessels.js').data)){
+ for(const id of Object.keys(require('../prototype/vessels.js').data).filter(require('../prototype/vessels.js').available)){
   const bytes=await page.evaluate(async type=>{
    const s=await LocalStore.load(),d=Studio.copy(Studio.addDraft(s,'enamel-peony'));Studio.switchVessel(d,type);d.cupMaterial=Vessels.material(type);d.cupCamera=Vessels.get(type).camera;d.cupPreviewMode='three';
    const original=PatternTexture.export,blank=document.createElement('canvas');blank.width=blank.height=32;

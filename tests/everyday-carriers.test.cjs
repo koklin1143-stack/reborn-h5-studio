@@ -3,14 +3,14 @@ const M=require('../prototype/foundation.js'),V=require('../prototype/vessels.js
 const soft=['cushion','pillow','duvet','backpack','tote'];
 test('all carriers keep separate settings through undo and a saved work round trip',()=>{
  const s=M.blank(),d=M.addDraft(s,'enamel-peony'),source=d.sourceObjectId;
- for(const [i,type]of Object.keys(V.data).entries()){
+ for(const [i,type]of Object.keys(V.data).filter(V.available).entries()){
   M.switchVessel(d,type);M.edit(d,{vesselPlacement:{...d.vesselPlacement,x:i+5,rotation:i*11},cupMaterial:{...V.material(type),color:'#445566'}});
  }
- for(const [i,type]of Object.keys(V.data).entries()){
+ for(const [i,type]of Object.keys(V.data).filter(V.available).entries()){
   M.switchVessel(d,type);assert.equal(d.sourceObjectId,source);assert.equal(d.vesselPlacement.x,i+5);assert.equal(d.vesselPlacement.rotation,i*11);assert.equal(d.cupMaterial.color,'#445566');assert.equal(d.vesselId,'vessel:'+V.get(type).family+':'+type);
  }
- const w=M.complete(s,d.id,'生活里的花纹');const loaded=M.validate(JSON.parse(JSON.stringify(s)));assert.equal(loaded.works[0].canvas,'tshirt');assert.equal(loaded.works[0].vesselId,'vessel:apparel:tshirt');
- const resumed=M.resumeWork(loaded,w.id);M.switchVessel(resumed,'pillow');M.undo(resumed);assert.equal(resumed.canvas,'tshirt');M.redo(resumed);assert.equal(resumed.canvas,'pillow');assert.equal(resumed.cupMaterial.finish,'matte');assert.equal(loaded.works[0].canvas,'tshirt');
+ const w=M.complete(s,d.id,'生活里的花纹');const loaded=M.validate(JSON.parse(JSON.stringify(s)));assert.equal(loaded.works[0].canvas,'phonecase');assert.equal(loaded.works[0].vesselId,'vessel:daily:phonecase');
+ const resumed=M.resumeWork(loaded,w.id);M.switchVessel(resumed,'pillow');M.undo(resumed);assert.equal(resumed.canvas,'phonecase');M.redo(resumed);assert.equal(resumed.canvas,'pillow');assert.equal(resumed.cupMaterial.finish,'matte');assert.equal(loaded.works[0].canvas,'phonecase');
 });
 test('backpack position changes do not duplicate prints and preserve previous placement settings',()=>{
  const d=M.fresh();M.switchVessel(d,'backpack');

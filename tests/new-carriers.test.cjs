@@ -1,9 +1,20 @@
 const test=require('node:test'),assert=require('node:assert/strict');
 const V=require('../prototype/vessels.js'),M=require('../prototype/foundation.js');
+test('retired clothing stays readable in saved works while drafts keep their pattern on an available object',()=>{
+ const s=M.blank(),d=M.addDraft(s,'enamel-peony');
+ Object.assign(d,{canvas:'tshirt',vesselPlacement:{...V.placement('tshirt'),x:17,scale:72},cupMaterial:{...V.material('tshirt'),color:'#8899aa'},patternLayout:'repeat',repeatDensity:6});
+ const w=M.complete(s,d.id,'旧衣服作品');w.previewAssetId='asset:legacy-preview';
+ const legacyDraft={...M.copy(w),id:'legacy-draft',recordType:'draft'};s.drafts.push(legacyDraft);
+ const loaded=M.validate(M.copy(s)),saved=loaded.works.find(x=>x.id===w.id),migrated=loaded.drafts.find(x=>x.id==='legacy-draft');
+ assert.equal(saved.canvas,'tshirt');assert.equal(saved.vesselId,'vessel:apparel:tshirt');assert.equal(saved.previewAssetId,'asset:legacy-preview');assert.equal(saved.vesselPlacement.x,17);
+ assert.equal(migrated.canvas,'notebook');assert.equal(migrated.sourceMotifId,w.sourceMotifId);assert.equal(migrated.patternLayout,'repeat');assert.equal(migrated.repeatDensity,6);assert.equal(migrated.vesselStates.tshirt.placement.x,17);assert.equal(migrated.vesselStates.tshirt.material.color,'#8899aa');
+ assert.equal(M.resumeWork(loaded,w.id).canvas,'notebook');assert.equal(saved.canvas,'tshirt');
+ assert.equal(V.available('tshirt'),false);assert.ok(!Object.hasOwn(V.families,'apparel'));assert.throws(()=>M.switchVessel(migrated,'tshirt'),/不再提供/);
+});
 test('daily objects use surface printing without inheriting fabric material and expose appropriate zones',()=>{
  for(const type of ['notebook','phonecase','tshirt']){assert.equal(V.surface(type),true);assert.equal(V.textile(type),type==='tshirt');}
  assert.equal(V.materialLabel('notebook'),'封面颜色');assert.equal(V.materialShort('phonecase'),'壳色');assert.equal(V.region('notebook','back').label,'封底');assert.deepEqual(Object.keys(V.regions.phonecase),['front','frontFill']);
- for(const type of ['notebook','tshirt']){const d=M.fresh();M.switchVessel(d,type);M.edit(d,{vesselPlacement:{...d.vesselPlacement,x:16}});M.edit(d,V.zonePatch(d,'backFill'));M.edit(d,{vesselPlacement:{...d.vesselPlacement,coverWidth:70}});const faces=V.facePlacements(type,d.vesselPlacement);assert.equal(faces.front.x,16);assert.equal(faces.back.coverWidth,70);M.switchVessel(d,'phonecase');M.switchVessel(d,type);assert.equal(d.vesselPlacement.zone,'backFill');assert.equal(d.vesselPlacement.coverWidth,70);}
+ for(const type of ['notebook']){const d=M.fresh();M.switchVessel(d,type);M.edit(d,{vesselPlacement:{...d.vesselPlacement,x:16}});M.edit(d,V.zonePatch(d,'backFill'));M.edit(d,{vesselPlacement:{...d.vesselPlacement,coverWidth:70}});const faces=V.facePlacements(type,d.vesselPlacement);assert.equal(faces.front.x,16);assert.equal(faces.back.coverWidth,70);M.switchVessel(d,'phonecase');M.switchVessel(d,type);assert.equal(d.vesselPlacement.zone,'backFill');assert.equal(d.vesselPlacement.coverWidth,70);}
 });
 test('phone camera and T-shirt neck remain real openings, including in full-print surfaces',async()=>{
  const {createVessel}=await import('../source/vessel-geometry.mjs'),T=await import('three');

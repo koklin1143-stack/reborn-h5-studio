@@ -1,3 +1,7 @@
+## Selector sizing and retired clothing
+
+Enamel used a two-row, two-column grid, while the textile category used a much shorter three-column row. All categories now use four equal columns with reserved caption rows, keeping the sheet height stable and all four enamel choices visible. Clothing is removed from catalogue/category filters and cannot be newly selected. The descriptor/renderer stays solely to read old saved works. Legacy clothing drafts reopen on notebook while keeping their motif and stored clothing placement; completed work images and records are unchanged.
+
 ## Carrier silhouette feedback
 
 User clarified that silhouette, not surface wrinkles, is the main backpack problem. Reference images inspected in a browser: JanSport SuperBreak Plus front (official jansport.com; product dimensions 42x32x13 cm) and UNIQLO U Crew Neck T-Shirt regular fit (official uniqlo.com E422992). The backpack needs a flatter crown, straight sides, larger/higher front pocket and less bulging straps. The shirt needs narrower/downward sleeves, longer straight torso, a lowered front neckline with a higher back neckline instead of an elliptical hole in both panels, and restrained gravity-oriented folds. Reference photos remain in untracked QA only; no brand logos/assets copied into the product.

@@ -1,3 +1,12 @@
+# Uniform carrier selector and clothing removal · 2026-11-05
+
+- [x] Inspect size mismatch (two-column enamel vs three-column textile) and existing clothing records.
+- [x] Use four equal card columns across categories, reserve caption height, retire clothing from new selections.
+- [x] Check equal sheet/card bounds across phone widths, historical work preservation and switching (163 tests; local/offline mobile QA).
+- [ ] Build, publish and verify live.
+
+---
+
 # Carrier silhouette correction · 2026-11-05
 
 - [x] Inspect real backpack and regular crew-neck T-shirt proportions.

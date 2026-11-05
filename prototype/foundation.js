@@ -13,6 +13,8 @@
  }
  const vessels=[...Object.keys(VD.data).map(type=>({id:'vessel:'+VD.get(type).family+':'+type,type,name:VD.get(type).name,category:'enamel',family:VD.get(type).family,preview:'procedural-3d',modelAssetId:null,modelStatus:'procedural',zones:Object.keys(VD.regions[type])})),...['stamp','wrapper','part'].map(type=>({id:'vessel:legacy:'+type,type,name:M.category(type).name+'旧版示意画布',category:type,preview:'legacy-2d',modelAssetId:null,modelStatus:'not-connected',zones:['center']}))];
  function normalize(d,kind='draft'){
+  // Keep completed clothing works intact; editable drafts retain their pattern on an available object.
+  if(kind==='draft'&&VD.data[d.canvas]?.retired)Object.assign(d,VD.switchPatch(d,'notebook'));
   const item=M.getItem(d.itemId),v=vessels.find(v=>v.type===d.canvas)||vessels[0];
   d.recordType=kind;d.sourceObjectId??='object:'+item.id;
   if(!customPhoto(d.provenance,d.sourceMotifId,d.sourceObjectId)&&!motifs.some(m=>m.origin==='photo-study'&&m.id===d.sourceMotifId&&m.sourceObjectId===d.sourceObjectId))d.sourceMotifId='motif:'+item.id;

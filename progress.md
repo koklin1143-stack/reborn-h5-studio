@@ -1,3 +1,11 @@
+## Carrier v7 selector consistency
+
+- All four categories use equal card widths and reserved caption heights in a single row; enamel no longer creates a tall two-row sheet.
+- Clothing removed from category, object and fresh gallery filter choices. Legacy completed works retain their original model and preview; legacy editable drafts preserve the pattern and old placement in a notebook draft.
+- 163 tests pass, including legacy clothing save/load/resume compatibility. Lint and whitespace checks pass.
+- Local and offline mobile workflows pass at 320/375/390/430px: measured equal dialog/card bounds across categories, all 11 choices visible without horizontal overflow, print/recolour/save/resume/reload. Inspected enamel, textile and daily screenshots.
+- Publishing release 2026-11-05-carriers-v7; live verification pending.
+
 ## Carrier v6 verification
 
 - 162 regression tests pass; lint and diff whitespace checks pass.

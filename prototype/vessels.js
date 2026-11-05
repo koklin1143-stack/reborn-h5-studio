@@ -6,7 +6,7 @@
   bowl:{name:'搪瓷碗',short:'碗',zone:'碗内底与内壁',camera:{yaw:0,pitch:1.1,distance:4.9},rim:'#234c5d',rimRadius:1.16,rimY:.65,rimTube:.036,foot:.40,floor:-.66,roughness:.27,printRadius:.84,inner:[[0,-.525],[.33,-.525],[.49,-.485],[.68,-.333],[.90,-.045],[1.095,.37],[1.145,.625]],profile:[[.001,-.58],[.34,-.58],[.37,-.64],[.43,-.64],[.46,-.55],[.61,-.45],[.78,-.27],[.955,.02],[1.135,.43],[1.19,.63],[1.16,.65],[1.145,.625],[1.095,.37],[.90,-.045],[.68,-.333],[.49,-.485],[.33,-.525],[.001,-.525]]},
   basin:{name:'搪瓷盆',short:'盆',zone:'盆内底',camera:{yaw:0,pitch:.88,distance:6},rim:'#183d52',rimRadius:1.66,rimY:.44,rimTube:.055,foot:1.02,floor:-.53,roughness:.29,printRadius:1.05,inner:[[0,-.39],[.94,-.39],[1.02,-.36],[1.14,-.27],[1.43,.23],[1.48,.35],[1.66,.44]],profile:[[.001,-.48],[.94,-.48],[1.02,-.51],[1.10,-.47],[1.20,-.32],[1.50,.20],[1.55,.32],[1.68,.39],[1.66,.44],[1.48,.35],[1.43,.23],[1.14,-.27],[1.02,-.36],[.94,-.39],[.001,-.39]]}
  };
- const families={enamel:'搪瓷器皿',textile:'家居布艺',bags:'包袋',daily:'随身用品',apparel:'衣服'};
+ const families={enamel:'搪瓷器皿',textile:'家居布艺',bags:'包袋',daily:'随身用品'};
  for(const c of Object.values(data))c.family='enamel';
  Object.assign(data,{
   cushion:{name:'抱枕',short:'抱枕',family:'textile',size:[2.25,2.25,.96],camera:{yaw:.50,pitch:.16,distance:5.4}},
@@ -16,8 +16,10 @@
   tote:{name:'帆布袋',short:'帆布袋',family:'bags',size:[2.15,2.25,.60],camera:{yaw:.32,pitch:.22,distance:6.2}},
   notebook:{name:'笔记本',short:'笔记本',family:'daily',size:[2.04,2.86,.35],camera:{yaw:.42,pitch:.20,distance:5.7}},
   phonecase:{name:'手机壳',short:'手机壳',family:'daily',size:[1.52,3.06,.25],camera:{yaw:.38,pitch:.16,distance:5.7}},
-  tshirt:{name:'T 恤',short:'T 恤',family:'apparel',size:[2.94,3.10,.25],camera:{yaw:.08,pitch:.05,distance:6.3}}
+  // Read-only compatibility for previously saved works; no longer in the catalogue.
+  tshirt:{name:'T 恤',short:'T 恤',family:'apparel',retired:true,size:[2.94,3.10,.25],camera:{yaw:.08,pitch:.05,distance:6.3}}
  });
+ const available=type=>!!data[type]&&!data[type].retired;
  const surface=type=>!!data[type]&&data[type].family!=='enamel';
  const textile=type=>['textile','bags','apparel'].includes(data[type]?.family);
  const materialShort=type=>type==='notebook'?'封面色':type==='phonecase'?'壳色':textile(type)?'布色':'釉色';
@@ -123,7 +125,7 @@
  function facePlacements(type,p){const result={};for(const [face,zone]of Object.entries(p.faces||{})){if(p.zones?.[zone]&&region(type,zone).face===face)result[face]=p.zones[zone];}result[region(type,p.zone).face]=p;if(type==='backpack'&&result.front&&result.pocket)delete result[region(type,p.zone).face==='pocket'?'front':'pocket'];return result;}
  const placement=type=>({zone:surface(type)?'front':type==='cup'?'body':type==='basin'?'outer':'center',x:0,y:0,scale:100,rotation:0});
  function remember(d){d.vesselStates={...(d.vesselStates||{}),[d.canvas]:{placement:copy(d.vesselPlacement||placement(d.canvas)),camera:copy(d.cupCamera||get(d.canvas).camera),material:copy(d.cupMaterial||material(d.canvas))}};}
- function switchPatch(d,type){if(!data[type])throw Error('器型尚未接入');const states=copy(d.vesselStates||{});states[d.canvas]={placement:copy(d.vesselPlacement||placement(d.canvas)),camera:copy(d.cupCamera||get(d.canvas).camera),material:copy(d.cupMaterial||material(d.canvas))};const target=states[type]||{placement:placement(type),camera:regionCamera(type,placement(type)),material:material(type)};return {canvas:type,vesselStates:states,vesselPlacement:copy(target.placement),cupCamera:copy(target.camera),cupMaterial:copy(target.material)};}
+ function switchPatch(d,type){if(!available(type))throw Error('该物品已不再提供');const states=copy(d.vesselStates||{});states[d.canvas]={placement:copy(d.vesselPlacement||placement(d.canvas)),camera:copy(d.cupCamera||get(d.canvas).camera),material:copy(d.cupMaterial||material(d.canvas))};const target=states[type]||{placement:placement(type),camera:regionCamera(type,placement(type)),material:material(type)};return {canvas:type,vesselStates:states,vesselPlacement:copy(target.placement),cupCamera:copy(target.camera),cupMaterial:copy(target.material)};}
  function height(type,r){const points=get(type).inner;for(let i=1;i<points.length;i++){if(r<=points[i][0]){const [x,y]=points[i-1],[xx,yy]=points[i];return y+(yy-y)*(r-x)/(xx-x);}}return points.at(-1)[1];}
- return {data,get,families,surface,textile,materialShort,materialLabel,material,facePlacements,regions,region,isFill,primaryFill,coveragePercent,fillWindow,coverPatch,fillCount,fillScale,fillBasis,fillAspect,regionCamera,zonePatch,glazeHex,placement,remember,switchPatch,height};
+ return {data,get,available,families,surface,textile,materialShort,materialLabel,material,facePlacements,regions,region,isFill,primaryFill,coveragePercent,fillWindow,coverPatch,fillCount,fillScale,fillBasis,fillAspect,regionCamera,zonePatch,glazeHex,placement,remember,switchPatch,height};
 });

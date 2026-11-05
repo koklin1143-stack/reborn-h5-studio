@@ -807,17 +807,15 @@
 .carrier-categories button{position:relative;flex:1;min-height:48px;padding:8px 0;border:0;background:none;color:var(--ui-caption);font:400 13px/1.5 var(--ui-font);cursor:pointer;white-space:nowrap}
 .carrier-categories button[aria-pressed=true]{color:var(--ui-text)}
 .carrier-categories button[aria-pressed=true]:after{content:'';position:absolute;left:25%;right:25%;bottom:-1px;height:2px;background:var(--ui-text)}
-.carrier-choice-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px 14px}
-.carrier-choice-grid[data-count="3"]{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.carrier-choice-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;align-items:start}
 .carrier-choice-grid button{display:flex;flex-direction:column;gap:9px;min-width:0;padding:0;border:0;background:none;color:var(--ui-text);font:400 16px/1.5 var(--name-font);cursor:pointer;text-align:left}
 .carrier-choice-art{position:relative;display:grid;place-items:center;width:100%;aspect-ratio:1;background:#f4f3ef;border:1px solid transparent;border-radius:4px;overflow:hidden}
 .carrier-choice-art img{width:100%;height:100%;object-fit:contain;display:block}
 .carrier-choice-grid button[aria-pressed=true] .carrier-choice-art{border-color:#72766e;background:#edeee9}
 .carrier-chosen{position:absolute;right:8px;bottom:8px;display:none;place-items:center;width:20px;height:20px;border-radius:50%;background:#343b32;color:white}
 [aria-pressed=true] .carrier-chosen{display:grid}
-.carrier-choice-caption{display:flex;align-items:baseline;justify-content:space-between;gap:4px;width:100%}
+.carrier-choice-caption{display:grid;grid-template-rows:24px 14px;gap:2px;width:100%;white-space:nowrap}
 .carrier-choice-caption small{font:400 10px/1.4 var(--ui-font);color:var(--ui-caption)}
-.carrier-choice-grid[data-count="3"] .carrier-choice-caption{display:grid;gap:2px}
 .app .dialog-body .carrier-catalogue-note{margin:24px 0 0;font:400 11px/1.5 var(--ui-font);color:var(--ui-caption)}
 .carrier-change:focus-visible,.carrier-choice-grid button:focus-visible,.carrier-categories button:focus-visible{outline:2px solid #42483f;outline-offset:4px}
 .wb-easy:has(.inline-spectrum) .carrier-picker{display:none}

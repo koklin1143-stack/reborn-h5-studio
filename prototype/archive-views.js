@@ -18,9 +18,9 @@
  function gallery(c){
   const f=c.s.ui.gallery,rows=window.ArchiveService.list(c.s,f);
   const sorts=[['featured','精选'],['latest','最新'],['theme','本月主题']];
-  const forms=new Map([['all','全部器型'],...Object.entries(window.Vessels.data).map(([key,v])=>[key,v.short])]);
+  const forms=new Map([['all','全部器型'],...Object.entries(window.Vessels.data).filter(([key])=>window.Vessels.available(key)).map(([key,v])=>[key,v.short])]);
   for(const p of M.queryGallery(c.s,{sort:'latest'}))if(p.snapshot.category!=='enamel')forms.set(p.snapshot.category,M.category(p.snapshot.category).name);
-  if(!forms.has(f.category))forms.set(f.category,M.category(f.category).name);
+  if(!forms.has(f.category))forms.set(f.category,window.Vessels.data[f.category]?.short||M.category(f.category).name);
   return `<section class="gallery-content">
    <div class="gallery-filter-bar"><div class="gallery-sorts" role="group" aria-label="作品排序">${sorts.map(([id,t])=>btn(t,'gallery-sort','text',`data-id="${id}" aria-pressed="${f.sort===id}"`)).join('')}</div>
    <select aria-label="按器型筛选" class="gallery-form">${[...forms].map(([k,t])=>`<option value="${esc(k)}" ${f.category===k?'selected':''}>${esc(t)}</option>`).join('')}</select></div>

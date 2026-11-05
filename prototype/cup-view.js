@@ -26,7 +26,7 @@
   return `<div class="carrier-picker"><div class="carrier-current-name"><small>${v.families[item.family]}</small><h2><strong>${item.name}</strong></h2></div><button type="button" class="carrier-change" data-action="cup-picker" aria-label="更换物品，当前${item.name}" aria-haspopup="dialog">更换物品 ${V.icon('arrow',14)}</button></div>`;
  }
  function catalogue(family){
-  const d=api.draft(),items=Object.entries(v.data).filter(([,item])=>item.family===family);
+  const d=api.draft(),items=Object.entries(v.data).filter(([id,item])=>v.available(id)&&item.family===family);
   return `<div class="carrier-choices"><div class="carrier-categories" role="group" aria-label="物品分类">${Object.entries(v.families).map(([id,name])=>`<button type="button" data-action="cup-family" data-id="${id}" aria-pressed="${id===family}">${name}</button>`).join('')}</div><div class="carrier-choice-grid" data-count="${items.length}" aria-label="${v.families[family]}">${items.map(([id,item])=>`<button type="button" data-action="cup-pick" data-id="${id}" aria-pressed="${d.canvas===id}"><span class="carrier-choice-art"><img src="${carrierImage(id)}" alt="" width="320" height="320"><span class="carrier-chosen" aria-hidden="true">${V.icon('check',13)}</span></span><span class="carrier-choice-caption"><span>${item.short}</span><small>${d.canvas===id?'当前使用':''}</small></span></button>`).join('')}</div><p class="carrier-catalogue-note">换一件物品，保留你的纹样。</p></div>`;
  }
  function openPicker(){
