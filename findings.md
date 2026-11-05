@@ -1,3 +1,7 @@
+## Carrier silhouette feedback
+
+User clarified that silhouette, not surface wrinkles, is the main backpack problem. Reference images inspected in a browser: JanSport SuperBreak Plus front (official jansport.com; product dimensions 42x32x13 cm) and UNIQLO U Crew Neck T-Shirt regular fit (official uniqlo.com E422992). The backpack needs a flatter crown, straight sides, larger/higher front pocket and less bulging straps. The shirt needs narrower/downward sleeves, longer straight torso, a lowered front neckline with a higher back neckline instead of an elliptical hole in both panels, and restrained gravity-oriented folds. Reference photos remain in untracked QA only; no brand logos/assets copied into the product.
+
 ## Carrier v5 completed geometry
 
 Notebook has separate printed covers, bound spine and untinted page block. Phone case is an open tray with a real camera aperture and separate raised lip; artwork uses exterior shell geometry so it cannot fill the camera hole. T-shirt has a neck aperture, rib collar, draped front/back cloth, joined shoulder/side seams and open hem/sleeves. Paper/plastic share surface-ink placement while fabric-only weave is disabled for them. Static fallback and standalone thumbnails cover all 12 carriers.

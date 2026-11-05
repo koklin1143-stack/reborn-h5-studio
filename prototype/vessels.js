@@ -12,11 +12,11 @@
   cushion:{name:'抱枕',short:'抱枕',family:'textile',size:[2.25,2.25,.96],camera:{yaw:.50,pitch:.16,distance:5.4}},
   pillow:{name:'枕头',short:'枕头',family:'textile',size:[3,1.9,.84],camera:{yaw:.40,pitch:.20,distance:5.7}},
   duvet:{name:'被套',short:'被套',family:'textile',size:[2.7,3.25,.18],camera:{yaw:.26,pitch:.30,distance:6.3}},
-  backpack:{name:'书包',short:'书包',family:'bags',size:[1.85,2.5,.88],camera:{yaw:.48,pitch:.18,distance:5.8}},
+  backpack:{name:'书包',short:'书包',family:'bags',size:[2.02,2.61,.88],camera:{yaw:.32,pitch:.12,distance:5.8}},
   tote:{name:'帆布袋',short:'帆布袋',family:'bags',size:[2.15,2.25,.60],camera:{yaw:.32,pitch:.22,distance:6.2}},
   notebook:{name:'笔记本',short:'笔记本',family:'daily',size:[2.04,2.86,.35],camera:{yaw:.42,pitch:.20,distance:5.7}},
   phonecase:{name:'手机壳',short:'手机壳',family:'daily',size:[1.52,3.06,.25],camera:{yaw:.38,pitch:.16,distance:5.7}},
-  tshirt:{name:'T 恤',short:'T 恤',family:'apparel',size:[3.34,2.94,.25],camera:{yaw:.12,pitch:.08,distance:6.4}}
+  tshirt:{name:'T 恤',short:'T 恤',family:'apparel',size:[2.94,3.10,.25],camera:{yaw:.08,pitch:.05,distance:6.3}}
  });
  const surface=type=>!!data[type]&&data[type].family!=='enamel';
  const textile=type=>['textile','bags','apparel'].includes(data[type]?.family);

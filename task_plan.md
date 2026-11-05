@@ -1,3 +1,12 @@
+# Carrier silhouette correction · 2026-11-05
+
+- [x] Inspect real backpack and regular crew-neck T-shirt proportions.
+- [x] Rebuild backpack silhouette/pocket and garment cut/neck/sleeves with restrained drape.
+- [x] Inspect unprinted and printed front/side/back views; align static previews and thumbnails.
+- [ ] Validate placement, mobile/save/reopen and publish verified release.
+
+---
+
 # Soft backpack + notebook, phone case and T-shirt · 2026-11-05
 
 - [x] Inspect geometry, ink routing, materials and persistence.

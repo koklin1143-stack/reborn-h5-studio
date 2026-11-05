@@ -19,7 +19,7 @@
  }
  let fullPanel=false;
  const v=window.Vessels;
- const carrierImage=id=>window.CarrierImageData?.[id]?'data:image/webp;base64,'+window.CarrierImageData[id]:window.CarrierAssetFolder+id+'.webp';
+ const carrierImage=id=>window.CarrierImageData?.[id]?'data:image/webp;base64,'+window.CarrierImageData[id]:window.CarrierAssetFolder+id+'.webp?v='+encodeURIComponent(document.querySelector('meta[name=reborn-release]')?.content||'');
  function modelOrigin(){return '器型示意';}
  function vesselPicker(d){
   const item=v.get(d.canvas);

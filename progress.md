@@ -1,3 +1,15 @@
+## Carrier v6 verification
+
+- 162 regression tests pass; lint and diff whitespace checks pass.
+- Visually inspected backpack front/quarter/both sides/back/top/pocket/full print and T-shirt front/side/back/full print.
+- Static shapes now follow the new silhouette. Carrier thumbnail URLs carry the release version to avoid showing cached old models.
+- Mobile browser and offline checks pass: all five families and 12 thumbnails at 320/390px, print positions, material colour, saved previews, resume and reload.
+- Ready to publish carriers-v6; live verification pending.
+
+## Carrier v6 silhouette work
+
+Rebuilt backpack as a straighter, broad-crown daily bag with a taller raised pocket and closer shoulder straps. Recut T-shirt to a regular torso/sleeve ratio, separate front/back U-necklines and much lower fold amplitude. Initial build caught unary-minus/exponent syntax; corrected to Math.pow before rendering. First visual comparison confirms the intended narrower sleeves and higher pocket. Regression caught Float32 sleeve-edge UV rounding below zero; UV coordinates now clamp at the physical boundary. Updated the pocket hit-test to use its actual local-box centre after the pocket redesign. Static fallback and release thumbnails aligned.
+
 ## Carrier v5 validation
 
 - 161 regression tests passed; syntax and CSS/resource validation passed.

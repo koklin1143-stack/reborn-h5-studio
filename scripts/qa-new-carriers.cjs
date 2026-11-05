@@ -1,7 +1,7 @@
 const fs=require('node:fs'),assert=require('node:assert/strict');
 const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
 (async()=>{const b=await chromium.launch({channel:'msedge'});try{
- const p=await b.newPage({viewport:{width:640,height:640}}),errors=[],base=process.env.QA_URL||'http://127.0.0.1:8879/index.html',dir='work/qa/carriers-v5';fs.mkdirSync(dir,{recursive:true});
+ const p=await b.newPage({viewport:{width:640,height:640}}),errors=[],base=process.env.QA_URL||'http://127.0.0.1:8879/index.html',dir='work/qa/carriers-v6';fs.mkdirSync(dir,{recursive:true});
  p.on('pageerror',e=>errors.push(e.message));p.on('console',m=>{if(m.type()==='error')errors.push(m.text());});await p.route('**/favicon.ico',r=>r.fulfill({status:204}));await p.goto(base+'#mine');await p.locator('.mine-example').first().waitFor();
  for(const type of ['notebook','phonecase','tshirt','backpack'])for(const [view,yaw,pitch,zone]of [['front',.23,.15,'front'],['side',1.25,.22,'front'],['inside',Math.PI+.4,.3,type==='phonecase'?'front':'back'],['full',.25,.18,'frontFill']]){
   const result=await p.evaluate(async({type,yaw,pitch,zone})=>{

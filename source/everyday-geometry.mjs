@@ -1,4 +1,5 @@
 import * as T from 'three';
+import {buildTshirt} from './tshirt-geometry.mjs';
 import {mergeVertices} from 'three/addons/utils/BufferGeometryUtils.js';
 
 const vec=(x,y,z)=>new T.Vector3(x,y,z);
@@ -15,7 +16,7 @@ function skin(shape,w,h,z,side=1,levels=0){
   g.dispose();g=new T.BufferGeometry();g.setAttribute('position',new T.Float32BufferAttribute(points,3));
  }
  const a=g.attributes.position,uv=[];
- for(let i=0;i<a.count;i++){const x=a.getX(i),y=a.getY(i);a.setZ(i,z(x,y));uv.push(.5+side*x/w,.5+y/h);}
+ for(let i=0;i<a.count;i++){const x=a.getX(i),y=a.getY(i);a.setZ(i,z(x,y));uv.push(Math.max(0,Math.min(1,.5+side*x/w)),Math.max(0,Math.min(1,.5+y/h)));}
  g.setAttribute('uv',new T.Float32BufferAttribute(uv,2));const merged=mergeVertices(g);g.dispose();merged.computeVertexNormals();
  if(side<0){const idx=merged.index;for(let i=0;i<idx.count;i+=3){const b=idx.getX(i+1);idx.setX(i+1,idx.getX(i+2));idx.setX(i+2,b);}}
  // Analytic cloth normals avoid lighting seams between differently shaped triangles.
@@ -54,32 +55,7 @@ export function createEveryday(type){
   // A recessed port mark on the bottom edge; the camera opening is real geometry.
   const port=add(new T.BoxGeometry(.22,.005,.067),new T.MeshStandardMaterial({color:'#807d75',roughness:.9}),'phonecase-port');port.position.set(0,-1.54,-.065);
  }
- if(type==='tshirt'){
-  const shape=new T.Shape();shape.moveTo(-.36,1.39);shape.quadraticCurveTo(0,1.46,.36,1.39);shape.lineTo(.76,1.28);shape.quadraticCurveTo(.92,1.23,1.06,1.10);shape.lineTo(1.67,.57);shape.lineTo(1.31,.07);shape.quadraticCurveTo(1.08,.20,.87,.37);shape.quadraticCurveTo(.80,.40,.80,.19);shape.quadraticCurveTo(.80,-.65,.89,-1.38);shape.quadraticCurveTo(.10,-1.49,-.87,-1.39);shape.quadraticCurveTo(-.79,-.58,-.80,.19);shape.quadraticCurveTo(-.80,.4,-.87,.37);shape.lineTo(-1.31,.07);shape.lineTo(-1.67,.57);shape.lineTo(-1.06,1.10);shape.quadraticCurveTo(-.92,1.23,-.76,1.28);shape.closePath();
-  const hole=new T.Path();hole.absellipse(0,1.17,.305,.174,0,Math.PI*2,true);shape.holes.push(hole);
-  function drape(x,y,side){
-   const torso=Math.exp(-Math.pow(x/.9,6)),vertical=Math.max(0,1-Math.pow(y/1.7,2));
-   const folds=.024*Math.sin(x*13+y*2.2)*vertical+.012*Math.cos(x*22-y*3)*Math.exp(-Math.pow((y+1.15)*4,2));
-   const armpit=.026*Math.sin(y*18-Math.abs(x)*9)*Math.exp(-Math.pow((Math.abs(x)-.78)*6,2))*Math.exp(-Math.pow((y-.2)*2,2));
-   return side*(.025+.095*torso*vertical)+folds+armpit+.025*Math.sin(x*2+y);
-  }
-  face('front',shape,3.34,2.98,(x,y)=>drape(x,y,1),1,[.5,.47,.46,.73],4);face('back',shape,3.34,2.98,(x,y)=>drape(x,y,-1),-1,[.5,.47,.46,.73],4);
-  const outline=shape.getPoints(10),dense=[];
-  for(let i=0;i<outline.length-1;i++){const a=outline[i],b=outline[i+1],n=Math.ceil(a.distanceTo(b)/.025);for(let j=0;j<n;j++)dense.push(a.clone().lerp(b,j/n));}
-  for(const side of [-1,1])group.add(pipe(dense.map(p=>vec(p.x,p.y,drape(p.x,p.y,side))),.0035,trim,true));
-  // Shoulders and side seams join front to back; hem and sleeve mouths stay open.
-  const bridgePoints=[],indices=[];
-  for(let i=0;i<dense.length;i++){const a=dense[i],b=dense[(i+1)%dense.length],middle=a.clone().add(b).multiplyScalar(.5),sleeve=Math.abs(middle.x)>1.26&&middle.y<.60&&Math.abs(b.y-a.y)>Math.abs(b.x-a.x)*1.15;if(middle.y< -1.32||sleeve)continue;const k=bridgePoints.length/3;for(const [p,side]of [[a,1],[b,1],[a,-1],[b,-1]])bridgePoints.push(p.x,p.y,drape(p.x,p.y,side));indices.push(k,k+1,k+2,k+1,k+3,k+2);}
-  const joined=new T.BufferGeometry();joined.setAttribute('position',new T.Float32BufferAttribute(bridgePoints,3));joined.setIndex(indices);joined.computeVertexNormals();add(joined,glaze,'tshirt-sewn-side-and-shoulder');
-  // Sewn rib collar follows the neck hole on both sides, without sealing it.
-  const collar=new T.Shape();collar.absellipse(0,1.17,.366,.222,0,Math.PI*2,false);collar.holes.push(hole);
-  for(const side of [-1,1])add(skin(collar,3.34,2.98,(x,y)=>drape(x,y,side)+side*.006,side,2),trim,'tshirt-rib-collar');
-  for(const side of [-1,1]){
-   const hem=Array.from({length:49},(_,i)=>{const x=-.84+i/48*1.69,y=-1.345-.035*(1-x*x);return vec(x,y,drape(x,y,side)+side*.003);});group.add(pipe(hem,.0023,stitch));
-   for(const sign of [-1,1]){const points=Array.from({length:25},(_,i)=>{const t=i/24,x=sign*(1.62-.35*t),y=.59-.47*t;return vec(x,y,drape(x,y,side)+side*.004);});group.add(pipe(points,.0023,stitch));}
-  }
-  group.rotation.z=-.025;
- }
+ if(type==='tshirt')buildTshirt({group,glaze,trim,stitch,add,face});
  const print=add(new T.BufferGeometry(),glaze,'hidden-print-contract');print.visible=false;
  return {type,group,body:surfaces[0],print,glaze,surfaces,trim,tints};
 }

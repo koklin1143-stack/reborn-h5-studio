@@ -25,7 +25,7 @@ function strap(points,width,thickness,material){
 }
 
 export function createBag(type){
- const group=new T.Group(),surfaces=[],tints=[];group.name='studio-sewn-'+type+'-v5';
+ const group=new T.Group(),surfaces=[],tints=[];group.name='studio-sewn-'+type+(type==='backpack'?'-v6':'-v5');
  const threads=new Uint8Array(128*128*4);for(let y=0;y<128;y++)for(let x=0;x<128;x++){const at=(y*128+x)*4,height=128+Math.round(24*Math.sin(x*Math.PI/2)+24*Math.sin(y*Math.PI/2)*(Math.floor(x/4)%2?1:-1));threads[at]=threads[at+1]=threads[at+2]=height;threads[at+3]=255;}
  const weave=new T.DataTexture(threads,128,128);weave.wrapS=weave.wrapT=T.RepeatWrapping;weave.repeat.set(6,6);weave.generateMipmaps=true;weave.minFilter=T.LinearMipmapLinearFilter;weave.magFilter=T.LinearFilter;weave.needsUpdate=true;
  const glaze=new T.MeshPhysicalMaterial({color:'#f5f1e6',roughness:.94,metalness:0,sheen:.22,sheenRoughness:.9,sheenColor:'#ffffff',clearcoat:0,bumpMap:weave,bumpScale:.0035,side:T.DoubleSide,shadowSide:T.FrontSide});
@@ -82,29 +82,30 @@ export function createBag(type){
  }
  if(type==='backpack'){
   function body(u,t,side){
-   const top=1.29-.48*Math.pow(Math.abs(u),2.5)+.014*Math.sin(u*4),bottom=-1.29+.13*Math.pow(Math.abs(u),6);
-   const y=bottom+(t+1)/2*(top-bottom),x=u*(.925+.032*Math.sin(t*2.7)+.012*Math.sin(t*6+u))*(1-.055*Math.pow(Math.abs(t),8));
-   const edge=Math.pow(Math.abs(u),5)*(1-.75*Math.pow(Math.max(t,0),4))+.72*Math.pow(Math.abs(t),8),puff=Math.pow(Math.max(0,(1-u*u)*(1-t*t)),.65);
-   const lower=Math.exp(-sq((t+.78)*5)),shoulder=Math.exp(-sq((t-.65)*6));
-   const folds=.022*Math.sin(u*16+t*4)*(lower+shoulder*.4)*(1-u*u)+.012*Math.sin(t*17-u*4)*Math.pow(Math.abs(u),3)*(1-t*t);
-   const z=side===1?.40-.115*edge+.105*puff+folds:-.31+.08*edge-.034*puff+folds*.35;
+   const top=1.31-.39*Math.pow(Math.abs(u),4),bottom=-1.30+.13*Math.pow(Math.abs(u),10);
+   const y=bottom+(t+1)/2*(top-bottom),x=u*(1.01-.03*t)*(1-.035*Math.pow(Math.abs(t),10));
+   const edge=Math.pow(Math.abs(u),8)+.65*Math.pow(Math.abs(t),10),puff=Math.pow(Math.max(0,(1-u*u)*(1-t*t)),.7);
+   const folds=.007*Math.sin(u*15+t*2)*Math.exp(-sq((t+.86)*8))*(1-u*u)+.006*Math.sin(t*9-u)*Math.pow(Math.abs(u),5)*(1-t*t);
+   const z=side===1?.34-.07*edge+.075*puff+folds:-.31+.048*edge-.016*puff;
    return v(x,y,z);
   }
   const front=(u,t)=>body(u,t,1),back=(u,t)=>body(u,t,-1);
-  face('front',front,1.92,2.6,1,[.5,.69,.87,.52]);face('back',back,1.92,2.6,-1,[.5,.5,.50,.78]);join(front,back,false,glaze,.068);
+  face('front',front,2.02,2.61,1,[.5,.78,.84,.36]);face('back',back,2.02,2.61,-1,[.5,.5,.50,.78]);join(front,back,false,glaze,.042);
   for(const fn of [front,back])add(piping(rim(fn),.0035,trim,true),'backpack-panel-seam');
-  const pf=(u,t)=>{const top=-.52-.034*(1-u*u)+.009*Math.sin(u*4),bottom=-1.18+.065*Math.pow(Math.abs(u),6);return v(u*.78*(1-.055*Math.pow(Math.abs(t),6)),bottom+(t+1)/2*(top-bottom),.53-.085*(Math.pow(Math.abs(u),6)+Math.pow(Math.abs(t),6))+.070*Math.pow(Math.max(0,(1-u*u)*(1-t*t)),.6)+.012*Math.sin(u*13+t*3)*(1-u*u)*(1-t*t));};
-  const pb=(u,t)=>{const q=pf(u,t);q.z=.33;return q;};
-  face('pocket',pf,1.56,.66,1,[.5,.43,.86,.70]);join(pf,pb,false,glaze,.020);add(piping(rim(pf),.003,trim,true),'backpack-pocket-seam');
-  zip(Array.from({length:57},(_,i)=>pf(i/28-1,.79).add(v(0,0,.006))),'pocket-zip');
-  const arch=[];for(let i=0;i<=20;i++)arch.push(bridge(front,back,3,.05-i/20*1.05,-.2,.068).add(v(-.004,0,0)));for(let i=1;i<=56;i++)arch.push(bridge(front,back,2,1-i/28,-.2,.068).add(v(0,.004,0)));for(let i=1;i<=20;i++)arch.push(bridge(front,back,1,1-i/20*1.05,-.2,.068).add(v(.004,0,0)));zip(arch,'main-zip');
+  const pf=(u,t)=>{const top=-.10-.055*Math.pow(Math.abs(u),6),bottom=-1.12+.07*Math.pow(Math.abs(u),8);return v(u*.81*(1-.075*Math.pow(Math.abs(t),8)),bottom+(t+1)/2*(top-bottom),.53-.065*(Math.pow(Math.abs(u),8)+Math.pow(Math.abs(t),8))+.040*Math.pow(Math.max(0,(1-u*u)*(1-t*t)),.65)+.005*Math.sin(u*12+t*3)*(1-u*u)*(1-t*t));};
+  const pb=(u,t)=>{const q=pf(u,t);q.z=.30;return q;};
+  face('pocket',pf,1.62,1.02,1,[.5,.42,.86,.72]);join(pf,pb,false,glaze,.018);add(piping(rim(pf),.003,trim,true),'backpack-pocket-seam');
+  zip(Array.from({length:57},(_,i)=>pf(i/28-1,.73).add(v(0,0,.006))),'pocket-zip');
+  // A narrow folded storm flap softens the straight front zip line.
+  const flap=(u,t)=>{const q=pf(u,.76+(t+1)*.07);q.z+=.010+.006*(1-u*u);return q;};add(new T.Mesh(panel(flap,1,56,5),glaze),'backpack-pocket-zip-flap');
+  const arch=[];for(let i=0;i<=20;i++)arch.push(bridge(front,back,3,.05-i/20*1.05,-.2,.042).add(v(-.004,0,0)));for(let i=1;i<=56;i++)arch.push(bridge(front,back,2,1-i/28,-.2,.042).add(v(0,.004,0)));for(let i=1;i<=20;i++)arch.push(bridge(front,back,1,1-i/20*1.05,-.2,.042).add(v(.004,0,0)));zip(arch,'main-zip');
   for(const sign of [-1,1]){
    const top=back(sign*.44,.84),bottom=back(sign*.62,-.85);
-   add(strap([top,v(sign*.53,.69,-.59),v(sign*.63,.10,-.78),v(sign*.65,-.56,-.70),bottom],.23,.055,webbing),'backpack-padded-shoulder-strap');
+   add(strap([top,v(sign*.53,.65,-.49),v(sign*.60,-.04,-.61),v(sign*.60,-.61,-.52),bottom],.22,.045,webbing),'backpack-padded-shoulder-strap');
    const buckle=roundedShape(-.09,-.045,.18,.09,.012);buckle.holes.push(new T.Path(roundedShape(-.069,-.026,.138,.052,.006).getPoints(6)));const adjuster=add(new T.Mesh(new T.ExtrudeGeometry(buckle,{depth:.012,bevelEnabled:false,curveSegments:6}),metal),'backpack-strap-adjuster');adjuster.position.set(sign*.64,-.75,-.57);const bar=add(new T.Mesh(new T.BoxGeometry(.018,.06,.016),metal),'backpack-adjuster-bar');bar.position.copy(adjuster.position);
    add(strap([v(sign*.62,-.85,-.41),v(sign*.66,-1.05,-.46),v(sign*.64,-1.20,-.42)],.10,.018,webbing),'backpack-webbing-tail');
   }
-  add(strap([v(-.24,1.17,-.10),v(-.20,1.43,-.12),v(0,1.52,-.13),v(.20,1.43,-.12),v(.24,1.17,-.10)],.095,.026,webbing),'backpack-sewn-carry-loop');
+  add(strap([v(-.21,1.23,-.10),v(-.20,1.48,-.12),v(-.13,1.61,-.13),v(.13,1.61,-.13),v(.20,1.48,-.12),v(.21,1.23,-.10)],.105,.022,webbing),'backpack-sewn-carry-loop');
  }
  // All views target the actual centre, including handles; the bag is never cut off.
  group.updateMatrixWorld(true);const bounds=new T.Box3().setFromObject(group);group.position.y=-(bounds.max.y+bounds.min.y)/2;
