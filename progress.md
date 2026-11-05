@@ -1,3 +1,15 @@
+## 2026-11-05 · External bags and object selector v3
+
+- Added attributed backpack/tote GLBs and rendered all nine catalogue thumbnails.
+- Changed hierarchy, category browser, selected mark and source credit access.
+- Built online + standalone outputs. Lint passed; 156 tests passed. Initial three HTTP tests hit sandbox EACCES, then all passed with loopback access.
+- Browser QA passed nine WebGL forms, all textile zones, 320/375/390/430px layouts, static exports, full screen, saving/reopening and pointer rotation.
+- Extra checks passed edits during delayed model loading, disposal while loading, embedded offline tote and thumbnails with external model requests blocked.
+- Restarted local :8879 with the existing start-preview.ps1 launcher so GLB files are served, retaining its user-environment configuration. Model HTTP 200 verified.
+- Pending GitHub Pages verification for carriers-v3.
+
+---
+
 ## Carrier realism + compact picker · 2026-11-05
 
 Implemented and checked locally. 155 automated tests pass; syntax/assets/CSS checks pass. Isolated Edge WebGL QA exercised all nine objects, every fabric print zone, local/full layouts, capture, and no shader/browser errors. Workflow QA covered 320x568, 375x667, 390x844 and 430x932, picker keyboard dismissal, saved/reloaded work, resumed editing, pointer rotation and static export. Screenshots: work/qa/carriers-v2 (local, not published). No physical iPhone was available.

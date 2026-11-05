@@ -1,3 +1,13 @@
+## Authored bag models and hierarchy · 2026-11-05
+
+The second feedback rejected both crude bag geometry and icon-heavy selection cards. Two candidate CC0 models were visually insufficient; chosen originals are Backpack by typhomnt and Batik Beach Tote Bag by eeelabvisual. Both original Sketchfab API records confirm CC BY 4.0 and download availability. Source URLs, changes and credits are in prototype/media/models/ATTRIBUTION.md and the in-app model-source dialog.
+
+The two models load on demand from local GLBs. They retain original normal/detail UVs; artwork uses a separate planar UV attribute so front, back and pocket can be printed without displacing cloth details. Every viewer owns its GPU resources. Delayed model responses cannot replace a newer viewer, and edits during loading are applied after loading completes. The offline HTML embeds model bytes and all nine thumbnails.
+
+The object name is now a serif preview heading, with small category text above and a quiet change action at right. Selection uses category tabs and large actual-model thumbnails (2×2 enamel, three textiles, two bags). No orphan card row or outlined current-item box. Existing low-memory/static mode remains a clearly labelled simplified SVG preview.
+
+---
+
 ## Carrier review · 2026-11-05
 
 The initial five objects reused a puffed rectangle. The revised models use distinct sewn construction: inflated cushion/pillow with tucked perimeter, folded/draped duvet UV sheet, arched backpack body with gussets/zip/padded straps, and an open tote with lining/boxed bottom/solid handles. Primary product references inspected: IKEA FJÄDRAR cushion, MUJI canvas 2-way tote. These remain procedural design previews, not measured product scans.

@@ -2,7 +2,7 @@ const http=require('node:http'),fs=require('node:fs'),path=require('node:path'),
 const root=path.resolve(__dirname,'..');
 const {createHandler,configured}=require('./bailian-image.cjs');
 const {createAccess}=require('./server-access.cjs');
-const mime={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.png':'image/png','.jpg':'image/jpeg','.webp':'image/webp','.svg':'image/svg+xml','.json':'application/json'};
+const mime={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.png':'image/png','.jpg':'image/jpeg','.webp':'image/webp','.svg':'image/svg+xml','.json':'application/json','.glb':'model/gltf-binary'};
 function createServer(patternOptions){let active=0,last=0;const env=patternOptions?.env||process.env,access=createAccess(env),pattern=createHandler(patternOptions);return http.createServer(async(req,res)=>{
  const json=(code,data)=>{if(!res.destroyed){res.writeHead(code,{'Content-Type':'application/json','Cache-Control':'no-store'});res.end(JSON.stringify(req.url?.split('?')[0].endsWith('/status')?{...data,...access.description(req)}:data));}};
  let pathname;try{pathname=decodeURIComponent(new URL(req.url,'http://localhost').pathname);}catch{return json(400,{error:'INVALID_URL'});}

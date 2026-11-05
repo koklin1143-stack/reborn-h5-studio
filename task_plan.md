@@ -1,3 +1,14 @@
+# Authored bags and catalogue hierarchy · 2026-11-05
+
+- [x] Review licensed external bag assets and confirm original authors / CC BY 4.0.
+- [x] Adapt backpack/tote GLBs while retaining authored detail and adding independent print UVs.
+- [x] Replace boxed object row with category + object heading and a quiet change action.
+- [x] Replace sketch icons with rendered thumbnails and a category-based catalogue.
+- [x] Verify all nine carriers, print faces, small screens, save/resume, pending loading and offline assets.
+- [ ] Publish and verify GitHub Pages release 2026-11-05-carriers-v3.
+
+---
+
 # Carrier realism and mobile selector · 2026-11-05
 
 - [x] Inspect initial five models and crowded two-row picker; review real product construction.
