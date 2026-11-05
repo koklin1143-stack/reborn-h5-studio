@@ -5,7 +5,7 @@
 - Checked sewn handle endpoints/thickness and that the local main-panel print box clears the backpack pocket.
 - Print-position changes preserve settings but do not leave duplicate prints on main panel/pocket; back print remains independent.
 - Lint and 157 tests pass. Browser checks pass 320/375/390/430px layouts, all views, full/local prints, saving and resumed editing, rotation, static export and offline rendering with external network blocked.
-- Pending live Pages verification for carriers-v4.
+- Published 296ad55. Live GitHub Pages passed release/model identity checks, all nine thumbnails, category browsing, full printing and 320px layout. The live QA readiness wait was corrected to allow the intentionally hidden small-screen hint.
 
 ---
 

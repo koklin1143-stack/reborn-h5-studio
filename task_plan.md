@@ -6,7 +6,7 @@ User rejected the imported tote handle connection and backpack print positions, 
 - [x] Build a rounded backpack with low front pocket, shoulder straps, carry loop and zippers.
 - [x] Define a safe local print area above the backpack pocket; location changes move the print without duplicating it.
 - [x] Verify front, left/right, back and top views, mobile UI, save/resume, static and offline output.
-- [ ] Publish and verify carriers-v4.
+- [x] Publish and verify carriers-v4 (296ad55; live mobile preview verified).
 
 ---
 
