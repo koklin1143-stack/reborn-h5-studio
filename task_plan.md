@@ -3,7 +3,7 @@
 - [x] Analyse discoverability and modal/model disconnect; research direct manipulation and model annotations.
 - [x] Unify the object switch target; replace print sheet with inline regions/current-print control.
 - [x] Add visible region feedback and model-tap selection without conflicting with orbit/drag gestures.
-- [ ] Verify small screens, all carriers, history/save and live publication.
+- [x] Verify small screens, all carriers, history/save and live publication (176 tests; local/offline/live browser suites; Pages v11 verified after a fresh successful deployment).
 
 ---
 

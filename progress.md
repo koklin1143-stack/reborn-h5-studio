@@ -6,6 +6,7 @@
 - Built online and standalone artifacts, passed lint and 176 regression tests. Local browser QA passed 26 editable gallery remixes, all 11 carrier position lifecycles, 320/390/430 layouts, real model taps, rotation/placement/pinch/cancel, keyboard, undo/reload and fullscreen.
 - Standalone/offline browser QA also passed the same 26 remixes, 11 carriers, gestures, keyboard and persistence checks with HTTP(S) requests blocked.
 - Release: `2026-11-06-context-v11`, application commit `e563880`. GitHub Pages run `42086172188` built successfully but its deploy job timed out after ten minutes (`Timeout reached, aborting!`). A failed-job retry was accepted (HTTP 201) but remained queued. Publication is not yet verified; a documentation push starts a fresh build with the same validated application artifacts.
+- Resolved: fresh Pages run `42088866926` at `1a67ecb` completed successfully. The public HTML reports v11; the complete live browser suite passed all 26 remixes, 11 carrier lifecycles, actual tap/drag/pinch/cancel gestures, keyboard, undo/reload, fullscreen and mobile layouts. Cancelling the older queued retry returned HTTP 409; both commits contain identical application artifacts. Final public verification is successful.
 
 ## Integrated position chooser + gallery v10
 
