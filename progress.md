@@ -4,7 +4,8 @@
 - Removed the entire extra status/focus/remove row. The compact position button opens a sheet: independent faces have checkboxes, face names focus/edit one region; enamel uses radio positions plus 不印花. Duvet centre/edge are two choices under one physical front face. Checkbox toggles preserve active editor/camera and previous scale/coverage, and remain undoable.
 - Added fourteen project-authored designs across seven newer carriers (two each), and re-rendered all 26 catalogue covers using current geometry and the exact editable snapshot. Stable publication IDs preserve existing reactions; versioned cover filenames avoid old cached images. Public source/motif attribution retained, personal works untouched.
 - Contact sheet visually reviewed for all 26 objects. Local browser passed all covers, every carrier filter, and all detail-to-remix transitions. Offline HTML with HTTP blocked passed independent/single selection, real pocket dragging, undo/redo/reload, fullscreen, and every carrier/position's coverage and removal lifecycle. Lint and 174 regression tests pass.
-- Initial 320px screenshot caught the modal during its entry animation; QA now waits for animation completion and checks vertical visibility as well as 44px bounds. Final visual/publication check pending.
+- Initial 320px screenshot caught the modal during its entry animation; QA now waits for animation completion and checks vertical visibility as well as 44px bounds. Final small-screen screenshots inspected and passed.
+- Published 0a39ad7 / 2026-11-06-gallery-v10. Live GitHub Pages passed all 26 covers/details/editable remixes, eleven carrier filters, real pocket dragging, every carrier/position's add/remove/coverage/undo lifecycle, persisted reload, fullscreen and mobile/keyboard focus checks. Live gallery screenshot confirms 26 works and new cover images. No physical-phone test claimed.
 
 ## Explicit placement lifecycle v9
 
