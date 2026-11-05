@@ -4,7 +4,7 @@
 - Coverage label is scoped to the selected area. Filling bowl/basin interiors stays inside. Edge bands and the plate reverse do not silently switch surfaces when adjusted.
 - Preserved cup front/back and whole-circumference access. Old renderer zone IDs and saved layouts remain readable; newly selected faces keep coverage and restore previously edited settings.
 - 167 regression tests pass. Mobile browser QA covers all 11 carriers, every position, local/full, stable labels, face changes, undo/redo, 320/390/430 layouts, fullscreen and save/resume/reload. Visually reviewed cushion front/back and basin interior. Offline QA passed with HTTP blocked.
-- Publishing 2026-11-06-print-positions-v8; live verification pending.
+- Published 573ba28 / 2026-11-06-print-positions-v8. Live GitHub Pages passed all 11 carriers and positions, local/full scope, stable labels, face changes, undo/redo, mobile/fullscreen and saved-work resume/reload.
 
 ## Carrier v7 selector consistency
 
