@@ -1,3 +1,11 @@
+## Explicit placement lifecycle v9
+
+- Reproduced the reported mismatch: selected pocket, camera looking at a retained fully printed back, no removal control. The earlier physical-position labels did not solve the underlying automatic printing or camera/edit-target mismatch.
+- New surface regions stay blank until the user chooses 放上图案. Added print starts local; the current surface can be removed, undone and re-added. Other intentional face layouts and the original motif survive removal. Old hidden main/pocket history cannot unexpectedly revive during migration.
+- Selecting a position, entering placement mode and changing coverage focus the actual selected region. Added quiet region status, focus and add/remove controls, with 44px targets and a disabled placement action for empty surfaces.
+- Lint and 171 regression tests pass. Offline browser QA with HTTP blocked passes all eleven carriers and each physical region, add/remove/undo/redo, static preview removal, fullscreen, save/resume/reload and 320/390/430px bounds. Actual pocket pointer dragging passed after rotating to the back. Screenshots inspected at 390px and 320px. A density-control variable-shadowing error caught in the initial browser run was corrected before release.
+- Publishing verification pending; no physical-device test claimed.
+
 ## Print position / coverage v8
 
 - Dropdown now contains physical areas only: front/back, main panel/pocket/back, cover/back cover, inside/outside/rim. Phone case shows its single exterior print face without a dropdown.

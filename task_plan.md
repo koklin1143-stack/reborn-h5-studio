@@ -1,3 +1,13 @@
+# Explicit per-face placement and editable previews · 2026-11-06
+
+- [x] Analyse automatic face copying, retained hidden prints and editing while facing another side.
+- [x] Reproduce the backpack screenshot; separate face selection from adding/removing print.
+- [x] Add per-face removal/undo, empty-state controls and focus the selected region when editing.
+- [x] Validate new/legacy drafts, all eleven carriers, actual pointer dragging, static rendering, save/reload and offline operation (171 regression tests).
+- [ ] Publish and verify the live placement-v9 release.
+
+---
+
 # Separate print position from coverage · 2026-11-06
 
 - [x] Inspect mixed face/coverage dropdown and unexpected inner-to-outer full-print transitions.

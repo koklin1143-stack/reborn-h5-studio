@@ -530,6 +530,16 @@
 .coverage-bar{display:flex;flex:none;align-items:center;gap:4px;margin:0 var(--gutter) 2px}
 .coverage-bar>span{font-size:12px;color:var(--ui-secondary);margin-right:auto;white-space:nowrap}
 .coverage-fixed{padding:4px 10px;color:var(--ui-text);font-size:13px;font-weight:500;white-space:nowrap}
+.coverage-empty{min-height:44px}.coverage-empty small{font-size:12px;color:var(--ui-caption)}
+.print-placement-actions{display:flex;align-items:center;gap:8px;min-height:44px}
+.print-placement-actions>span{margin-right:auto;color:var(--ui-caption);font-size:11px;white-space:nowrap}
+.app .print-placement-actions .btn{min-height:44px;min-width:44px;padding:4px 6px;font-size:12px;white-space:nowrap}
+.app .print-placement-actions [data-action=cup-print-add]{color:var(--ui-text);font-weight:600;text-decoration:underline;text-underline-offset:4px}
+.editor-object-stage>.print-placement-actions{position:absolute;top:44px;left:8px;right:8px;z-index:2}
+.editor-object-stage:has(.print-placement-actions) .editor-cup-host{top:88px}
+.cup-screen>.print-placement-actions{padding:0 8px;flex:none}
+.app .wb-cover-open .print-placement-actions,.app .wb-easy:has(.inline-spectrum) .print-placement-actions{display:none}
+.app .wb-cover-open .editor-cup-host{top:0}
 .app .coverage-bar .btn{flex:0 1 auto;min-width:0;min-height:44px;padding:4px 10px;border:0;border-radius:6px;background:transparent;color:var(--ui-secondary);font-size:13px;white-space:nowrap}
 .app .coverage-bar .btn[aria-pressed=true]{background:var(--ui-bg);box-shadow:inset 0 0 0 1px var(--line);color:var(--graphite);font-weight:600}
 .coverage-fields{display:grid;gap:0}.coverage-fields details summary{min-height:44px;align-content:center;font-size:13px;cursor:pointer}

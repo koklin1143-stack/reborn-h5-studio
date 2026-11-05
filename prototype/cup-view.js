@@ -14,6 +14,7 @@
   return `<label class="print-zone"><span>印花位置</span><select data-print-zone aria-label="印花位置">${options.join('')}</select></label>`;
  }
  function densityControl(d,hidden=false){
+  if(!window.Vessels.hasPrint(d.vesselPlacement))return '';
   const v=window.Vessels,r=v.region(d.canvas,d.vesselPlacement.zone);if(!v.isFill(r))return '';
   const n=v.fillCount(r,d.vesselPlacement.scale),max=r.mode==='wrap'?24:10;
   const opts=Array.from({length:max},(_,i)=>`<option value="${i+1}" ${i+1===n?'selected':''}>${i+1} 组</option>`).join('');
@@ -36,11 +37,13 @@
   document.querySelector('.carrier-categories [aria-pressed=true]')?.focus({preventScroll:true});
  }
  function coverageBar(d,editing=false){
+  if(!v.hasPrint(d.vesselPlacement))return '<div class="coverage-bar coverage-empty"><span>印花范围</span><small>放上图案后可调整</small></div>';
   const p=d.vesselPlacement,r=v.region(d.canvas,p.zone),area=v.position(d.canvas,p),fill=v.isFill(r),whole=fill&&v.coveragePercent(p.coverWidth)===100&&v.coveragePercent(p.coverHeight)===100;
   const btn=(label,id,active)=>V.btn(label,'cup-coverage','text',`data-id="${id}" aria-pressed="${active}"`);
   return `<div class="coverage-bar" role="group" aria-label="印花范围"><span>印花范围</span>${area.full?btn('局部印花','local',!fill)+btn(area.fullLabel,'full',whole&&!editing):`<strong class="coverage-fixed">${area.arrangement||'局部印花'}</strong>`}${btn('调范围','custom',area.full?fill&&(editing||!whole):editing)}</div>`;
  }
  function coverageControls(d){
+  if(!v.hasPrint(d.vesselPlacement))return '';
   const p=d.vesselPlacement,r=v.region(d.canvas,p.zone),wall=r.mode==='wrap';
   const slider=(label,key,value,min,max,unit)=>`<label class="coverage-field"><span>${label}</span><input type="range" data-cover-field="${key}" aria-label="${label}" min="${min}" max="${max}" value="${value}"><output data-cover-value="${key}" data-unit="${unit}">${Math.round(value)}${unit}</output></label>`;
   const fields=v.isFill(r)?slider(wall?'环绕宽度':'覆盖宽度','coverWidth',v.coveragePercent(p.coverWidth),5,100,'%')+slider('覆盖高度','coverHeight',v.coveragePercent(p.coverHeight),5,100,'%')+slider(wall?'整圈重复':'横向重复','count',v.fillCount(r,p.scale),1,wall?24:10,'组'):slider('单幅大小','scale',p.scale,40,160,'%');
@@ -67,14 +70,25 @@
  }
  function setCoverage(mode){
   const d=api.draft();
-  if(!d||!['local','full','custom'].includes(mode))return;
+  if(!d||!v.hasPrint(d.vesselPlacement)||!['local','full','custom'].includes(mode))return;
   const editing=mode!=='full';
   M.edit(d,v.coverPatch(d,mode));
   if(api.page()==='editor'){
    window.Workbench.setCoveragePanel(editing);
    if(editing)window.EditorObject.place();
   }else fullPanel=editing;
-  api.changed(0);api.render();
+  api.changed(0);api.render();focusPlacement();
+ }
+ function placementControls(d){
+  const area=v.position(d.canvas,d.vesselPlacement),printed=v.hasPrint(d.vesselPlacement);
+  return `<div class="print-placement-actions"><span data-print-status>${area.label} · ${printed?'已有图案':'未印花'}</span>${V.btn('对准部位','cup-print-focus','text')}${V.btn(printed?'移除图案':'放上图案',printed?'cup-print-remove':'cup-print-add','text',`aria-label="${printed?'移除':'添加'}${area.label}的图案"`)}</div>`;
+ }
+ function focusPlacement(){
+  const d=api.draft();if(!d)return;d.cupCamera=v.regionCamera(d.canvas,d.vesselPlacement);window.Cup3D.control('reset');api.changed();
+ }
+ function changePrint(enabled){
+  const d=api.draft();if(!d)return;M.edit(d,v.printPatch(d,enabled));fullPanel=false;window.Workbench?.closePanel();
+  if(enabled)window.EditorObject.place();else window.EditorObject.rotate();api.changed(0);api.render();focusPlacement();
  }
  function adjustCoverage(e,commit){
   const el=e.target,key=el.dataset.coverField;
@@ -159,6 +173,7 @@
  function staticCup(d,svg,{transparent=false}={}){
   const type=d.canvas,p=d.vesselPlacement||window.Vessels.placement(type),r=window.Vessels.region(type,p?.zone),body=window.Vessels.glazeHex(d.cupMaterial?.color);
   if(v.surface(type))return window.TextilePreview.svg(d,svg);
+  if(!v.hasPrint(p))svg='<g/>';
   const id='static-ink-'+(++serial);if(window.Vessels.isFill(r))return staticFill(d,svg,id,body,r);
   const art=pattern(d,svg),stamp=(x,y,w,h,angle=0)=>`<g transform="translate(${x} ${y}) rotate(${angle}) scale(${w/512} ${h/512})"><use href="#${id}" x="-256" y="-256"/></g>`;
   const ellipse=(x,y,rx,ry,fill,stroke='none',width=1)=>`<ellipse cx="${x}" cy="${y}" rx="${rx}" ry="${ry}" fill="${fill}" stroke="${stroke}" stroke-width="${width}"/>`;
@@ -176,7 +191,7 @@
   }
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 340 280" role="img" aria-label="${r.label}，静态示意"><defs><g id="${id}">${art}</g></defs>${transparent?'':ellipse(170,253,118,9,'#20232115')}${content}</svg>`;
  }
- V.cup=c=>{const d=c.d;if(!d)return V.empty('没有可预览的草稿','请先从共创开始。');const placement=d.vesselPlacement;return `<section class="cup-screen">${vesselPicker(d,'cup-vessel')}${coverageBar(d,fullPanel)}<div id="cup-host" class="cup-host" data-mode="loading"><div class="vessel-zone">${zoneControl(d)}</div><div class="cup-static" hidden>${staticCup(d)}</div></div>${fullPanel?coverageControls(d):''}<p id="cup-status" role="status">正在建立三维预览…</p><details class="cup-settings-fold"><summary>精细调整与预览设置</summary><div class="cup-settings"><div class="cup-controls" aria-label="辅助视角控制">${[['left','左转'],['right','右转'],['in','放大'],['out','缩小'],['reset','重置视角']].map(([id,label])=>V.btn(label,'cup-camera','secondary',`data-id="${id}"`)).join('')}</div><div class="vessel-source-row"><label class="cup-source-select">纹样<select id="cup-motif"><option value="current">当前编辑结果</option>${M.items.filter(i=>i.category==='enamel').map(i=>`<option value="${i.id}">${i.name} · 示意</option>`).join('')}</select></label><label class="cup-source-select">配色<select id="cup-ink">${[['original','原色'],['blue','搪瓷蓝'],['red','砖红'],['graphite','石墨']].map(([id,name])=>`<option value="${id}" ${d.patternInk===id?'selected':''}>${name}</option>`).join('')}</select></label></div>${densityControl(d)}<div class="range-grid">${range('摆放大小','scale',placement.scale,40,160)}${range('摆放旋转','rotation',placement.rotation,-180,180)}${range('水平位置','x',placement.x,-60,60)}${range('垂直位置','y',placement.y,-60,60)}</div><div class="cup-material-row"><div class="full-glaze"><h3>${v.materialLabel(d.canvas)}</h3>${window.InkPicker.spectrumField()}</div><label>预设<select id="cup-material"><option value="" disabled ${d.cupMaterial.color.startsWith('#')?'selected':''}>自选颜色</option><option value="white" ${d.cupMaterial.color==='white'?'selected':''}>${v.surface(d.canvas)?'本白':'白釉'}</option><option value="cream" ${d.cupMaterial.color==='cream'?'selected':''}>米色</option><option value="blue" ${d.cupMaterial.color==='blue'?'selected':''}>浅蓝</option></select></label>${V.btn('恢复材质','cup-material-reset','text')}${V.btn('静态预览','cup-static','text')}</div></div></details><div class="cup-origin">设计示意 · 非馆藏测绘</div><div class="cup-footer">${V.btn('返回二维编辑','cup-flat','secondary')}${V.btn('完成并保存','finish','primary')}</div></section>`;};
+ V.cup=c=>{const d=c.d;if(!d)return V.empty('没有可预览的草稿','请先从共创开始。');const placement=d.vesselPlacement;return `<section class="cup-screen">${vesselPicker(d,'cup-vessel')}${coverageBar(d,fullPanel)}${placementControls(d)}<div id="cup-host" class="cup-host" data-mode="loading"><div class="vessel-zone">${zoneControl(d)}</div><div class="cup-static" hidden>${staticCup(d)}</div></div>${fullPanel?coverageControls(d):''}<p id="cup-status" role="status">正在建立三维预览…</p><details class="cup-settings-fold"><summary>精细调整与预览设置</summary><div class="cup-settings"><div class="cup-controls" aria-label="辅助视角控制">${[['left','左转'],['right','右转'],['in','放大'],['out','缩小'],['reset','重置视角']].map(([id,label])=>V.btn(label,'cup-camera','secondary',`data-id="${id}"`)).join('')}</div><div class="vessel-source-row"><label class="cup-source-select">纹样<select id="cup-motif"><option value="current">当前编辑结果</option>${M.items.filter(i=>i.category==='enamel').map(i=>`<option value="${i.id}">${i.name} · 示意</option>`).join('')}</select></label><label class="cup-source-select">配色<select id="cup-ink">${[['original','原色'],['blue','搪瓷蓝'],['red','砖红'],['graphite','石墨']].map(([id,name])=>`<option value="${id}" ${d.patternInk===id?'selected':''}>${name}</option>`).join('')}</select></label></div>${densityControl(d)}<div class="range-grid">${range('摆放大小','scale',placement.scale,40,160)}${range('摆放旋转','rotation',placement.rotation,-180,180)}${range('水平位置','x',placement.x,-60,60)}${range('垂直位置','y',placement.y,-60,60)}</div><div class="cup-material-row"><div class="full-glaze"><h3>${v.materialLabel(d.canvas)}</h3>${window.InkPicker.spectrumField()}</div><label>预设<select id="cup-material"><option value="" disabled ${d.cupMaterial.color.startsWith('#')?'selected':''}>自选颜色</option><option value="white" ${d.cupMaterial.color==='white'?'selected':''}>${v.surface(d.canvas)?'本白':'白釉'}</option><option value="cream" ${d.cupMaterial.color==='cream'?'selected':''}>米色</option><option value="blue" ${d.cupMaterial.color==='blue'?'selected':''}>浅蓝</option></select></label>${V.btn('恢复材质','cup-material-reset','text')}${V.btn('静态预览','cup-static','text')}</div></div></details><div class="cup-origin">设计示意 · 非馆藏测绘</div><div class="cup-footer">${V.btn('返回二维编辑','cup-flat','secondary')}${V.btn('完成并保存','finish','primary')}</div></section>`;};
  V.header=c=>c.page==='cup'?`<div class="preview-heading"><strong>全屏预览</strong><span id="save-status" role="status">${V.esc(c.saveLabel)}</span></div>${V.btn('<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 9h6V3m12 12h-6v6M9 9L3 3m12 12 6 6"/></svg> 返回工作台','back','preview-return')}`:oldHeader(c);
  function status(state,message){const host=document.querySelector('#cup-host'),el=document.querySelector('#cup-status');if(!host||!el)return;el.dataset.state=state;el.textContent=message;document.querySelectorAll('[data-action="cup-camera"]').forEach(b=>b.disabled=state==='fallback');const panel=host.querySelector('.cup-static');if(state==='fallback'){panel.innerHTML=staticCup(api.draft());panel.hidden=false;el.insertAdjacentHTML('beforeend',' '+V.btn('重试三维','cup-retry','text'));}else if(state==='error')el.insertAdjacentHTML('beforeend',' '+V.btn('重试贴图','cup-texture-retry','text'));else panel.hidden=true;}
  function bindGlaze(){
@@ -191,7 +206,7 @@
  }
  function mount(force=false){bindGlaze();const host=document.querySelector('#cup-host');if(!host)return;window.Cup3D.mount(host,api.draft(),camera=>{if(api.page()!=='cup')return;api.draft().cupCamera=camera;api.changed();},status,{force});}
  function refresh(){const d=api.draft();syncCoverage(d);if(window.Cup3D.diagnostics()?.mode==='static'){const el=document.querySelector('.cup-static');if(el)el.innerHTML=staticCup(d);}else window.Cup3D.update(d);}
- async function handle(action,el){if(!action.startsWith('cup-'))return false;if(action==='cup-picker'){openPicker();return true;}if(action==='cup-family'){if(v.families[el.dataset.id]){document.querySelector('.carrier-choices').outerHTML=catalogue(el.dataset.id);document.querySelector('.carrier-categories [aria-pressed=true]')?.focus({preventScroll:true});}return true;}if(action==='cup-pick'){api.close();if(el.dataset.id!==api.draft().canvas){fullPanel=false;M.switchVessel(api.draft(),el.dataset.id);api.changed();api.render();}document.querySelector('[data-action=cup-picker]')?.focus({preventScroll:true});return true;}if(action==='cup-coverage'){setCoverage(el.dataset.id);return true;}if(action==='cup-vessel'){fullPanel=false;M.switchVessel(api.draft(),el.dataset.id);api.changed();api.render();}if(action==='cup-flat'){api.draft().editorSurface='flat';api.changed();await api.toEditor();}if(action==='cup-camera')window.Cup3D.control(el.dataset.id);if(action==='cup-material-reset'){M.edit(api.draft(),{cupMaterial:v.material(api.draft().canvas)});api.changed();document.querySelector('#cup-material').value='white';redrawGlaze();refresh();}if(action==='cup-static'){api.draft().cupPreviewMode='static';api.changed();mount();}if(action==='cup-retry'){api.draft().cupPreviewMode='three';api.changed();mount(true);}if(action==='cup-texture-retry')refresh();return true;}
+ async function handle(action,el){if(!action.startsWith('cup-'))return false;if(action==='cup-print-focus'){focusPlacement();return true;}if(action==='cup-print-add'||action==='cup-print-remove'){changePrint(action==='cup-print-add');return true;}if(action==='cup-picker'){openPicker();return true;}if(action==='cup-family'){if(v.families[el.dataset.id]){document.querySelector('.carrier-choices').outerHTML=catalogue(el.dataset.id);document.querySelector('.carrier-categories [aria-pressed=true]')?.focus({preventScroll:true});}return true;}if(action==='cup-pick'){api.close();if(el.dataset.id!==api.draft().canvas){fullPanel=false;M.switchVessel(api.draft(),el.dataset.id);api.changed();api.render();}document.querySelector('[data-action=cup-picker]')?.focus({preventScroll:true});return true;}if(action==='cup-coverage'){setCoverage(el.dataset.id);return true;}if(action==='cup-vessel'){fullPanel=false;M.switchVessel(api.draft(),el.dataset.id);api.changed();api.render();}if(action==='cup-flat'){api.draft().editorSurface='flat';api.changed();await api.toEditor();}if(action==='cup-camera')window.Cup3D.control(el.dataset.id);if(action==='cup-material-reset'){M.edit(api.draft(),{cupMaterial:v.material(api.draft().canvas)});api.changed();document.querySelector('#cup-material').value='white';redrawGlaze();refresh();}if(action==='cup-static'){api.draft().cupPreviewMode='static';api.changed();mount();}if(action==='cup-retry'){api.draft().cupPreviewMode='three';api.changed();mount(true);}if(action==='cup-texture-retry')refresh();return true;}
 
  document.addEventListener('input',e=>{if(!api||api.page()!=='cup'||!e.target.dataset.cupField)return;const d=api.draft(),key=e.target.dataset.cupField;const preview={...d,vesselPlacement:{...d.vesselPlacement,[key]:Number(e.target.value)}};const out=document.querySelector(`[data-cup-output="${key}"]`);if(out)out.textContent=e.target.value;if(window.Cup3D.diagnostics()?.mode==='static')document.querySelector('.cup-static').innerHTML=staticCup(preview);else window.Cup3D.update(preview);});
  document.addEventListener('change',e=>{if(!api)return;
@@ -204,9 +219,9 @@
   else api.render();return;
  }
  if(e.target.matches('[data-print-zone]')){
-  const d=api.draft();if(!d||v.position(d.canvas,d.vesselPlacement).id===e.target.value)return;
-  M.edit(d,v.positionPatch(d,e.target.value));api.changed();api.render();return;
+  const d=api.draft();if(!d)return;if(v.position(d.canvas,d.vesselPlacement).id===e.target.value){focusPlacement();return;}
+  M.edit(d,v.positionPatch(d,e.target.value));if(!v.hasPrint(d.vesselPlacement))window.EditorObject.rotate();fullPanel=false;window.Workbench?.closePanel();api.changed();api.render();focusPlacement();return;
  }
  if(api.page()!=='cup')return;const d=api.draft(),el=e.target;if(el.dataset.cupField){M.edit(d,{vesselPlacement:{...d.vesselPlacement,[el.dataset.cupField]:Number(el.value)}});}else if(el.id==='cup-motif'){if(el.value==='current')return;M.replace(d,el.value);}else if(el.id==='cup-ink')M.edit(d,{patternInk:el.value});else if(el.id==='cup-material')M.edit(d,{cupMaterial:{...v.material(d.canvas),color:el.value}});else return;if(el.id==='cup-material')redrawGlaze();const density=document.querySelector('[data-fill-count]');if(density)density.value=window.Vessels.fillCount(window.Vessels.region(d.canvas,d.vesselPlacement.zone),d.vesselPlacement.scale);api.changed();refresh();});
- window.CupView={vesselPicker,modelOrigin,init:ctx=>api=ctx,mount,handle,staticCup,zoneControl,densityControl,coverageBar,coverageControls,syncCoverage};
+ window.CupView={vesselPicker,modelOrigin,init:ctx=>api=ctx,mount,handle,staticCup,zoneControl,placementControls,focusPlacement,densityControl,coverageBar,coverageControls,syncCoverage};
 })();

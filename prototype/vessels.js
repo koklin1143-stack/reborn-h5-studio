@@ -78,12 +78,31 @@
  for(const type of Object.keys(data).filter(surface))positions[type]=Object.fromEntries(Object.entries(regions[type]).filter(([,r])=>r.mode==='fabric'||r.mode==='fabricBorder').map(([key,r])=>[key,{label:r.label,local:key,...(r.mode==='fabric'?{full:key+'Fill',fullLabel:key==='pocket'?'铺满前袋':'铺满此面'}:{arrangement:'沿边排布'})}]));
  function position(type,p){const entries=Object.entries(positions[type]||positions.cup),[id,item]=entries.find(([,a])=>[a.local,a.full,...(a.aliases||[])].includes(p?.zone))||entries[0];return {id,...item};}
  const primaryFill=(type,p)=>{const a=position(type,p);return a.full||a.local;};
+ const hasPrint=p=>p?.enabled!==false;
  function positionPatch(d,id){
   const target=positions[d.canvas]?.[id];if(!target)throw Error('该器型没有这个印花位置');
-  const p=d.vesselPlacement,filled=isFill(region(d.canvas,p.zone)),zone=filled&&target.full?target.full:target.local,patch=zonePatch(d,zone);
-  // Keep the chosen coverage when moving to a new face; previously edited faces keep their own settings.
-  if(filled&&target.full&&!p.zones?.[zone])for(const key of ['coverWidth','coverHeight','scale','rotation'])if(p[key]!=null)patch.vesselPlacement[key]=p[key];
+  const p=d.vesselPlacement;
+  if(surface(d.canvas)){
+   const visible=facePlacements(d.canvas,p),face=region(d.canvas,target.local).face,currentFace=region(d.canvas,p.zone).face;
+   const faces={...p.faces};
+   // Preserve what legacy records actually displayed, not a suppressed historical front/pocket.
+   for(const key of Object.keys(faces))if(!visible[key]&&p.zones?.[faces[key]]?.enabled!==false)delete faces[key];
+   const remembered=currentFace===face?p:visible[face]||p.zones?.[faces[face]];
+   const zone=remembered&&[target.local,target.full].includes(remembered.zone)?remembered.zone:target.local;
+   const patch=zonePatch({...d,vesselPlacement:{...p,faces,independentFaces:true}},zone);
+   patch.vesselPlacement.enabled=!!remembered&&hasPrint(remembered);
+   return patch;
+  }
+  const filled=isFill(region(d.canvas,p.zone)),zone=filled&&target.full?target.full:target.local,patch=zonePatch(d,zone);
+  patch.vesselPlacement.enabled=hasPrint(p);
   return patch;
+ }
+ function printPatch(d,enabled){
+  if(!enabled)return {vesselPlacement:{...d.vesselPlacement,enabled:false}};
+  const area=position(d.canvas,d.vesselPlacement),patch=zonePatch(d,area.local);
+  patch.vesselPlacement={...patch.vesselPlacement,...placement(d.canvas),zone:area.local,enabled:true};
+  delete patch.vesselPlacement.coverWidth;delete patch.vesselPlacement.coverHeight;
+  patch.cupCamera=regionCamera(d.canvas,patch.vesselPlacement);return patch;
  }
  const coveragePercent=value=>Number.isFinite(value)?Math.max(5,Math.min(100,value)):100;
  function fillWindow(r,p){
@@ -98,6 +117,7 @@
   const zone=mode==='local'||!area.full?localZone:mode==='custom'&&fill?p.zone:area.full;
   const patch=zone===p.zone?{vesselPlacement:{...p}}:zonePatch(d,zone);
   const next=patch.vesselPlacement;
+  next.enabled=hasPrint(p);
   if(mode==='full'){next.coverWidth=100;next.coverHeight=100;}
   if(mode==='custom'&&!fill&&next.coverWidth==null){next.coverWidth=55;next.coverHeight=70;}
   return patch;
@@ -133,15 +153,15 @@
   const {zones={},faces={},...current}=d.vesselPlacement;
   const placed={...placement(d.canvas),...zones[zone],zone};
   const currentFace=region(d.canvas,current.zone).face,nextFace=region(d.canvas,zone).face,nextFaces={...faces,[currentFace]:current.zone};
-  // Selecting the backpack's print position moves the motif; it must not copy it.
-  if(d.canvas==='backpack'){const active=['front','pocket'].includes(nextFace)?nextFace:currentFace;if(['front','pocket'].includes(active))delete nextFaces[active==='front'?'pocket':'front'];}
-  return {vesselPlacement:{...placed,zones:{...zones,[current.zone]:current},...(surface(d.canvas)?{faces:nextFaces}:{})},cupCamera:regionCamera(d.canvas,placed)};
+  // Legacy backpack records moved one print between front/pocket; explicit new faces can coexist.
+  if(d.canvas==='backpack'&&!d.vesselPlacement.independentFaces){const active=['front','pocket'].includes(nextFace)?nextFace:currentFace;if(['front','pocket'].includes(active))delete nextFaces[active==='front'?'pocket':'front'];}
+  return {vesselPlacement:{...placed,zones:{...zones,[current.zone]:current},...(surface(d.canvas)?{faces:nextFaces,independentFaces:!!d.vesselPlacement.independentFaces}:{})},cupCamera:regionCamera(d.canvas,placed)};
  }
- // Opposite fabric faces retain their layout. Backpack front/pocket are alternatives.
- function facePlacements(type,p){const result={};for(const [face,zone]of Object.entries(p.faces||{})){if(p.zones?.[zone]&&region(type,zone).face===face)result[face]=p.zones[zone];}result[region(type,p.zone).face]=p;if(type==='backpack'&&result.front&&result.pocket)delete result[region(type,p.zone).face==='pocket'?'front':'pocket'];return result;}
+ // Retain intentional face layouts; preserve front/pocket exclusivity only for legacy records.
+ function facePlacements(type,p){const result={};for(const [face,zone]of Object.entries(p.faces||{})){if(p.zones?.[zone]&&hasPrint(p.zones[zone])&&region(type,zone).face===face)result[face]=p.zones[zone];}const face=region(type,p.zone).face;if(hasPrint(p))result[face]=p;else delete result[face];if(type==='backpack'&&!p.independentFaces&&result.front&&result.pocket)delete result[face==='pocket'?'front':'pocket'];return result;}
  const placement=type=>({zone:surface(type)?'front':type==='cup'?'body':type==='basin'?'outer':'center',x:0,y:0,scale:100,rotation:0});
  function remember(d){d.vesselStates={...(d.vesselStates||{}),[d.canvas]:{placement:copy(d.vesselPlacement||placement(d.canvas)),camera:copy(d.cupCamera||get(d.canvas).camera),material:copy(d.cupMaterial||material(d.canvas))}};}
  function switchPatch(d,type){if(!available(type))throw Error('该物品已不再提供');const states=copy(d.vesselStates||{});states[d.canvas]={placement:copy(d.vesselPlacement||placement(d.canvas)),camera:copy(d.cupCamera||get(d.canvas).camera),material:copy(d.cupMaterial||material(d.canvas))};const target=states[type]||{placement:placement(type),camera:regionCamera(type,placement(type)),material:material(type)};return {canvas:type,vesselStates:states,vesselPlacement:copy(target.placement),cupCamera:copy(target.camera),cupMaterial:copy(target.material)};}
  function height(type,r){const points=get(type).inner;for(let i=1;i<points.length;i++){if(r<=points[i][0]){const [x,y]=points[i-1],[xx,yy]=points[i];return y+(yy-y)*(r-x)/(xx-x);}}return points.at(-1)[1];}
- return {data,get,available,families,surface,textile,materialShort,materialLabel,material,facePlacements,regions,region,positions,position,positionPatch,isFill,primaryFill,coveragePercent,fillWindow,coverPatch,fillCount,fillScale,fillBasis,fillAspect,regionCamera,zonePatch,glazeHex,placement,remember,switchPatch,height};
+ return {data,get,available,families,surface,textile,materialShort,materialLabel,material,facePlacements,regions,region,positions,position,positionPatch,hasPrint,printPatch,isFill,primaryFill,coveragePercent,fillWindow,coverPatch,fillCount,fillScale,fillBasis,fillAspect,regionCamera,zonePatch,glazeHex,placement,remember,switchPatch,height};
 });

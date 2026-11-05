@@ -64,13 +64,14 @@ export function bindEnamelInk(vessel){
  const grain=enamelGrain();
  const uniforms={
   enamelGrain:{value:grain},lining:{value:new T.Color('#f4f0e4')},
-  enamelInk:{value:null},inkReady:{value:0},zoneMode:{value:0},printRows:{value:new T.Vector2()},
+  enamelInk:{value:null},inkReady:{value:0},printEnabled:{value:1},zoneMode:{value:0},printRows:{value:new T.Vector2()},
   fillMetrics:{value:new T.Vector3()},fillWinding:{value:new T.Vector2()},fillWindow:{value:new T.Vector4()},
   limits:{value:new T.Vector4()},inkTransform:{value:new T.Vector4()},wallAspect:{value:1}
  };
  let region,heading,arcStart,arcLength;
  function setPlacement(p){
   region=V.region(type,p.zone);
+  uniforms.printEnabled.value=V.hasPrint(p)?1:0;
   if(V.isFill(region)){
    arcStart=distance[design.indexOf(region.rows[0])];
    arcLength=distance[design.indexOf(region.rows[1])]-arcStart;
@@ -90,7 +91,7 @@ export function bindEnamelInk(vessel){
   else uniforms.inkTransform.value.set(region.around?0:p.x*3/512,-p.y*3/512,p.rotation*Math.PI/180,p.scale/100);
  }
  function hitUV(hit){
-  if(!hit||hit.object!==body)return null;
+  if(!uniforms.printEnabled.value||!hit||hit.object!==body)return null;
   const face=hit.face,minRow=Math.min(design[face.a%rows],design[face.b%rows],design[face.c%rows]);
   if(minRow<region.rows[0]||minRow>=region.rows[1])return null;
   const {x,y,z}=body.worldToLocal(hit.point.clone()),r=Math.hypot(x,z),angle=Math.atan2(x,z);
@@ -114,7 +115,7 @@ export function bindEnamelInk(vessel){
   Object.assign(shader.uniforms,uniforms);
   shader.vertexShader='attribute float profileRow,profileArc,apertureLight; varying float skyLight; varying vec2 sheetCoord; varying float inkRow; varying vec3 inkPosition;\n'+shader.vertexShader;
   shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\ninkPosition=position; inkRow=profileRow; sheetCoord=vec2(uv.x,profileArc); skyLight=apertureLight;');
-  shader.fragmentShader='uniform sampler2D enamelInk,enamelGrain; uniform vec3 lining,fillMetrics; uniform vec2 fillWinding; varying float skyLight; varying vec2 sheetCoord; uniform float inkReady; uniform int zoneMode; uniform vec2 printRows; uniform vec4 limits,inkTransform,fillWindow; uniform float wallAspect; varying float inkRow; varying vec3 inkPosition;\n'+shader.fragmentShader;
+  shader.fragmentShader='uniform sampler2D enamelInk,enamelGrain; uniform vec3 lining,fillMetrics; uniform vec2 fillWinding; varying float skyLight; varying vec2 sheetCoord; uniform float inkReady,printEnabled; uniform int zoneMode; uniform vec2 printRows; uniform vec4 limits,inkTransform,fillWindow; uniform float wallAspect; varying float inkRow; varying vec3 inkPosition;\n'+shader.fragmentShader;
   shader.fragmentShader=shader.fragmentShader.replace('#include <color_fragment>',`
    #include <color_fragment>
    float radius=length(inkPosition.xz);
@@ -157,7 +158,7 @@ export function bindEnamelInk(vessel){
    vec2 enamelRG=texture2D(enamelGrain,vec2(inkPosition.x*.67+inkPosition.z*.43,inkPosition.y*.73-inkPosition.z*.52)).rg;
    ${type==='cup'?'diffuseColor.rgb=mix(diffuseColor.rgb,lining*vColor.rgb*(1.0-.36*smoothstep(.03,1.1,.98-inkPosition.y)),smoothstep(7.0,8.0,inkRow));':''}
    vec3 pigmentBase=pigment.rgb*mix(vec3(1.0),diffuseColor.rgb,0.055);
-   diffuseColor.rgb=mix(diffuseColor.rgb,pigmentBase,pigment.a*zoneMask*inside*inkReady*0.98);
+   diffuseColor.rgb=mix(diffuseColor.rgb,pigmentBase,pigment.a*zoneMask*inside*inkReady*printEnabled*0.98);
    diffuseColor.rgb*=1.0+0.011*(enamelRG.g-0.5);
 
   `);

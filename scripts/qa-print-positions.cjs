@@ -2,11 +2,11 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('n
 const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
 const cases={cup:['enamel',{body:'杯身正面',back:'杯身背面',whole:'杯身整圈',band:'杯口环带'}],plate:['enamel',{center:'盘面',rim:'盘沿',back:'盘背'}],bowl:['enamel',{center:'碗内',outer:'碗身外壁',rim:'碗口边缘'}],basin:['enamel',{center:'盆内',outer:'盆身外壁',rim:'盆口边缘'}],cushion:['textile',{front:'正面',back:'背面'}],pillow:['textile',{front:'正面',back:'背面'}],duvet:['textile',{front:'正面',back:'背面',border:'正面边缘'}],backpack:['bags',{front:'主包正面',pocket:'前袋',back:'背面'}],tote:['bags',{front:'正面',back:'背面'}],notebook:['daily',{front:'封面',back:'封底'}],phonecase:['daily',{front:'壳背'}]};
 (async()=>{const mode=process.env.QA_MODE||'local',b=await chromium.launch({channel:'msedge',...(mode==='live'?{proxy:{server:'http://127.0.0.1:7897'}}:{})});try{
- const p=await b.newPage({viewport:{width:390,height:844},isMobile:true,hasTouch:true}),errors=[],dir='work/qa/print-positions-v8';fs.mkdirSync(dir,{recursive:true});p.on('pageerror',e=>errors.push(e.message));
+ const p=await b.newPage({viewport:{width:390,height:844},isMobile:true,hasTouch:true}),errors=[],dir='work/qa/placement-v9';fs.mkdirSync(dir,{recursive:true});p.on('pageerror',e=>errors.push(e.message));
  p.on('console',m=>{if(/shader error|VALIDATE_STATUS false|INVALID_OPERATION/i.test(m.text()))errors.push(m.text());});
- const base=mode==='offline'?pathToFileURL(path.resolve('物之再生-H5-单文件.html')).href:mode==='live'?'https://koklin1143-stack.github.io/reborn-h5-studio/?v=20261106-print-positions-v8':process.env.QA_URL||'http://127.0.0.1:8879/index.html';
+ const base=mode==='offline'?pathToFileURL(path.resolve('物之再生-H5-单文件.html')).href:mode==='live'?'https://koklin1143-stack.github.io/reborn-h5-studio/?v=20261106-placement-v9':process.env.QA_URL||'http://127.0.0.1:8879/index.html';
  if(mode==='offline')await p.route(/^https?:/,r=>r.abort());else await p.route('**/favicon.ico',r=>r.fulfill({status:204}));
- await p.goto(base+'#mine');assert.equal(await p.locator('meta[name=reborn-release]').getAttribute('content'),'2026-11-06-print-positions-v8');await p.locator('.mine-example').first().waitFor();
+ await p.goto(base+'#mine');assert.equal(await p.locator('meta[name=reborn-release]').getAttribute('content'),'2026-11-06-placement-v9');await p.locator('.mine-example').first().waitFor();
  await p.evaluate(async()=>{const s=await LocalStore.load(),d=Studio.addDraft(s,'enamel-peony');Object.assign(d,{inputStage:true,editorFormat:'pattern-v1',editorSurface:'object'});await LocalStore.commit(s);});await p.goto(base+'#editor');await p.reload();
  const ready=()=>p.locator('#editor-object-status[data-state=ready]').waitFor({state:'attached'}),saved=()=>p.waitForFunction(()=>document.querySelector('#save-status')?.textContent==='已保存到本机');
  const zone=async expected=>{await ready();await p.waitForFunction(expected=>Cup3D.diagnostics()?.zone===expected,expected);};
@@ -20,6 +20,7 @@ const cases={cup:['enamel',{body:'杯身正面',back:'杯身背面',whole:'杯�
   else assert.deepEqual(await p.locator('[data-print-zone] option').evaluateAll(es=>Object.fromEntries(es.map(e=>[e.value,e.textContent]))),positions);
   for(const id of keys){
    if(keys.length>1)await p.locator('[data-print-zone]').selectOption(id);await ready();await assertPosition(id);
+   if(!(await p.evaluate(()=>Cup3D.diagnostics().printEnabled))){await p.locator('[data-action=cup-print-add]').click();await ready();}
    const full=p.locator('[data-action=cup-coverage][data-id=full]'),canFill=await full.count();
    if(canFill){
     const expected=['cup','bowl','basin'].includes(type)&&id!=='center'?'outerFill':['plate','bowl','basin'].includes(type)?'innerFill':id+'Fill';
@@ -33,8 +34,9 @@ const cases={cup:['enamel',{body:'杯身正面',back:'杯身背面',whole:'杯�
   console.log('PASS positions:',type);
  }
  await selectObject('cushion','textile');await p.locator('[data-print-zone]').selectOption('front');await p.locator('[data-action=cup-coverage][data-id=full]').click();await zone('frontFill');
- await p.locator('[data-print-zone]').selectOption('back');await zone('backFill');await assertPosition('back');
- await p.locator('[data-action=undo]').click();await zone('frontFill');await assertPosition('front');await p.locator('[data-action=redo]').click();await zone('backFill');
+ await p.locator('[data-print-zone]').selectOption('back');await zone('back');await assertPosition('back');
+ await p.locator('[data-action=undo]').click();await zone('frontFill');await assertPosition('front');await p.locator('[data-action=redo]').click();await zone('back');
+ await p.locator('[data-action=cup-coverage][data-id=full]').click();await zone('backFill');
  await p.locator('[data-action=cup-coverage][data-id=custom]').click();await zone('backFill');
  await p.locator('[data-cover-field=coverWidth]').evaluate(e=>{e.value='62';e.dispatchEvent(new Event('input',{bubbles:true}));e.dispatchEvent(new Event('change',{bubbles:true}));});await saved();await closePanel();await assertPosition('back');
  assert.deepEqual(await p.locator('[data-print-zone] option').allTextContents(),['正面','背面']);
