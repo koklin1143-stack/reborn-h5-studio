@@ -3,7 +3,7 @@
 - [x] Inspect real backpack and regular crew-neck T-shirt proportions.
 - [x] Rebuild backpack silhouette/pocket and garment cut/neck/sleeves with restrained drape.
 - [x] Inspect unprinted and printed front/side/back views; align static previews and thumbnails.
-- [ ] Validate placement, mobile/save/reopen and publish verified release.
+- [x] Validate placement, mobile/save/reopen and publish verified release (c6fb0f1, live carriers-v6).
 
 ---
 

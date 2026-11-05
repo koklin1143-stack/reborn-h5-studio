@@ -4,7 +4,7 @@
 - Visually inspected backpack front/quarter/both sides/back/top/pocket/full print and T-shirt front/side/back/full print.
 - Static shapes now follow the new silhouette. Carrier thumbnail URLs carry the release version to avoid showing cached old models.
 - Mobile browser and offline checks pass: all five families and 12 thumbnails at 320/390px, print positions, material colour, saved previews, resume and reload.
-- Ready to publish carriers-v6; live verification pending.
+- Published c6fb0f1. GitHub Pages carriers-v6 passed the live mobile workflow: all 12 thumbnails, category selection, printing, recolouring, saved renders, resume and reload.
 
 ## Carrier v6 silhouette work
 
