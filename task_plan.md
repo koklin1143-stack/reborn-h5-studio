@@ -4,7 +4,7 @@
 - [x] Reproduce the backpack screenshot; separate face selection from adding/removing print.
 - [x] Add per-face removal/undo, empty-state controls and focus the selected region when editing.
 - [x] Validate new/legacy drafts, all eleven carriers, actual pointer dragging, static rendering, save/reload and offline operation (171 regression tests).
-- [ ] Publish and verify the live placement-v9 release.
+- [x] Publish and verify the live placement-v9 release (27498fc; all eleven carriers and saved-work lifecycle passed on GitHub Pages).
 
 ---
 

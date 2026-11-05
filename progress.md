@@ -4,7 +4,8 @@
 - New surface regions stay blank until the user chooses 放上图案. Added print starts local; the current surface can be removed, undone and re-added. Other intentional face layouts and the original motif survive removal. Old hidden main/pocket history cannot unexpectedly revive during migration.
 - Selecting a position, entering placement mode and changing coverage focus the actual selected region. Added quiet region status, focus and add/remove controls, with 44px targets and a disabled placement action for empty surfaces.
 - Lint and 171 regression tests pass. Offline browser QA with HTTP blocked passes all eleven carriers and each physical region, add/remove/undo/redo, static preview removal, fullscreen, save/resume/reload and 320/390/430px bounds. Actual pocket pointer dragging passed after rotating to the back. Screenshots inspected at 390px and 320px. A density-control variable-shadowing error caught in the initial browser run was corrected before release.
-- Publishing verification pending; no physical-device test claimed.
+- Local position/coverage QA also passed across all eleven carriers and every position, including custom range, undo/redo, mobile/fullscreen and save/reload.
+- Published 27498fc / 2026-11-06-placement-v9. Live GitHub Pages passed real pocket dragging after orbit, explicit face adding/removal, no hidden-fill resurrection, all eleven carriers, static previews, mobile/fullscreen and saved-work reload. Live cleared-back screenshot inspected. No physical-device test claimed.
 
 ## Print position / coverage v8
 
