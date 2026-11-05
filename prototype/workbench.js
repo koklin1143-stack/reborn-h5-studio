@@ -34,7 +34,7 @@
   const part=colorTarget(d);
   const glaze=part==='glaze',duo=!glaze&&!part&&d.patternInk==='duotone';
   const roles=duo?['inkDark','inkLight'].map((id,i)=>V.btn(i?'浅色':'深色','wb-ink-role','text',`data-id="${id}" aria-pressed="${inkRole===id}"`)).join(''):'';
-  return colorTargets(d)+window.InkPicker.spectrumField()+`<div class="spectrum-actions">${roles}${V.btn(glaze?(window.Vessels.textile(d.canvas)?'恢复原布色':'恢复白釉'):'原色','wb-restore-color','text')}${V.btn('色板与数值','wb-ink-picker','text')}${glaze?'':V.btn('效果','wb-tool','text','data-id="effects-detail"')}</div>`;
+  return colorTargets(d)+window.InkPicker.spectrumField()+`<div class="spectrum-actions">${roles}${V.btn(glaze?(window.Vessels.surface(d.canvas)?'恢复原色':'恢复白釉'):'原色','wb-restore-color','text')}${V.btn('色板与数值','wb-ink-picker','text')}${glaze?'':V.btn('效果','wb-tool','text','data-id="effects-detail"')}</div>`;
  }
  function extraColors(d){
   const parts=d.imageId||d.spotPaint?[]:window.Art.inkParts[d.pattern]||[];

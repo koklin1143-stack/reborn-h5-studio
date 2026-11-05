@@ -1,3 +1,13 @@
+# Soft backpack + notebook, phone case and T-shirt · 2026-11-05
+
+- [x] Inspect geometry, ink routing, materials and persistence.
+- [x] Refine backpack cloth and realistic zipper hardware.
+- [x] Add three distinct objects, suitable print zones and materials.
+- [x] Update selector, thumbnails, static fallback; verify mobile, saved/reopened and offline.
+- [ ] Run regression, publish and verify live.
+
+---
+
 # Self-built bags after side-view review · 2026-11-05
 
 User rejected the imported tote handle connection and backpack print positions, and explicitly requested original modelling. This supersedes the imported-bag plan below.

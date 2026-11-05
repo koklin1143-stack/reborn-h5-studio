@@ -1,3 +1,16 @@
+## Carrier v5 validation
+
+- 161 regression tests passed; syntax and CSS/resource validation passed.
+- Inspected front/side/back/full-print captures for all new types; open phone camera and garment neck have raycast regression checks.
+- Backpack gusset corners now share endpoints; thin stamped zipper pull replaces torus.
+- Mobile browser checks passed 320/375/390/430 layouts, five categories and 12 thumbnails, rotation, material colour, local/full print, actual saved previews and resumed editing.
+- Offline file passed with HTTP blocked: all three new types recoloured, saved, resumed and reloaded.
+- No physical-phone test claimed. Publishing carriers-v5 next.
+
+## Carrier v5 implementation
+
+Added notebook, real camera-cutout phone case and draped T-shirt with separate front/back print placement. Refined backpack cloth and flat slotted zipper pulls. 161 tests pass. Initial renders exposed a backpack gusset corner gap and oversmoothed T-shirt seam paths; corrected shared gusset endpoints and densified garment seam paths, joining shoulders and side seams. Mobile/saving/offline checks follow.
+
 ## 2026-11-05 · Self-built bags v4
 
 - Followed user request to replace external bag models with original connected geometry.

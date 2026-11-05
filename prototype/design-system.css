@@ -840,3 +840,9 @@
 /* Portrait carriers must stay inside the saved-result frame. */
 .app .result-art{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr);overflow:hidden;padding:12px}
 .app .result-art>.saved-vessel-preview{min-width:0;min-height:0;max-width:100%;max-height:100%;object-fit:contain}
+
+/* More carrier families remain readable on small screens. */
+.carrier-categories{gap:16px;overflow-x:auto;scrollbar-width:none;justify-content:space-between}
+.carrier-categories::-webkit-scrollbar{display:none}
+.carrier-categories button{flex:0 0 auto;white-space:nowrap;padding-inline:0;min-height:44px}
+@media(max-width:360px){.carrier-categories{gap:12px}.carrier-categories button{font-size:12px}}

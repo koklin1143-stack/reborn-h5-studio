@@ -1,4 +1,5 @@
 import * as T from 'three';
+import {roundedShape} from './everyday-geometry.mjs';
 
 const v=(x,y,z)=>new T.Vector3(x,y,z),sq=x=>x*x;
 function panel(fn,side=1,cols=56,rows=64){
@@ -24,7 +25,7 @@ function strap(points,width,thickness,material){
 }
 
 export function createBag(type){
- const group=new T.Group(),surfaces=[],tints=[];group.name='studio-sewn-'+type+'-v4';
+ const group=new T.Group(),surfaces=[],tints=[];group.name='studio-sewn-'+type+'-v5';
  const threads=new Uint8Array(128*128*4);for(let y=0;y<128;y++)for(let x=0;x<128;x++){const at=(y*128+x)*4,height=128+Math.round(24*Math.sin(x*Math.PI/2)+24*Math.sin(y*Math.PI/2)*(Math.floor(x/4)%2?1:-1));threads[at]=threads[at+1]=threads[at+2]=height;threads[at+3]=255;}
  const weave=new T.DataTexture(threads,128,128);weave.wrapS=weave.wrapT=T.RepeatWrapping;weave.repeat.set(6,6);weave.generateMipmaps=true;weave.minFilter=T.LinearMipmapLinearFilter;weave.magFilter=T.LinearFilter;weave.needsUpdate=true;
  const glaze=new T.MeshPhysicalMaterial({color:'#f5f1e6',roughness:.94,metalness:0,sheen:.22,sheenRoughness:.9,sheenColor:'#ffffff',clearcoat:0,bumpMap:weave,bumpScale:.0035,side:T.DoubleSide,shadowSide:T.FrontSide});
@@ -32,16 +33,24 @@ export function createBag(type){
  const trim=tint(.88),thread=tint(.72),lining=tint(.72),webbing=tint(.84),zipTape=new T.MeshStandardMaterial({color:'#65655c',roughness:1}),metal=new T.MeshStandardMaterial({color:'#9c978b',metalness:.72,roughness:.4});
  const add=(mesh,name)=>{mesh.name=name;group.add(mesh);return mesh;};
  const face=(name,fn,w,h,side=1,local=[.5,.5,1,1])=>{const mesh=add(new T.Mesh(panel(fn,side),glaze.clone()),type+'-'+name);mesh.userData={fabricFace:name,fabricSize:[w,h],localPrintBox:local};surfaces.push(mesh);return mesh;};
- function join(front,back,open,material=glaze){
+ function bridge(front,back,edge,u,t,soft=0,open=false){
+  const a=edge===0?front(u,-1):edge===1?front(1,u):edge===2?front(-u,1):front(-1,-u),b=edge===0?back(u,-1):edge===1?back(1,u):edge===2?back(-u,1):back(-1,-u),q=a.lerp(b,(t+1)/2);
+  if(open&&edge!==0)q.x*=1-.07*Math.pow(((edge===1?u:-u)+1)/2,5)*(1-t*t);
+  if(soft){const bow=Math.sin((t+1)*Math.PI/2)*soft*Math.sqrt(Math.max(0,1-u*u));if(edge===1||edge===3)q.x+=(edge===1?1:-1)*bow;else q.y+=(edge===2?1:-1)*bow*.55;}
+  return q;
+ }
+ function join(front,back,open,material=glaze,soft=0){
   for(const edge of open?[0,1,3]:[0,1,2,3]){
-   const fn=(u,t)=>{const a=edge===0?front(u,-1):edge===1?front(1,u):edge===2?front(-u,1):front(-1,-u),b=edge===0?back(u,-1):edge===1?back(1,u):edge===2?back(-u,1):back(-1,-u);const q=a.lerp(b,(t+1)/2);
-    if(open&&edge!==0)q.x*=1-.07*Math.pow(((edge===1?u:-u)+1)/2,5)*(1-t*t);
-    return q;};add(new T.Mesh(panel(fn,1,56,12),material),type+'-joined-edge-'+edge);
+   const fn=(u,t)=>bridge(front,back,edge,u,t,soft,open);add(new T.Mesh(panel(fn,1,56,16),material),type+'-joined-edge-'+edge);
   }
  }
  function zip(points,name){
-  add(piping(points,.014,zipTape),name+'-tape');add(piping(points.map(p=>p.clone().add(v(0,0,.010))),.005,metal),name+'-teeth');
-  const at=points[Math.round(points.length*.78)],pull=add(new T.Mesh(new T.TorusGeometry(.026,.006,6,14),metal),name+'-pull');pull.scale.y=2.4;pull.position.copy(at).add(v(0,-.043,.028));
+  add(piping(points,.011,zipTape),name+'-tape');add(piping(points.map(p=>p.clone().add(v(0,0,.009))),.0035,metal),name+'-teeth');
+  const at=points[Math.round(points.length*.74)],hardware=new T.Group();hardware.name=name+'-hardware';hardware.position.copy(at).add(v(0,0,.021));group.add(hardware);
+  const slider=new T.Mesh(new T.BoxGeometry(.045,.036,.021),metal);slider.name=name+'-slider';hardware.add(slider);
+  // A thin stamped tab with a small slot, instead of a dangling key-ring torus.
+  const tab=roundedShape(-.023,-.116,.046,.106,.013);tab.holes.push(new T.Path(roundedShape(-.010,-.096,.020,.034,.006).getPoints(8)));
+  const pull=new T.Mesh(new T.ExtrudeGeometry(tab,{depth:.005,bevelEnabled:true,bevelSize:.002,bevelThickness:.002,bevelSegments:2,curveSegments:8}),metal);pull.name=name+'-flat-pull';pull.rotation.x=.11;pull.position.z=.016;hardware.add(pull);hardware.rotation.z=name==='main-zip'?-.18:.16;
  }
  if(type==='tote'){
   function cloth(u,t,side){
@@ -73,23 +82,26 @@ export function createBag(type){
  }
  if(type==='backpack'){
   function body(u,t,side){
-   const top=1.30-.48*Math.pow(Math.abs(u),2.7),bottom=-1.30+.11*Math.pow(Math.abs(u),8),y=bottom+(t+1)/2*(top-bottom),x=u*.96*(1-.035*Math.pow(Math.abs(t),8));
-   const edge=Math.pow(Math.abs(u),10)*(1-.9*Math.pow(Math.max(t,0),4))+.8*Math.pow(Math.abs(t),10),puff=(1-u*u)*(1-t*t);
-   const z=side===1?.44-.085*edge+.045*puff:-.36+.055*edge-.018*puff;
+   const top=1.29-.48*Math.pow(Math.abs(u),2.5)+.014*Math.sin(u*4),bottom=-1.29+.13*Math.pow(Math.abs(u),6);
+   const y=bottom+(t+1)/2*(top-bottom),x=u*(.925+.032*Math.sin(t*2.7)+.012*Math.sin(t*6+u))*(1-.055*Math.pow(Math.abs(t),8));
+   const edge=Math.pow(Math.abs(u),5)*(1-.75*Math.pow(Math.max(t,0),4))+.72*Math.pow(Math.abs(t),8),puff=Math.pow(Math.max(0,(1-u*u)*(1-t*t)),.65);
+   const lower=Math.exp(-sq((t+.78)*5)),shoulder=Math.exp(-sq((t-.65)*6));
+   const folds=.022*Math.sin(u*16+t*4)*(lower+shoulder*.4)*(1-u*u)+.012*Math.sin(t*17-u*4)*Math.pow(Math.abs(u),3)*(1-t*t);
+   const z=side===1?.40-.115*edge+.105*puff+folds:-.31+.08*edge-.034*puff+folds*.35;
    return v(x,y,z);
   }
   const front=(u,t)=>body(u,t,1),back=(u,t)=>body(u,t,-1);
-  face('front',front,1.92,2.6,1,[.5,.69,.87,.52]);face('back',back,1.92,2.6,-1,[.5,.5,.50,.78]);join(front,back,false);
-  for(const fn of [front,back])add(piping(rim(fn),.006,trim,true),'backpack-panel-seam');
-  const pf=(u,t)=>{const top=-.51-.035*Math.pow(Math.abs(u),6),bottom=-1.19+.055*Math.pow(Math.abs(u),8);return v(u*.81*(1-.03*Math.pow(Math.abs(t),8)),bottom+(t+1)/2*(top-bottom),.62-.05*(Math.pow(Math.abs(u),10)+Math.pow(Math.abs(t),10))+.023*(1-u*u)*(1-t*t));};
-  const pb=(u,t)=>{const q=pf(u,t);q.z=.39;return q;};
-  face('pocket',pf,1.62,.68,1,[.5,.43,.86,.70]);join(pf,pb,false);add(piping(rim(pf),.005,trim,true),'backpack-pocket-seam');
+  face('front',front,1.92,2.6,1,[.5,.69,.87,.52]);face('back',back,1.92,2.6,-1,[.5,.5,.50,.78]);join(front,back,false,glaze,.068);
+  for(const fn of [front,back])add(piping(rim(fn),.0035,trim,true),'backpack-panel-seam');
+  const pf=(u,t)=>{const top=-.52-.034*(1-u*u)+.009*Math.sin(u*4),bottom=-1.18+.065*Math.pow(Math.abs(u),6);return v(u*.78*(1-.055*Math.pow(Math.abs(t),6)),bottom+(t+1)/2*(top-bottom),.53-.085*(Math.pow(Math.abs(u),6)+Math.pow(Math.abs(t),6))+.070*Math.pow(Math.max(0,(1-u*u)*(1-t*t)),.6)+.012*Math.sin(u*13+t*3)*(1-u*u)*(1-t*t));};
+  const pb=(u,t)=>{const q=pf(u,t);q.z=.33;return q;};
+  face('pocket',pf,1.56,.66,1,[.5,.43,.86,.70]);join(pf,pb,false,glaze,.020);add(piping(rim(pf),.003,trim,true),'backpack-pocket-seam');
   zip(Array.from({length:57},(_,i)=>pf(i/28-1,.79).add(v(0,0,.006))),'pocket-zip');
-  const arch=[];for(let i=0;i<=20;i++){const p=front(-1,-.05+i/20*1.05);p.z=.08;arch.push(p);}for(let i=1;i<=56;i++){const p=front(i/28-1,1);p.z=.08;arch.push(p);}for(let i=1;i<=20;i++){const p=front(1,1-i/20*1.05);p.z=.08;arch.push(p);}zip(arch,'main-zip');
+  const arch=[];for(let i=0;i<=20;i++)arch.push(bridge(front,back,3,.05-i/20*1.05,-.2,.068).add(v(-.004,0,0)));for(let i=1;i<=56;i++)arch.push(bridge(front,back,2,1-i/28,-.2,.068).add(v(0,.004,0)));for(let i=1;i<=20;i++)arch.push(bridge(front,back,1,1-i/20*1.05,-.2,.068).add(v(.004,0,0)));zip(arch,'main-zip');
   for(const sign of [-1,1]){
    const top=back(sign*.44,.84),bottom=back(sign*.62,-.85);
    add(strap([top,v(sign*.53,.69,-.59),v(sign*.63,.10,-.78),v(sign*.65,-.56,-.70),bottom],.23,.055,webbing),'backpack-padded-shoulder-strap');
-   const adjuster=add(new T.Mesh(new T.TorusGeometry(.06,.009,5,16),metal),'backpack-strap-adjuster');adjuster.scale.x=1.55;adjuster.position.set(sign*.64,-.75,-.57);
+   const buckle=roundedShape(-.09,-.045,.18,.09,.012);buckle.holes.push(new T.Path(roundedShape(-.069,-.026,.138,.052,.006).getPoints(6)));const adjuster=add(new T.Mesh(new T.ExtrudeGeometry(buckle,{depth:.012,bevelEnabled:false,curveSegments:6}),metal),'backpack-strap-adjuster');adjuster.position.set(sign*.64,-.75,-.57);const bar=add(new T.Mesh(new T.BoxGeometry(.018,.06,.016),metal),'backpack-adjuster-bar');bar.position.copy(adjuster.position);
    add(strap([v(sign*.62,-.85,-.41),v(sign*.66,-1.05,-.46),v(sign*.64,-1.20,-.42)],.10,.018,webbing),'backpack-webbing-tail');
   }
   add(strap([v(-.24,1.17,-.10),v(-.20,1.43,-.12),v(0,1.52,-.13),v(.20,1.43,-.12),v(.24,1.17,-.10)],.095,.026,webbing),'backpack-sewn-carry-loop');

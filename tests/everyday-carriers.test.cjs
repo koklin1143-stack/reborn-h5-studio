@@ -1,7 +1,7 @@
 const test=require('node:test'),assert=require('node:assert/strict');
 const M=require('../prototype/foundation.js'),V=require('../prototype/vessels.js');
 const soft=['cushion','pillow','duvet','backpack','tote'];
-test('all nine carriers keep separate settings through undo and a saved work round trip',()=>{
+test('all carriers keep separate settings through undo and a saved work round trip',()=>{
  const s=M.blank(),d=M.addDraft(s,'enamel-peony'),source=d.sourceObjectId;
  for(const [i,type]of Object.keys(V.data).entries()){
   M.switchVessel(d,type);M.edit(d,{vesselPlacement:{...d.vesselPlacement,x:i+5,rotation:i*11},cupMaterial:{...V.material(type),color:'#445566'}});
@@ -9,8 +9,8 @@ test('all nine carriers keep separate settings through undo and a saved work rou
  for(const [i,type]of Object.keys(V.data).entries()){
   M.switchVessel(d,type);assert.equal(d.sourceObjectId,source);assert.equal(d.vesselPlacement.x,i+5);assert.equal(d.vesselPlacement.rotation,i*11);assert.equal(d.cupMaterial.color,'#445566');assert.equal(d.vesselId,'vessel:'+V.get(type).family+':'+type);
  }
- const w=M.complete(s,d.id,'生活里的花纹');const loaded=M.validate(JSON.parse(JSON.stringify(s)));assert.equal(loaded.works[0].canvas,'tote');assert.equal(loaded.works[0].vesselId,'vessel:bags:tote');
- const resumed=M.resumeWork(loaded,w.id);M.switchVessel(resumed,'pillow');M.undo(resumed);assert.equal(resumed.canvas,'tote');M.redo(resumed);assert.equal(resumed.canvas,'pillow');assert.equal(resumed.cupMaterial.finish,'matte');assert.equal(loaded.works[0].canvas,'tote');
+ const w=M.complete(s,d.id,'生活里的花纹');const loaded=M.validate(JSON.parse(JSON.stringify(s)));assert.equal(loaded.works[0].canvas,'tshirt');assert.equal(loaded.works[0].vesselId,'vessel:apparel:tshirt');
+ const resumed=M.resumeWork(loaded,w.id);M.switchVessel(resumed,'pillow');M.undo(resumed);assert.equal(resumed.canvas,'tshirt');M.redo(resumed);assert.equal(resumed.canvas,'pillow');assert.equal(resumed.cupMaterial.finish,'matte');assert.equal(loaded.works[0].canvas,'tshirt');
 });
 test('backpack position changes do not duplicate prints and preserve previous placement settings',()=>{
  const d=M.fresh();M.switchVessel(d,'backpack');

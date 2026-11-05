@@ -1,3 +1,11 @@
+## Carrier v5 completed geometry
+
+Notebook has separate printed covers, bound spine and untinted page block. Phone case is an open tray with a real camera aperture and separate raised lip; artwork uses exterior shell geometry so it cannot fill the camera hole. T-shirt has a neck aperture, rib collar, draped front/back cloth, joined shoulder/side seams and open hem/sleeves. Paper/plastic share surface-ink placement while fabric-only weave is disabled for them. Static fallback and standalone thumbnails cover all 12 carriers.
+
+## Carrier v5 diagnosis
+
+Backpack front and gussets are nearly flat; torus zipper pulls read as a key ring. Add controlled cloth curvature and flat slotted hardware. All non-enamel types previously counted as textile, so separate surface-ink routing from actual woven material before adding notebook and phone case. T-shirt is the first clothing form with front/back printing.
+
 ## Self-built bags · 2026-11-05, superseding imported models
 
 The user's side-view screenshots exposed the rotated imported tote handles' attachment problem. The imported backpack's restricted upper print UVs also looked unnatural, and merely switching positions produced duplicated artwork on the main panel and pocket. User explicitly requested self-built models.
