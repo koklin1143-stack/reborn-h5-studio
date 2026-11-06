@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="zh-CN"><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#ffffff"><meta name="reborn-release" content="2026-11-06-context-v11">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#ffffff"><meta name="reborn-release" content="2026-11-06-layout-v12">
 <meta name="description" content="物之再生 · 手机端工业文化共创。作品保存在本地，投稿与积分均为演示。"><title>物之再生 · 共创工作室</title>
 <style>
 :root{--ease:cubic-bezier(.2,.7,.2,1);font-synthesis:none}
@@ -995,15 +995,36 @@
 .app .print-zone,.app .glaze-shortcut,.app .fill-density{font-size:var(--label-size)}
 .app .print-zone select,.app .fill-density select{min-height:var(--touch)}
 /* Region selection stays beside the visible model. Printing is separate. */
-.app .object-zone-tools{position:static;display:flex;align-items:center;gap:8px;flex-shrink:0;margin:2px var(--gutter) 0;min-width:0}
-.app .print-zone{display:flex;flex:1;gap:2px;min-width:0}
-.app .print-zone>button{position:relative;flex:1;min-width:44px;min-height:44px;padding:0 5px;border:0;border-radius:0;background:none;color:var(--ui-secondary);font:400 12px var(--ui-font);white-space:nowrap;cursor:pointer}
-.app .print-zone>button[aria-pressed=true]{color:var(--ui-text);font-weight:600}
-.app .print-zone>button[aria-pressed=true]:after{content:'';position:absolute;left:20%;right:20%;bottom:4px;height:2px;background:currentColor}
-.app .object-zone-tools .glaze-shortcut{min-width:52px;justify-content:center;font-size:11px;padding:0 4px;border-left:1px solid var(--line)}
-.app .object-zone-tools .glaze-shortcut i{width:18px;height:18px}
-.app .cup-screen .object-zone-tools{margin-inline:0}
-.app .current-print{display:flex;align-items:center;gap:5px;min-height:44px;margin:0 auto 0 0;font-size:12px;cursor:pointer;white-space:nowrap}
+/* Two aligned rows keep the active surface next to its print settings. */
+.app .object-zone-tools {
+  position:static; display:flex; align-items:center; flex-shrink:0;
+  margin:4px var(--gutter) 0; gap:0; min-width:0;
+}
+.object-field-name {
+  flex:0 0 44px; width:44px; color:var(--ui-secondary);
+  font:500 13px/1.4 var(--ui-font);
+}
+.app .print-zone {
+  display:inline-flex; flex:0 1 auto; min-width:0; gap:0; position:relative; isolation:isolate;
+}
+.app .print-zone::before {
+  content:""; position:absolute; inset:4px 0; z-index:-1; border-radius:7px; background:#f0f0ec;
+}
+.app .print-zone>button {
+  position:relative; isolation:isolate; min-width:48px; min-height:44px; padding:0 12px;
+  border:0; background:none; color:var(--ui-secondary); font:400 13px var(--ui-font); cursor:pointer;
+}
+.app .print-zone>button[aria-pressed=true] { color:var(--ui-text); font-weight:600; }
+.app .print-zone>button[aria-pressed=true]::before {
+  content:""; position:absolute; inset:7px 3px; z-index:-1; border-radius:5px;
+  background:white; box-shadow:0 1px 3px #24221826,0 0 0 1px #24221810;
+}
+.app .print-zone>button:focus-visible { outline:2px solid currentColor; outline-offset:-3px; }
+.app .cup-screen .object-zone-tools { margin-inline:0; }
+.app .current-print {
+  display:inline-flex; align-items:center; min-height:44px; margin:0; gap:0;
+  flex-shrink:0; cursor:pointer; white-space:nowrap;
+}
 .app .current-print input{appearance:none;position:relative;box-sizing:border-box;width:28px;height:17px;min-height:0;margin:0;border:1px solid #aaa;background:#ddd;border-radius:10px;cursor:pointer}
 .app .current-print input:before{content:'';position:absolute;left:2px;top:2px;width:11px;height:11px;border-radius:50%;background:#fff;box-shadow:0 1px 2px #0003}
 .app .current-print input:checked{background:#282d28;border-color:#282d28}
@@ -1474,18 +1495,51 @@
 /* A single mobile connection form for search, voice and creation. */
 #ai-connect-form{display:grid;gap:16px}#ai-connect-form>p{margin:0;line-height:1.65}#ai-connect-form .check-row{margin:0;min-height:48px;align-items:center}#ai-connect-form .check-row small{display:block;color:var(--muted,#666);font-size:12px;line-height:1.6}#ai-connect-form input[type=checkbox]{width:20px;height:20px;flex-shrink:0}#ai-connect-form .field input{min-height:48px;font-size:16px}.ai-address summary{padding:10px 0;cursor:pointer}.ai-address .field{margin-top:8px}.ai-settings-row{margin:20px 0 8px}#search-connect{margin:12px 0}
 
-/* One bounded switch target makes object identity visibly actionable. */
-.carrier-picker{display:flex;align-items:center;gap:10px;flex-shrink:0;margin:4px var(--gutter) 0;padding:6px 12px 6px 6px;border:1px solid #deded8;border-radius:9px;background:#fafaf8;color:var(--ui-text);text-align:left;cursor:pointer}
-.carrier-picker>img{width:44px;height:44px;object-fit:contain;background:#f1f0ec;border-radius:4px}
-.carrier-current-name{min-width:0;display:grid;gap:1px}
-.carrier-current-name small{font:400 10px/1.5 var(--ui-font);color:var(--ui-caption)}
-.carrier-current-name strong{font:400 20px/1.3 var(--name-font)}
-.carrier-change{display:flex;align-items:center;gap:6px;margin-left:auto;padding-left:12px;color:var(--ui-text);font:400 12px/1.4 var(--ui-font);white-space:nowrap}
-.cup-screen .carrier-picker{margin-inline:0;width:100%}
-.carrier-picker:focus-visible{outline:2px solid #42483f;outline-offset:3px}
-.app .wb-easy .coverage-bar{margin-top:0;gap:4px}
-.app .wb-easy .coverage-bar .btn{font-size:12px;min-width:0;padding-inline:9px;border-color:transparent;border-radius:5px}
-.app .wb-easy .coverage-bar .btn[aria-pressed=true]{background:#eeefeb;box-shadow:none}
+/* The swatch applies to the whole object and sits beside its selector. */
+.carrier-heading {
+  display:flex; align-items:center; justify-content:space-between; flex:none; gap:12px;
+  margin:2px var(--gutter) 0; padding:4px 0 7px; border-bottom:1px solid var(--ui-line);
+}
+.carrier-picker {
+  display:inline-flex; align-items:center; min-height:48px; gap:11px; padding:0 8px 0 0;
+  border:0; background:transparent; color:var(--ui-text); text-align:left; cursor:pointer;
+}
+.carrier-picker>img { width:44px; height:44px; object-fit:contain; border-radius:7px; background:#f3f2ed; }
+.carrier-current-name { display:grid; gap:2px; }
+.carrier-current-name strong { font:500 20px/1.15 var(--name-font); }
+.carrier-change { display:inline-flex; align-items:center; gap:4px; color:var(--ui-secondary); font:400 12px/1.45 var(--ui-font); }
+.carrier-heading .glaze-shortcut {
+  display:inline-flex; align-items:center; justify-content:center; position:relative; isolation:isolate;
+  min-height:44px; min-width:60px; gap:6px; padding:0 11px; border:0; background:none;
+  color:var(--ui-text); font:500 13px var(--ui-font);
+}
+.carrier-heading .glaze-shortcut::before {
+  content:""; position:absolute; inset:6px 0; z-index:-1;
+  border:1px solid var(--ui-line); border-radius:18px; background:white;
+}
+.carrier-heading .glaze-shortcut i { width:16px; height:16px; border:1px solid #0003; border-radius:50%; }
+.cup-screen .carrier-heading { margin-inline:0; }
+.carrier-picker:focus-visible { outline:2px solid currentColor; outline-offset:2px; border-radius:6px; }
+.app .wb-easy .coverage-bar,.app .cup-screen .coverage-bar { gap:10px; margin-block:0 2px; }
+.app .wb-easy .coverage-bar { margin-inline:var(--gutter); }
+.coverage-modes { display:flex; align-items:center; }
+.app .coverage-bar .coverage-modes .btn {
+  display:inline-flex; align-items:center; justify-content:center; gap:5px; min-width:46px;
+  padding:0 6px; color:var(--ui-secondary); font:400 13px var(--ui-font);
+  border:0; background:none; box-shadow:none;
+}
+.app .coverage-modes .btn::before {
+  content:""; box-sizing:border-box; width:10px; height:10px; border:1px solid #97978e; border-radius:50%;
+}
+.app .coverage-bar .coverage-modes .btn[aria-pressed=true] { color:var(--ui-text); font-weight:600; }
+.app .coverage-modes .btn[aria-pressed=true]::before { border:3px solid #343831; }
+.app .coverage-bar>.btn[data-id=custom] {
+  display:flex; align-items:center; justify-content:flex-end; gap:3px; min-height:44px;
+  margin-left:auto; padding:0 2px; color:var(--ui-secondary); font:400 12px var(--ui-font);
+  background:transparent; box-shadow:none;
+}
+.app .coverage-bar>.btn[data-id=custom][aria-pressed=true] { color:var(--ui-text); font-weight:600; }
+.app .coverage-bar:has(input:not(:checked)) .coverage-fixed { opacity:.45; }
 .app dialog:has(.carrier-choices){background:#fff;backdrop-filter:none}
 .app dialog:has(.carrier-choices) .dialog-head{padding-block:16px 8px;background:#fff;border-bottom:0}
 .app dialog:has(.carrier-choices) .dialog-head h2{font:400 23px/1.3 var(--name-font)}
@@ -1505,22 +1559,22 @@
 .carrier-choice-caption small{font:400 10px/1.4 var(--ui-font);color:var(--ui-caption)}
 .app .dialog-body .carrier-catalogue-note{margin:24px 0 0;font:400 11px/1.5 var(--ui-font);color:var(--ui-caption)}
 .carrier-change:focus-visible,.carrier-choice-grid button:focus-visible,.carrier-categories button:focus-visible{outline:2px solid #42483f;outline-offset:4px}
-.wb-easy:has(.inline-spectrum) .carrier-picker{display:none}
-@media(max-height:650px){.carrier-picker{padding-bottom:6px;margin-top:2px}.carrier-current-name strong{font-size:18px}.carrier-choice-art{max-height:140px}.carrier-categories{margin-bottom:14px}.carrier-choice-grid{gap:14px}.app .dialog-body .carrier-catalogue-note{margin-top:16px}}
+.wb-easy:has(.inline-spectrum) .carrier-heading{display:none}
+@media(max-height:650px){.carrier-heading{padding-block:0 3px}.carrier-current-name strong{font-size:18px}.carrier-choice-art{max-height:140px}.carrier-categories{margin-bottom:14px}.carrier-choice-grid{gap:14px}.app .dialog-body .carrier-catalogue-note{margin-top:16px}}
 /* Short phone viewports keep the object and completion action in view. */
 @media(max-height:650px){
  .app .wb-easy:has(.carrier-picker){min-height:0}
  .app .wb-easy:has(.carrier-picker) .editor-object-stage{min-height:0}
  .app .wb-easy:has(.carrier-picker) .editor-tools:has(.wb-style-rail){display:none}
- .app .wb-cover-open .carrier-picker{display:none}
+ .app .wb-cover-open .carrier-heading{display:none}
 }
 .app .wb-easy .editor-meta>div:last-child{flex-shrink:0}
 .app .wb-easy .editor-meta [data-action=versions]{min-width:44px;white-space:nowrap}
 @media(max-width:360px){
  .app .wb-easy .wb-fullscreen{right:4px;padding-inline:4px;font-size:12px}
- .app .wb-easy .object-zone-tools{left:4px;gap:2px}
- .app .wb-easy .print-zone select{max-width:84px}
- .app .wb-easy .glaze-shortcut{padding-inline:3px;font-size:12px}
+ .app .print-zone>button{padding-inline:8px}
+ .app .wb-easy .coverage-bar{gap:6px}
+ .app .carrier-heading .glaze-shortcut{padding-inline:9px}
 }
 /* Portrait carriers must stay inside the saved-result frame. */
 .app .result-art{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr);overflow:hidden;padding:12px}
@@ -14617,8 +14671,11 @@ window.CarrierAssetFolder='prototype/media/carriers/';
  }
  function zoneControl(d){
   const area=v.position(d.canvas,d.vesselPlacement);
-  const short=d.canvas==='cup'?{front:'杯身',body:'杯身',back:'另一侧',whole:'整圈',band:'杯口'}:{};
-  return `<div class="print-zone" role="group" aria-label="选择印花部位" data-print-position="${area.id}">${Object.entries(v.positions[d.canvas]).map(([id,p])=>`<button type="button" data-action="cup-position-edit" data-id="${id}" aria-label="${p.label}" aria-pressed="${id===area.id}">${short[id]||p.label}</button>`).join('')}</div>`;
+  const short=d.canvas==='cup'?{body:'正面',back:'背面',whole:'整圈',band:'杯口'}:{};
+  const buttons=Object.entries(v.positions[d.canvas]).map(([id,p])=>
+   `<button type="button" data-action="cup-position-edit" data-id="${id}" aria-label="${p.label}" aria-pressed="${id===area.id}">${short[id]||p.label}</button>`
+  ).join('');
+  return `<div class="object-zone-tools"><span class="object-field-name">部位</span><div class="print-zone" role="group" aria-label="选择印花部位" data-print-position="${area.id}">${buttons}</div></div>`;
  }
  function selectPosition(id,fromModel=false){
   const d=api.draft();if(!v.positions[d.canvas]?.[id])return;
@@ -14637,9 +14694,15 @@ window.CarrierAssetFolder='prototype/media/carriers/';
  const v=window.Vessels;
  const carrierImage=id=>window.CarrierImageData?.[id]?'data:image/webp;base64,'+window.CarrierImageData[id]:window.CarrierAssetFolder+id+'.webp?v='+encodeURIComponent(document.querySelector('meta[name=reborn-release]')?.content||'');
  function modelOrigin(){return '器型示意';}
- function vesselPicker(d){
+ function vesselPicker(d,showMaterial=false){
   const item=v.get(d.canvas);
-  return `<button type="button" class="carrier-picker" data-action="cup-picker" aria-label="更换物品，当前${item.name}" aria-haspopup="dialog"><img src="${carrierImage(d.canvas)}" alt="" width="48" height="48"><span class="carrier-current-name"><small>当前物品 · ${v.families[item.family]}</small><strong>${item.name}</strong></span><span class="carrier-change">更换 ${V.icon('arrow',14)}</span></button>`;
+  const color=showMaterial?`<button type="button" class="glaze-shortcut" data-action="wb-glaze" aria-label="调整${v.materialLabel(d.canvas)}"><i style="background:${v.glazeHex(d.cupMaterial?.color)}"></i>${v.materialShort(d.canvas)}</button>`:'';
+  return `<div class="carrier-heading">
+   <button type="button" class="carrier-picker" data-action="cup-picker" aria-label="更换物品，当前${item.name}" aria-haspopup="dialog">
+    <img src="${carrierImage(d.canvas)}" alt="" width="44" height="44">
+    <span class="carrier-current-name"><strong>${item.name}</strong><span class="carrier-change">更换物品 ${V.icon('arrow',12)}</span></span>
+   </button>${color}
+  </div>`;
  }
  function catalogue(family){
   const d=api.draft(),items=Object.entries(v.data).filter(([id,item])=>v.available(id)&&item.family===family);
@@ -14651,8 +14714,15 @@ window.CarrierAssetFolder='prototype/media/carriers/';
  }
  function coverageBar(d,editing=false){
   const p=d.vesselPlacement,r=v.region(d.canvas,p.zone),area=v.position(d.canvas,p),on=v.hasPrint(p),fill=v.isFill(r),whole=fill&&v.coveragePercent(p.coverWidth)===100&&v.coveragePercent(p.coverHeight)===100;
-  const btn=(label,id,active)=>V.btn(label,'cup-coverage','text',`data-id="${id}" aria-pressed="${on&&active}" ${on?'':'disabled'}`);
-  return `<div class="coverage-bar" role="group" aria-label="${area.label}印花设置"><label class="current-print"><input type="checkbox" role="switch" data-position-print="${area.id}" aria-label="${area.label}印花" ${on?'checked':''}><span>印花</span></label>${area.full?btn('局部','local',!fill)+btn(area.fullLabel,'full',whole&&!editing):`<strong class="coverage-fixed">${area.arrangement||'局部印花'}</strong>`}${btn('调范围','custom',area.full?fill&&(editing||!whole):editing)}</div>`;
+  const btn=(label,id,active,name)=>V.btn(label,'cup-coverage','text',`data-id="${id}" aria-label="${name}" aria-pressed="${on&&active}" ${on?'':'disabled'}`);
+  const modes=area.full
+   ? btn('局部','local',!fill,'局部印花')+btn('满铺','full',whole&&!editing,area.fullLabel)
+   : `<span class="coverage-fixed">${area.arrangement||'局部印花'}</span>`;
+  return `<div class="coverage-bar" role="group" aria-label="${area.label}印花设置">
+   <label class="current-print"><span class="object-field-name">印花</span><input type="checkbox" role="switch" data-position-print="${area.id}" aria-label="${area.label}印花" ${on?'checked':''}></label>
+   <div class="coverage-modes">${modes}</div>
+   ${btn('调整范围 '+V.icon('arrow',12),'custom',area.full?fill&&(editing||!whole):editing,'调整印花范围')}
+  </div>`;
  }
  function coverageControls(d){
   if(!v.hasPrint(d.vesselPlacement))return '';
@@ -14801,7 +14871,7 @@ window.CarrierAssetFolder='prototype/media/carriers/';
   }
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 340 280" role="img" aria-label="${r.label}，静态示意"><defs><g id="${id}">${art}</g></defs>${transparent?'':ellipse(170,253,118,9,'#20232115')}${content}</svg>`;
  }
- V.cup=c=>{const d=c.d;if(!d)return V.empty('没有可预览的草稿','请先从共创开始。');const placement=d.vesselPlacement;return `<section class="cup-screen">${vesselPicker(d)}<div class="object-zone-tools">${zoneControl(d)}</div>${coverageBar(d,fullPanel)}<div id="cup-host" class="cup-host" data-mode="loading"><div class="cup-static" hidden>${staticCup(d)}</div></div>${fullPanel?coverageControls(d):''}<p id="cup-status" role="status">正在建立三维预览…</p><details class="cup-settings-fold"><summary>精细调整与预览设置</summary><div class="cup-settings"><div class="cup-controls" aria-label="辅助视角控制">${[['left','左转'],['right','右转'],['in','放大'],['out','缩小'],['reset','重置视角']].map(([id,label])=>V.btn(label,'cup-camera','secondary',`data-id="${id}"`)).join('')}</div><div class="vessel-source-row"><label class="cup-source-select">纹样<select id="cup-motif"><option value="current">当前编辑结果</option>${M.items.filter(i=>i.category==='enamel').map(i=>`<option value="${i.id}">${i.name} · 示意</option>`).join('')}</select></label><label class="cup-source-select">配色<select id="cup-ink">${[['original','原色'],['blue','搪瓷蓝'],['red','砖红'],['graphite','石墨']].map(([id,name])=>`<option value="${id}" ${d.patternInk===id?'selected':''}>${name}</option>`).join('')}</select></label></div>${densityControl(d)}<div class="range-grid">${range('摆放大小','scale',placement.scale,40,160)}${range('摆放旋转','rotation',placement.rotation,-180,180)}${range('水平位置','x',placement.x,-60,60)}${range('垂直位置','y',placement.y,-60,60)}</div><div class="cup-material-row"><div class="full-glaze"><h3>${v.materialLabel(d.canvas)}</h3>${window.InkPicker.spectrumField()}</div><label>预设<select id="cup-material"><option value="" disabled ${d.cupMaterial.color.startsWith('#')?'selected':''}>自选颜色</option><option value="white" ${d.cupMaterial.color==='white'?'selected':''}>${v.surface(d.canvas)?'本白':'白釉'}</option><option value="cream" ${d.cupMaterial.color==='cream'?'selected':''}>米色</option><option value="blue" ${d.cupMaterial.color==='blue'?'selected':''}>浅蓝</option></select></label>${V.btn('恢复材质','cup-material-reset','text')}${V.btn('静态预览','cup-static','text')}</div></div></details><div class="cup-origin">设计示意 · 非馆藏测绘</div><div class="cup-footer">${V.btn('返回二维编辑','cup-flat','secondary')}${V.btn('完成并保存','finish','primary')}</div></section>`;};
+ V.cup=c=>{const d=c.d;if(!d)return V.empty('没有可预览的草稿','请先从共创开始。');const placement=d.vesselPlacement;return `<section class="cup-screen">${vesselPicker(d)}${zoneControl(d)}${coverageBar(d,fullPanel)}<div id="cup-host" class="cup-host" data-mode="loading"><div class="cup-static" hidden>${staticCup(d)}</div></div>${fullPanel?coverageControls(d):''}<p id="cup-status" role="status">正在建立三维预览…</p><details class="cup-settings-fold"><summary>精细调整与预览设置</summary><div class="cup-settings"><div class="cup-controls" aria-label="辅助视角控制">${[['left','左转'],['right','右转'],['in','放大'],['out','缩小'],['reset','重置视角']].map(([id,label])=>V.btn(label,'cup-camera','secondary',`data-id="${id}"`)).join('')}</div><div class="vessel-source-row"><label class="cup-source-select">纹样<select id="cup-motif"><option value="current">当前编辑结果</option>${M.items.filter(i=>i.category==='enamel').map(i=>`<option value="${i.id}">${i.name} · 示意</option>`).join('')}</select></label><label class="cup-source-select">配色<select id="cup-ink">${[['original','原色'],['blue','搪瓷蓝'],['red','砖红'],['graphite','石墨']].map(([id,name])=>`<option value="${id}" ${d.patternInk===id?'selected':''}>${name}</option>`).join('')}</select></label></div>${densityControl(d)}<div class="range-grid">${range('摆放大小','scale',placement.scale,40,160)}${range('摆放旋转','rotation',placement.rotation,-180,180)}${range('水平位置','x',placement.x,-60,60)}${range('垂直位置','y',placement.y,-60,60)}</div><div class="cup-material-row"><div class="full-glaze"><h3>${v.materialLabel(d.canvas)}</h3>${window.InkPicker.spectrumField()}</div><label>预设<select id="cup-material"><option value="" disabled ${d.cupMaterial.color.startsWith('#')?'selected':''}>自选颜色</option><option value="white" ${d.cupMaterial.color==='white'?'selected':''}>${v.surface(d.canvas)?'本白':'白釉'}</option><option value="cream" ${d.cupMaterial.color==='cream'?'selected':''}>米色</option><option value="blue" ${d.cupMaterial.color==='blue'?'selected':''}>浅蓝</option></select></label>${V.btn('恢复材质','cup-material-reset','text')}${V.btn('静态预览','cup-static','text')}</div></div></details><div class="cup-origin">设计示意 · 非馆藏测绘</div><div class="cup-footer">${V.btn('返回二维编辑','cup-flat','secondary')}${V.btn('完成并保存','finish','primary')}</div></section>`;};
  V.header=c=>c.page==='cup'?`<div class="preview-heading"><strong>全屏预览</strong><span id="save-status" role="status">${V.esc(c.saveLabel)}</span></div>${V.btn('<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 9h6V3m12 12h-6v6M9 9L3 3m12 12 6 6"/></svg> 返回工作台','back','preview-return')}`:oldHeader(c);
  function status(state,message){const host=document.querySelector('#cup-host'),el=document.querySelector('#cup-status');if(!host||!el)return;el.dataset.state=state;el.textContent=message;document.querySelectorAll('[data-action="cup-camera"]').forEach(b=>b.disabled=state==='fallback');const panel=host.querySelector('.cup-static');if(state==='fallback'){panel.innerHTML=staticCup(api.draft());panel.hidden=false;el.insertAdjacentHTML('beforeend',' '+V.btn('重试三维','cup-retry','text'));}else if(state==='error')el.insertAdjacentHTML('beforeend',' '+V.btn('重试贴图','cup-texture-retry','text'));else panel.hidden=true;}
  function bindGlaze(){
@@ -14840,13 +14910,12 @@ window.CarrierAssetFolder='prototype/media/carriers/';
  const M=window.Studio,V=window.Views;let api,gesture='rotate';
  const enabled=d=>d?.category==='enamel'&&Boolean(window.Vessels.data[d.canvas])&&d.editorSurface==='object';
  const switcher=d=>d.category==='enamel'&&Boolean(window.Vessels.data[d.canvas])?`<div class="editor-surface-tabs ui-segment" aria-label="编辑视图">${[['flat','① 做纹样'],['object','② 试器物']].map(([id,label])=>V.btn(label,'editor-surface','text',`data-id="${id}" aria-pressed="${enabled(d)===(id==='object')}"`)).join('')}</div>`:'';
- function toolbar(d){return `<div class="object-zone-tools">${window.CupView.zoneControl(d)}<button class="glaze-shortcut" data-action="wb-glaze" aria-label="调整${window.Vessels.materialLabel(d.canvas)}"><i style="background:${window.Vessels.glazeHex(d.cupMaterial?.color)}"></i>${window.Vessels.materialShort(d.canvas)}</button></div>`;}
  function stage(d){return `<div class="editor-object-stage">${V.btn('全屏','cup-open','text wb-fullscreen')}<small class="object-origin">${window.CupView.modelOrigin(d)}</small><div id="editor-cup-host" class="editor-cup-host"><div class="editor-static" hidden></div></div><div class="object-gesture-bar ui-segment">${V.btn('转动器物','editor-gesture','text',`data-id="rotate" aria-pressed="${gesture==='rotate'}"`)}${V.btn('摆放图案','editor-gesture','text',`data-id="place" aria-pressed="${gesture==='place'}" ${window.Vessels.hasPrint(d.vesselPlacement)?'':'disabled'}`)}${window.CupView.densityControl(d,gesture!=='place')}</div><p id="editor-object-status" role="status">正在建立器物预览…</p></div>`;}
  function status(state,message,previewDraft){const el=document.querySelector('#editor-object-status');if(!el)return;el.dataset.state=state;el.textContent=state==='ready'?(!window.Vessels.hasPrint((previewDraft||api.draft()).vesselPlacement)?'打开印花开关，将纹样放到此部位':gesture==='place'?(window.Vessels.isFill(window.Vessels.region(api.draft().canvas,api.draft().vesselPlacement.zone))?'拖动移动 · 双指调疏密与方向':'单指移动 · 双指缩放 / 转动纹样'):'轻点选部位 · 拖动转动 · 双指缩放'):message;const density=document.querySelector('.fill-density');if(density)density.hidden=state!=='fallback'&&gesture!=='place';const panel=document.querySelector('.editor-static');if(panel){panel.hidden=state!=='fallback';if(state==='fallback')panel.innerHTML=window.CupView.staticCup(previewDraft||api.draft());}document.querySelectorAll('[data-action=editor-gesture],[data-action=editor-camera]').forEach(el=>el.disabled=state==='fallback'||(el.dataset.action==='editor-gesture'&&el.dataset.id==='place'&&!window.Vessels.hasPrint((previewDraft||api.draft()).vesselPlacement)));if(['error','fallback'].includes(state))el.insertAdjacentHTML('beforeend',V.btn('重试','editor-retry','text'));}
  function mount(kept,force=false){const placeholder=document.querySelector('#editor-cup-host');if(!placeholder)return;if(kept){placeholder.replaceWith(kept);preview(api.draft());return;}window.Cup3D.mount(placeholder,api.draft(),camera=>{api.draft().cupCamera=camera;api.changed();},status,{force,interaction:()=>gesture,onPosition:id=>window.CupView.selectPosition(id,true),onPlacement:(patch,commit)=>{const d=api.draft();if(commit){M.edit(d,patch);api.changed();api.history();}const next={...d,...patch};preview(next);for(const key of ['x','y','scale','rotation']){const el=document.querySelector(`[data-field=${key}]`),out=document.querySelector(`[data-output=${key}]`);if(el)el.value=next[key];if(out)out.textContent=next[key];}}});}
  function preview(d){if(!document.querySelector('#editor-cup-host'))return false;window.CupView.syncCoverage(d);const density=document.querySelector('[data-fill-count]');if(density)density.value=window.Vessels.fillCount(window.Vessels.region(d.canvas,d.vesselPlacement.zone),d.vesselPlacement.scale);const chip=document.querySelector('.glaze-shortcut i');if(chip)chip.style.background=window.Vessels.glazeHex(d.cupMaterial?.color);if(window.Cup3D.diagnostics()?.mode==='static'){status('fallback','静态器物示意 · 不可旋转',d);}else window.Cup3D.update(d);return true;}
  function handle(action,el){if(action==='editor-surface'){window.Workbench?.closePanel();api.draft().editorSurface=el.dataset.id;api.changed();api.render();return true;}if(action==='editor-gesture'){if(el.dataset.id==='place'){if(!window.Vessels.hasPrint(api.draft().vesselPlacement))return true;window.CupView.focusPlacement();}gesture=el.dataset.id;const density=document.querySelector('.fill-density');if(density)density.hidden=gesture!=='place';document.querySelectorAll('[data-action=editor-gesture]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.id===gesture));status('ready','');return true;}if(action==='editor-camera'){window.Cup3D.control(el.dataset.id);return true;}if(action==='editor-retry'){api.draft().cupPreviewMode='three';api.changed();mount(null,true);return true;}return false;}
- window.EditorObject={enabled,switcher,toolbar,stage,mount,preview,handle,place:()=>{gesture='place';},rotate:()=>{gesture='rotate';},init:ctx=>api=ctx};
+ window.EditorObject={enabled,switcher,stage,mount,preview,handle,place:()=>{gesture='place';},rotate:()=>{gesture='rotate';},init:ctx=>api=ctx};
 })();
 
 </script>
@@ -15734,7 +15803,7 @@ window.CarrierAssetFolder='prototype/media/carriers/';
   return `<div class="canvas-stage pattern-stage"><div id="work-preview">${P.svg(d,{surface:true})}</div><div class="wb-source-map" aria-label="取样位置">${P.samplePreview(d)}</div><span class="canvas-note">${hint}</span></div>`;
  }
  function objectStage(d){
-  return `${window.CupView.vesselPicker(d)}${window.EditorObject.toolbar(d)}${window.CupView.coverageBar(d,panel==='coverage')}${window.EditorObject.stage(d)}`;
+  return `${window.CupView.vesselPicker(d,true)}${window.CupView.zoneControl(d)}${window.CupView.coverageBar(d,panel==='coverage')}${window.EditorObject.stage(d)}`;
  }
  function tray(c){
   if(!panel)return styleRail(c.d);

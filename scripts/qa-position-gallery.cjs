@@ -1,10 +1,10 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),{pathToFileURL}=require('node:url');
 const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
 (async()=>{const mode=process.env.QA_MODE||'local',b=await chromium.launch({channel:'msedge',...(mode==='live'?{proxy:{server:'http://127.0.0.1:7897'}}:{})});try{
- const p=await b.newPage({viewport:{width:390,height:844},isMobile:true,hasTouch:true}),errors=[],dir='work/qa/context-v11';fs.mkdirSync(dir,{recursive:true});p.on('pageerror',e=>errors.push(e.message));p.on('console',m=>{if(/shader error|VALIDATE_STATUS false|INVALID_OPERATION/i.test(m.text()))errors.push(m.text());});
- const base=mode==='offline'?pathToFileURL(path.resolve('物之再生-H5-单文件.html')).href:mode==='live'?'https://koklin1143-stack.github.io/reborn-h5-studio/?v=20261106-context-v11':process.env.QA_URL||'http://127.0.0.1:8879/index.html';
+ const p=await b.newPage({viewport:{width:390,height:844},isMobile:true,hasTouch:true}),errors=[],dir='work/qa/layout-v12';fs.mkdirSync(dir,{recursive:true});p.on('pageerror',e=>errors.push(e.message));p.on('console',m=>{if(/shader error|VALIDATE_STATUS false|INVALID_OPERATION/i.test(m.text()))errors.push(m.text());});
+ const base=mode==='offline'?pathToFileURL(path.resolve('物之再生-H5-单文件.html')).href:mode==='live'?'https://koklin1143-stack.github.io/reborn-h5-studio/?v=20261106-layout-v12':process.env.QA_URL||'http://127.0.0.1:8879/index.html';
  if(mode==='offline')await p.route(/^https?:/,r=>r.abort());else await p.route('**/favicon.ico',r=>r.fulfill({status:204}));
- await p.goto(base+'#gallery');await p.locator('.gallery-card').first().waitFor();assert.equal(await p.locator('meta[name=reborn-release]').getAttribute('content'),'2026-11-06-context-v11');assert.equal(await p.locator('.gallery-card').count(),26);
+ await p.goto(base+'#gallery');await p.locator('.gallery-card').first().waitFor();assert.equal(await p.locator('meta[name=reborn-release]').getAttribute('content'),'2026-11-06-layout-v12');assert.equal(await p.locator('.gallery-card').count(),26);
  const editions=await p.evaluate(()=>GalleryEditions.map(e=>[e.id,e.snapshot.canvas,e.snapshot.vesselPlacement.zone,e.snapshot.imageId]));
  await p.locator('.gallery-form').selectOption('all');await p.locator('.gallery-card img').evaluateAll(es=>Promise.all(es.map(e=>e.decode())));await p.screenshot({path:dir+'/'+mode+'-gallery.png'});
  // A contact sheet uses actual published cover images, so all silhouettes and placements can be inspected together.

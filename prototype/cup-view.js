@@ -9,8 +9,11 @@
  }
  function zoneControl(d){
   const area=v.position(d.canvas,d.vesselPlacement);
-  const short=d.canvas==='cup'?{front:'杯身',body:'杯身',back:'另一侧',whole:'整圈',band:'杯口'}:{};
-  return `<div class="print-zone" role="group" aria-label="选择印花部位" data-print-position="${area.id}">${Object.entries(v.positions[d.canvas]).map(([id,p])=>`<button type="button" data-action="cup-position-edit" data-id="${id}" aria-label="${p.label}" aria-pressed="${id===area.id}">${short[id]||p.label}</button>`).join('')}</div>`;
+  const short=d.canvas==='cup'?{body:'正面',back:'背面',whole:'整圈',band:'杯口'}:{};
+  const buttons=Object.entries(v.positions[d.canvas]).map(([id,p])=>
+   `<button type="button" data-action="cup-position-edit" data-id="${id}" aria-label="${p.label}" aria-pressed="${id===area.id}">${short[id]||p.label}</button>`
+  ).join('');
+  return `<div class="object-zone-tools"><span class="object-field-name">部位</span><div class="print-zone" role="group" aria-label="选择印花部位" data-print-position="${area.id}">${buttons}</div></div>`;
  }
  function selectPosition(id,fromModel=false){
   const d=api.draft();if(!v.positions[d.canvas]?.[id])return;
@@ -29,9 +32,15 @@
  const v=window.Vessels;
  const carrierImage=id=>window.CarrierImageData?.[id]?'data:image/webp;base64,'+window.CarrierImageData[id]:window.CarrierAssetFolder+id+'.webp?v='+encodeURIComponent(document.querySelector('meta[name=reborn-release]')?.content||'');
  function modelOrigin(){return '器型示意';}
- function vesselPicker(d){
+ function vesselPicker(d,showMaterial=false){
   const item=v.get(d.canvas);
-  return `<button type="button" class="carrier-picker" data-action="cup-picker" aria-label="更换物品，当前${item.name}" aria-haspopup="dialog"><img src="${carrierImage(d.canvas)}" alt="" width="48" height="48"><span class="carrier-current-name"><small>当前物品 · ${v.families[item.family]}</small><strong>${item.name}</strong></span><span class="carrier-change">更换 ${V.icon('arrow',14)}</span></button>`;
+  const color=showMaterial?`<button type="button" class="glaze-shortcut" data-action="wb-glaze" aria-label="调整${v.materialLabel(d.canvas)}"><i style="background:${v.glazeHex(d.cupMaterial?.color)}"></i>${v.materialShort(d.canvas)}</button>`:'';
+  return `<div class="carrier-heading">
+   <button type="button" class="carrier-picker" data-action="cup-picker" aria-label="更换物品，当前${item.name}" aria-haspopup="dialog">
+    <img src="${carrierImage(d.canvas)}" alt="" width="44" height="44">
+    <span class="carrier-current-name"><strong>${item.name}</strong><span class="carrier-change">更换物品 ${V.icon('arrow',12)}</span></span>
+   </button>${color}
+  </div>`;
  }
  function catalogue(family){
   const d=api.draft(),items=Object.entries(v.data).filter(([id,item])=>v.available(id)&&item.family===family);
@@ -43,8 +52,15 @@
  }
  function coverageBar(d,editing=false){
   const p=d.vesselPlacement,r=v.region(d.canvas,p.zone),area=v.position(d.canvas,p),on=v.hasPrint(p),fill=v.isFill(r),whole=fill&&v.coveragePercent(p.coverWidth)===100&&v.coveragePercent(p.coverHeight)===100;
-  const btn=(label,id,active)=>V.btn(label,'cup-coverage','text',`data-id="${id}" aria-pressed="${on&&active}" ${on?'':'disabled'}`);
-  return `<div class="coverage-bar" role="group" aria-label="${area.label}印花设置"><label class="current-print"><input type="checkbox" role="switch" data-position-print="${area.id}" aria-label="${area.label}印花" ${on?'checked':''}><span>印花</span></label>${area.full?btn('局部','local',!fill)+btn(area.fullLabel,'full',whole&&!editing):`<strong class="coverage-fixed">${area.arrangement||'局部印花'}</strong>`}${btn('调范围','custom',area.full?fill&&(editing||!whole):editing)}</div>`;
+  const btn=(label,id,active,name)=>V.btn(label,'cup-coverage','text',`data-id="${id}" aria-label="${name}" aria-pressed="${on&&active}" ${on?'':'disabled'}`);
+  const modes=area.full
+   ? btn('局部','local',!fill,'局部印花')+btn('满铺','full',whole&&!editing,area.fullLabel)
+   : `<span class="coverage-fixed">${area.arrangement||'局部印花'}</span>`;
+  return `<div class="coverage-bar" role="group" aria-label="${area.label}印花设置">
+   <label class="current-print"><span class="object-field-name">印花</span><input type="checkbox" role="switch" data-position-print="${area.id}" aria-label="${area.label}印花" ${on?'checked':''}></label>
+   <div class="coverage-modes">${modes}</div>
+   ${btn('调整范围 '+V.icon('arrow',12),'custom',area.full?fill&&(editing||!whole):editing,'调整印花范围')}
+  </div>`;
  }
  function coverageControls(d){
   if(!v.hasPrint(d.vesselPlacement))return '';
@@ -193,7 +209,7 @@
   }
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 340 280" role="img" aria-label="${r.label}，静态示意"><defs><g id="${id}">${art}</g></defs>${transparent?'':ellipse(170,253,118,9,'#20232115')}${content}</svg>`;
  }
- V.cup=c=>{const d=c.d;if(!d)return V.empty('没有可预览的草稿','请先从共创开始。');const placement=d.vesselPlacement;return `<section class="cup-screen">${vesselPicker(d)}<div class="object-zone-tools">${zoneControl(d)}</div>${coverageBar(d,fullPanel)}<div id="cup-host" class="cup-host" data-mode="loading"><div class="cup-static" hidden>${staticCup(d)}</div></div>${fullPanel?coverageControls(d):''}<p id="cup-status" role="status">正在建立三维预览…</p><details class="cup-settings-fold"><summary>精细调整与预览设置</summary><div class="cup-settings"><div class="cup-controls" aria-label="辅助视角控制">${[['left','左转'],['right','右转'],['in','放大'],['out','缩小'],['reset','重置视角']].map(([id,label])=>V.btn(label,'cup-camera','secondary',`data-id="${id}"`)).join('')}</div><div class="vessel-source-row"><label class="cup-source-select">纹样<select id="cup-motif"><option value="current">当前编辑结果</option>${M.items.filter(i=>i.category==='enamel').map(i=>`<option value="${i.id}">${i.name} · 示意</option>`).join('')}</select></label><label class="cup-source-select">配色<select id="cup-ink">${[['original','原色'],['blue','搪瓷蓝'],['red','砖红'],['graphite','石墨']].map(([id,name])=>`<option value="${id}" ${d.patternInk===id?'selected':''}>${name}</option>`).join('')}</select></label></div>${densityControl(d)}<div class="range-grid">${range('摆放大小','scale',placement.scale,40,160)}${range('摆放旋转','rotation',placement.rotation,-180,180)}${range('水平位置','x',placement.x,-60,60)}${range('垂直位置','y',placement.y,-60,60)}</div><div class="cup-material-row"><div class="full-glaze"><h3>${v.materialLabel(d.canvas)}</h3>${window.InkPicker.spectrumField()}</div><label>预设<select id="cup-material"><option value="" disabled ${d.cupMaterial.color.startsWith('#')?'selected':''}>自选颜色</option><option value="white" ${d.cupMaterial.color==='white'?'selected':''}>${v.surface(d.canvas)?'本白':'白釉'}</option><option value="cream" ${d.cupMaterial.color==='cream'?'selected':''}>米色</option><option value="blue" ${d.cupMaterial.color==='blue'?'selected':''}>浅蓝</option></select></label>${V.btn('恢复材质','cup-material-reset','text')}${V.btn('静态预览','cup-static','text')}</div></div></details><div class="cup-origin">设计示意 · 非馆藏测绘</div><div class="cup-footer">${V.btn('返回二维编辑','cup-flat','secondary')}${V.btn('完成并保存','finish','primary')}</div></section>`;};
+ V.cup=c=>{const d=c.d;if(!d)return V.empty('没有可预览的草稿','请先从共创开始。');const placement=d.vesselPlacement;return `<section class="cup-screen">${vesselPicker(d)}${zoneControl(d)}${coverageBar(d,fullPanel)}<div id="cup-host" class="cup-host" data-mode="loading"><div class="cup-static" hidden>${staticCup(d)}</div></div>${fullPanel?coverageControls(d):''}<p id="cup-status" role="status">正在建立三维预览…</p><details class="cup-settings-fold"><summary>精细调整与预览设置</summary><div class="cup-settings"><div class="cup-controls" aria-label="辅助视角控制">${[['left','左转'],['right','右转'],['in','放大'],['out','缩小'],['reset','重置视角']].map(([id,label])=>V.btn(label,'cup-camera','secondary',`data-id="${id}"`)).join('')}</div><div class="vessel-source-row"><label class="cup-source-select">纹样<select id="cup-motif"><option value="current">当前编辑结果</option>${M.items.filter(i=>i.category==='enamel').map(i=>`<option value="${i.id}">${i.name} · 示意</option>`).join('')}</select></label><label class="cup-source-select">配色<select id="cup-ink">${[['original','原色'],['blue','搪瓷蓝'],['red','砖红'],['graphite','石墨']].map(([id,name])=>`<option value="${id}" ${d.patternInk===id?'selected':''}>${name}</option>`).join('')}</select></label></div>${densityControl(d)}<div class="range-grid">${range('摆放大小','scale',placement.scale,40,160)}${range('摆放旋转','rotation',placement.rotation,-180,180)}${range('水平位置','x',placement.x,-60,60)}${range('垂直位置','y',placement.y,-60,60)}</div><div class="cup-material-row"><div class="full-glaze"><h3>${v.materialLabel(d.canvas)}</h3>${window.InkPicker.spectrumField()}</div><label>预设<select id="cup-material"><option value="" disabled ${d.cupMaterial.color.startsWith('#')?'selected':''}>自选颜色</option><option value="white" ${d.cupMaterial.color==='white'?'selected':''}>${v.surface(d.canvas)?'本白':'白釉'}</option><option value="cream" ${d.cupMaterial.color==='cream'?'selected':''}>米色</option><option value="blue" ${d.cupMaterial.color==='blue'?'selected':''}>浅蓝</option></select></label>${V.btn('恢复材质','cup-material-reset','text')}${V.btn('静态预览','cup-static','text')}</div></div></details><div class="cup-origin">设计示意 · 非馆藏测绘</div><div class="cup-footer">${V.btn('返回二维编辑','cup-flat','secondary')}${V.btn('完成并保存','finish','primary')}</div></section>`;};
  V.header=c=>c.page==='cup'?`<div class="preview-heading"><strong>全屏预览</strong><span id="save-status" role="status">${V.esc(c.saveLabel)}</span></div>${V.btn('<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 9h6V3m12 12h-6v6M9 9L3 3m12 12 6 6"/></svg> 返回工作台','back','preview-return')}`:oldHeader(c);
  function status(state,message){const host=document.querySelector('#cup-host'),el=document.querySelector('#cup-status');if(!host||!el)return;el.dataset.state=state;el.textContent=message;document.querySelectorAll('[data-action="cup-camera"]').forEach(b=>b.disabled=state==='fallback');const panel=host.querySelector('.cup-static');if(state==='fallback'){panel.innerHTML=staticCup(api.draft());panel.hidden=false;el.insertAdjacentHTML('beforeend',' '+V.btn('重试三维','cup-retry','text'));}else if(state==='error')el.insertAdjacentHTML('beforeend',' '+V.btn('重试贴图','cup-texture-retry','text'));else panel.hidden=true;}
  function bindGlaze(){

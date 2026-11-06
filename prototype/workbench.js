@@ -91,7 +91,7 @@
   return `<div class="canvas-stage pattern-stage"><div id="work-preview">${P.svg(d,{surface:true})}</div><div class="wb-source-map" aria-label="取样位置">${P.samplePreview(d)}</div><span class="canvas-note">${hint}</span></div>`;
  }
  function objectStage(d){
-  return `${window.CupView.vesselPicker(d)}${window.EditorObject.toolbar(d)}${window.CupView.coverageBar(d,panel==='coverage')}${window.EditorObject.stage(d)}`;
+  return `${window.CupView.vesselPicker(d,true)}${window.CupView.zoneControl(d)}${window.CupView.coverageBar(d,panel==='coverage')}${window.EditorObject.stage(d)}`;
  }
  function tray(c){
   if(!panel)return styleRail(c.d);

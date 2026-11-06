@@ -328,15 +328,36 @@
 .app .print-zone,.app .glaze-shortcut,.app .fill-density{font-size:var(--label-size)}
 .app .print-zone select,.app .fill-density select{min-height:var(--touch)}
 /* Region selection stays beside the visible model. Printing is separate. */
-.app .object-zone-tools{position:static;display:flex;align-items:center;gap:8px;flex-shrink:0;margin:2px var(--gutter) 0;min-width:0}
-.app .print-zone{display:flex;flex:1;gap:2px;min-width:0}
-.app .print-zone>button{position:relative;flex:1;min-width:44px;min-height:44px;padding:0 5px;border:0;border-radius:0;background:none;color:var(--ui-secondary);font:400 12px var(--ui-font);white-space:nowrap;cursor:pointer}
-.app .print-zone>button[aria-pressed=true]{color:var(--ui-text);font-weight:600}
-.app .print-zone>button[aria-pressed=true]:after{content:'';position:absolute;left:20%;right:20%;bottom:4px;height:2px;background:currentColor}
-.app .object-zone-tools .glaze-shortcut{min-width:52px;justify-content:center;font-size:11px;padding:0 4px;border-left:1px solid var(--line)}
-.app .object-zone-tools .glaze-shortcut i{width:18px;height:18px}
-.app .cup-screen .object-zone-tools{margin-inline:0}
-.app .current-print{display:flex;align-items:center;gap:5px;min-height:44px;margin:0 auto 0 0;font-size:12px;cursor:pointer;white-space:nowrap}
+/* Two aligned rows keep the active surface next to its print settings. */
+.app .object-zone-tools {
+  position:static; display:flex; align-items:center; flex-shrink:0;
+  margin:4px var(--gutter) 0; gap:0; min-width:0;
+}
+.object-field-name {
+  flex:0 0 44px; width:44px; color:var(--ui-secondary);
+  font:500 13px/1.4 var(--ui-font);
+}
+.app .print-zone {
+  display:inline-flex; flex:0 1 auto; min-width:0; gap:0; position:relative; isolation:isolate;
+}
+.app .print-zone::before {
+  content:""; position:absolute; inset:4px 0; z-index:-1; border-radius:7px; background:#f0f0ec;
+}
+.app .print-zone>button {
+  position:relative; isolation:isolate; min-width:48px; min-height:44px; padding:0 12px;
+  border:0; background:none; color:var(--ui-secondary); font:400 13px var(--ui-font); cursor:pointer;
+}
+.app .print-zone>button[aria-pressed=true] { color:var(--ui-text); font-weight:600; }
+.app .print-zone>button[aria-pressed=true]::before {
+  content:""; position:absolute; inset:7px 3px; z-index:-1; border-radius:5px;
+  background:white; box-shadow:0 1px 3px #24221826,0 0 0 1px #24221810;
+}
+.app .print-zone>button:focus-visible { outline:2px solid currentColor; outline-offset:-3px; }
+.app .cup-screen .object-zone-tools { margin-inline:0; }
+.app .current-print {
+  display:inline-flex; align-items:center; min-height:44px; margin:0; gap:0;
+  flex-shrink:0; cursor:pointer; white-space:nowrap;
+}
 .app .current-print input{appearance:none;position:relative;box-sizing:border-box;width:28px;height:17px;min-height:0;margin:0;border:1px solid #aaa;background:#ddd;border-radius:10px;cursor:pointer}
 .app .current-print input:before{content:'';position:absolute;left:2px;top:2px;width:11px;height:11px;border-radius:50%;background:#fff;box-shadow:0 1px 2px #0003}
 .app .current-print input:checked{background:#282d28;border-color:#282d28}
@@ -807,18 +828,51 @@
 /* A single mobile connection form for search, voice and creation. */
 #ai-connect-form{display:grid;gap:16px}#ai-connect-form>p{margin:0;line-height:1.65}#ai-connect-form .check-row{margin:0;min-height:48px;align-items:center}#ai-connect-form .check-row small{display:block;color:var(--muted,#666);font-size:12px;line-height:1.6}#ai-connect-form input[type=checkbox]{width:20px;height:20px;flex-shrink:0}#ai-connect-form .field input{min-height:48px;font-size:16px}.ai-address summary{padding:10px 0;cursor:pointer}.ai-address .field{margin-top:8px}.ai-settings-row{margin:20px 0 8px}#search-connect{margin:12px 0}
 
-/* One bounded switch target makes object identity visibly actionable. */
-.carrier-picker{display:flex;align-items:center;gap:10px;flex-shrink:0;margin:4px var(--gutter) 0;padding:6px 12px 6px 6px;border:1px solid #deded8;border-radius:9px;background:#fafaf8;color:var(--ui-text);text-align:left;cursor:pointer}
-.carrier-picker>img{width:44px;height:44px;object-fit:contain;background:#f1f0ec;border-radius:4px}
-.carrier-current-name{min-width:0;display:grid;gap:1px}
-.carrier-current-name small{font:400 10px/1.5 var(--ui-font);color:var(--ui-caption)}
-.carrier-current-name strong{font:400 20px/1.3 var(--name-font)}
-.carrier-change{display:flex;align-items:center;gap:6px;margin-left:auto;padding-left:12px;color:var(--ui-text);font:400 12px/1.4 var(--ui-font);white-space:nowrap}
-.cup-screen .carrier-picker{margin-inline:0;width:100%}
-.carrier-picker:focus-visible{outline:2px solid #42483f;outline-offset:3px}
-.app .wb-easy .coverage-bar{margin-top:0;gap:4px}
-.app .wb-easy .coverage-bar .btn{font-size:12px;min-width:0;padding-inline:9px;border-color:transparent;border-radius:5px}
-.app .wb-easy .coverage-bar .btn[aria-pressed=true]{background:#eeefeb;box-shadow:none}
+/* The swatch applies to the whole object and sits beside its selector. */
+.carrier-heading {
+  display:flex; align-items:center; justify-content:space-between; flex:none; gap:12px;
+  margin:2px var(--gutter) 0; padding:4px 0 7px; border-bottom:1px solid var(--ui-line);
+}
+.carrier-picker {
+  display:inline-flex; align-items:center; min-height:48px; gap:11px; padding:0 8px 0 0;
+  border:0; background:transparent; color:var(--ui-text); text-align:left; cursor:pointer;
+}
+.carrier-picker>img { width:44px; height:44px; object-fit:contain; border-radius:7px; background:#f3f2ed; }
+.carrier-current-name { display:grid; gap:2px; }
+.carrier-current-name strong { font:500 20px/1.15 var(--name-font); }
+.carrier-change { display:inline-flex; align-items:center; gap:4px; color:var(--ui-secondary); font:400 12px/1.45 var(--ui-font); }
+.carrier-heading .glaze-shortcut {
+  display:inline-flex; align-items:center; justify-content:center; position:relative; isolation:isolate;
+  min-height:44px; min-width:60px; gap:6px; padding:0 11px; border:0; background:none;
+  color:var(--ui-text); font:500 13px var(--ui-font);
+}
+.carrier-heading .glaze-shortcut::before {
+  content:""; position:absolute; inset:6px 0; z-index:-1;
+  border:1px solid var(--ui-line); border-radius:18px; background:white;
+}
+.carrier-heading .glaze-shortcut i { width:16px; height:16px; border:1px solid #0003; border-radius:50%; }
+.cup-screen .carrier-heading { margin-inline:0; }
+.carrier-picker:focus-visible { outline:2px solid currentColor; outline-offset:2px; border-radius:6px; }
+.app .wb-easy .coverage-bar,.app .cup-screen .coverage-bar { gap:10px; margin-block:0 2px; }
+.app .wb-easy .coverage-bar { margin-inline:var(--gutter); }
+.coverage-modes { display:flex; align-items:center; }
+.app .coverage-bar .coverage-modes .btn {
+  display:inline-flex; align-items:center; justify-content:center; gap:5px; min-width:46px;
+  padding:0 6px; color:var(--ui-secondary); font:400 13px var(--ui-font);
+  border:0; background:none; box-shadow:none;
+}
+.app .coverage-modes .btn::before {
+  content:""; box-sizing:border-box; width:10px; height:10px; border:1px solid #97978e; border-radius:50%;
+}
+.app .coverage-bar .coverage-modes .btn[aria-pressed=true] { color:var(--ui-text); font-weight:600; }
+.app .coverage-modes .btn[aria-pressed=true]::before { border:3px solid #343831; }
+.app .coverage-bar>.btn[data-id=custom] {
+  display:flex; align-items:center; justify-content:flex-end; gap:3px; min-height:44px;
+  margin-left:auto; padding:0 2px; color:var(--ui-secondary); font:400 12px var(--ui-font);
+  background:transparent; box-shadow:none;
+}
+.app .coverage-bar>.btn[data-id=custom][aria-pressed=true] { color:var(--ui-text); font-weight:600; }
+.app .coverage-bar:has(input:not(:checked)) .coverage-fixed { opacity:.45; }
 .app dialog:has(.carrier-choices){background:#fff;backdrop-filter:none}
 .app dialog:has(.carrier-choices) .dialog-head{padding-block:16px 8px;background:#fff;border-bottom:0}
 .app dialog:has(.carrier-choices) .dialog-head h2{font:400 23px/1.3 var(--name-font)}
@@ -838,22 +892,22 @@
 .carrier-choice-caption small{font:400 10px/1.4 var(--ui-font);color:var(--ui-caption)}
 .app .dialog-body .carrier-catalogue-note{margin:24px 0 0;font:400 11px/1.5 var(--ui-font);color:var(--ui-caption)}
 .carrier-change:focus-visible,.carrier-choice-grid button:focus-visible,.carrier-categories button:focus-visible{outline:2px solid #42483f;outline-offset:4px}
-.wb-easy:has(.inline-spectrum) .carrier-picker{display:none}
-@media(max-height:650px){.carrier-picker{padding-bottom:6px;margin-top:2px}.carrier-current-name strong{font-size:18px}.carrier-choice-art{max-height:140px}.carrier-categories{margin-bottom:14px}.carrier-choice-grid{gap:14px}.app .dialog-body .carrier-catalogue-note{margin-top:16px}}
+.wb-easy:has(.inline-spectrum) .carrier-heading{display:none}
+@media(max-height:650px){.carrier-heading{padding-block:0 3px}.carrier-current-name strong{font-size:18px}.carrier-choice-art{max-height:140px}.carrier-categories{margin-bottom:14px}.carrier-choice-grid{gap:14px}.app .dialog-body .carrier-catalogue-note{margin-top:16px}}
 /* Short phone viewports keep the object and completion action in view. */
 @media(max-height:650px){
  .app .wb-easy:has(.carrier-picker){min-height:0}
  .app .wb-easy:has(.carrier-picker) .editor-object-stage{min-height:0}
  .app .wb-easy:has(.carrier-picker) .editor-tools:has(.wb-style-rail){display:none}
- .app .wb-cover-open .carrier-picker{display:none}
+ .app .wb-cover-open .carrier-heading{display:none}
 }
 .app .wb-easy .editor-meta>div:last-child{flex-shrink:0}
 .app .wb-easy .editor-meta [data-action=versions]{min-width:44px;white-space:nowrap}
 @media(max-width:360px){
  .app .wb-easy .wb-fullscreen{right:4px;padding-inline:4px;font-size:12px}
- .app .wb-easy .object-zone-tools{left:4px;gap:2px}
- .app .wb-easy .print-zone select{max-width:84px}
- .app .wb-easy .glaze-shortcut{padding-inline:3px;font-size:12px}
+ .app .print-zone>button{padding-inline:8px}
+ .app .wb-easy .coverage-bar{gap:6px}
+ .app .carrier-heading .glaze-shortcut{padding-inline:9px}
 }
 /* Portrait carriers must stay inside the saved-result frame. */
 .app .result-art{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr);overflow:hidden;padding:12px}
